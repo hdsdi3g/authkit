@@ -1,0 +1,62 @@
+{"properties": [
+  {
+    "name": "spring.main.log-startup-info",
+    "type": "java.lang.String",
+    "description": "SpringBoot startup info"
+  },
+  {
+    "name": "authkit.jwt_secret",
+    "type": "java.lang.String",
+    "description": "The base64 coded string for use as a JWT key"
+  },
+  {
+    "name": "authkit.cipher_secret",
+    "type": "java.lang.String",
+    "description": "The base64 coded string for use as a CipherService key. This key will use for all internal cipher needs, like secret database entries."
+  },
+  {
+    "name": "authkit.realm",
+    "type": "java.lang.String",
+    "description": "Login realm used for isolate same database users form different use cases (used like a domain)"
+  },
+  {
+    "name": "authkit.ldap",
+    "type": "tv.hd3g.authkit.mod.ExternalLDAP",
+    "description": "Authkit internal LDAP client"
+  },
+  {
+    "name": "authkit.ldaptest.simpleUserName",
+    "type": "java.lang.String",
+    "description": "Expected LDAP username, only for testing purpose in ExternalAuthClientServiceTest"
+  },
+  {
+    "name": "authkit.ldaptest.simpleUserPassword",
+    "type": "java.lang.String",
+    "description": "Expected LDAP password, only for testing purpose in ExternalAuthClientServiceTest"
+  },
+  {
+    "name": "authkit.ldaptest.simpleUserEmail",
+    "type": "java.lang.String",
+    "description": "Expected LDAP email, only for testing purpose in ExternalAuthClientServiceTest"
+  },
+  {
+    "name": "authkit.ldaptest.simpleUserLongName",
+    "type": "java.lang.String",
+    "description": "Expected LDAP user long name, only for testing purpose in ExternalAuthClientServiceTest"
+  },
+  {
+    "name": "authkit.ldaptest.domain",
+    "type": "java.lang.String",
+    "description": "Expected LDAP domain, only for testing purpose in ExternalAuthClientServiceTest"
+  },
+  {
+    "name": "authkit.ldaptest.simpleUserSecurGroup",
+    "type": "java.lang.String",
+    "description": "Expected LDAP security group, with simpleUser in it. Only for testing purpose in ExternalAuthClientServiceTest"
+  },
+  {
+    "name": "authkit.ldaptest.simpleUserDistrGroup",
+    "type": "java.lang.String",
+    "description": "Expected LDAP distribution group, with simpleUser in it. Only for testing purpose in ExternalAuthClientServiceTest"
+  }
+]}

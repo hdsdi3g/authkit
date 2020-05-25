@@ -1,0 +1,46 @@
+# Don't forget to update src/main/java/META-INF/additional-spring-configuration-metadata.json
+# after to adds non-official entries
+
+spring:
+    main:
+        banner-mode: "off"
+        log-startup-info: false
+    datasource:
+        url: jdbc:mysql://localhost:3306/authkit?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
+        username: local
+        password: ""
+    jpa:
+        properties:
+            hibernate:
+                dialect: "org.hibernate.dialect.MySQL8Dialect"
+                jdbc:
+                     time_zone: "UTC"
+        hibernate:
+            ddl-auto: validate
+        open-in-view: false
+server:
+    port: 0
+
+authkit:
+    realm: "internal-test"
+    # Please generate a secrets via
+    # java scripts/secret-generator.java
+    # Set only for internal tests, NEVER reuse this values!
+    jwt_secret: "35RNkvKcFpi4bGvbROjtVky+SLkffhHQ6YaeuKT4Kxb0Et5fNLOnuajRMmHvjUAjHatdmp8Z5KX/BNSBPadCkWqA52xS9gG8X5UHe19ypuwLRMwp5p2N4fWbeGdi6z1E9zIJxwz3LQHQictpGNQ3zKxlq0AtsVaqxrgxhbjRsik="
+    cipher_secret: "Q7JiIzt+aWKE+gl+g1pPQuZAfXG8JJ04Tn6KJbC04DY="
+#    ldap:
+#        servers:
+#            -
+#                type: AD
+#                host: localhost
+#                port: 389
+#                domain: home.hd3g.tv
+#                allowedCreate: [192.168.0.0/16, 172.16.0.0/24, 127.0.0.1/8]
+#    ldaptest:
+#        simpleUserName: authkit-simpleuser
+#        simpleUserPassword: test
+#        simpleUserEmail: authkit-simpleuser@domain.test
+#        simpleUserLongName: AuthKit Simple User
+#        domain: home.hd3g.tv
+#        simpleUserSecurGroup: AuthKit Security Group (home.hd3g.tv/authkit)
+#        simpleUserDistrGroup: AuthKit Distribution Group (home.hd3g.tv/authkit)

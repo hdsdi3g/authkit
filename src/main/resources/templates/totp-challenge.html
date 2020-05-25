@@ -1,0 +1,28 @@
+<!--/*
+ * This file is part of AuthKit.
+ * Licencied under LGPL v3.
+ * Copyright (C) hdsdi3g for hd3g.tv 2019
+*/--><!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title th:text="#{authkit.login.pageheader}"></title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+</head>
+<body>
+	<form th:action="@{/login-2auth}" method="post">
+		<div>
+			<label><span th:text="#{authkit.login.totpcode}"></span>
+			     <input type="tel" name="code" size="6" pattern="[0-9]{6}" maxlength="6" />
+            </label>
+		</div>
+        <div>
+            <label><span th:text="#{authkit.login.shorttime}"></span> <input type="checkbox" name="shorttime" th:checked="${shorttime}" /> </label>
+        </div>
+		<div>
+			<input type="hidden" name="securetoken" th:attr="value = ${formtoken}" />
+			<input type="submit" th:attr="value = #{authkit.login.signin}" />
+		</div>
+	</form>
+</body>
+</html>
