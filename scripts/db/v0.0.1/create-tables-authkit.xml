@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This file is part of AuthKit.
+Licencied under LGPL v3.
+Copyright (C) hdsdi3g for hd3g.tv 2019
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+	<changeSet id="create-tables-authkit" author="hdsdi3g">
+		<comment>Create tables user, audit, credential and totpbackupcode</comment>
+		<sql>
+			CREATE TABLE IF NOT EXISTS `user` (
+				`id` int(11) NOT NULL AUTO_INCREMENT,
+				`created` datetime NOT NULL,
+				`uuid` varchar(38) NOT NULL,
+				KEY `id_user_uuid` (`uuid`),
+				PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+			CREATE TABLE IF NOT EXISTS `groupp` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `created` datetime NOT NULL,
+				`name` varchar(80) NOT NULL,
+				`description` varchar(255) NULL,
+				PRIMARY KEY (`id`),
+                KEY `idx_groupp_name` (`name`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+            CREATE TABLE IF NOT EXISTS `usergroup` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `created` DATETIME NULL,
+                `user_id` INT NOT NULL,
+                `group_id` INT NOT NULL,
+                PRIMARY KEY (`id`),
+                INDEX `idx_usergroup_user_id` (`user_id` ASC),
+                INDEX `idx_usergroup_group_id` (`group_id` ASC),
+                CONSTRAINT `fk_usergroup_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
+                CONSTRAINT `fk_usergroup_group_id` FOREIGN KEY (`group_id`) REFERENCES `groupp` (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+            CREATE TABLE IF NOT EXISTS `role` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `created` datetime NOT NULL,
+                `name` varchar(80) NOT NULL,
+                `description` varchar(255) NULL,
+                `onlyforclient` varchar(140) NULL,
+                PRIMARY KEY (`id`),
+                KEY `idx_role_name` (`name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+            CREATE TABLE IF NOT EXISTS `grouprole` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `group_id` INT NOT NULL,
+                `role_id` INT NOT NULL,
+                PRIMARY KEY (`id`),
+                INDEX `idx_grouprole_group_id` (`group_id` ASC),
+                INDEX `idx_grouprole_role_id` (`role_id` ASC),
+                CONSTRAINT `fk_grouprole_group_id` FOREIGN KEY (`group_id`) REFERENCES `groupp` (`id`),
+                CONSTRAINT `fk_grouprole_role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+            CREATE TABLE IF NOT EXISTS `roleright` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `created` DATETIME NULL,
+                `name` varchar(80) NOT NULL,
+                `role_id` INT NOT NULL,
+                PRIMARY KEY (`id`),
+                INDEX `idx_roleright_right` (`role_id` ASC),
+                KEY `idx_roleright_name` (`name`),
+                CONSTRAINT `fk_roleright_role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+            CREATE TABLE IF NOT EXISTS `rolerightcontext` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `created` DATETIME NULL,
+                `name` varchar(80) NOT NULL,
+                `role_right_id` INT NOT NULL,
+                PRIMARY KEY (`id`),
+                INDEX `idx_rolerightcontext_role_right_id` (`role_right_id` ASC),
+                KEY `idx_rolerightcontext_name` (`name`),
+                CONSTRAINT `idx_rolerightcontext_role_right_id` FOREIGN KEY (`role_right_id`) REFERENCES `roleright` (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+			CREATE TABLE IF NOT EXISTS `audit` (
+				`id` int(11) NOT NULL AUTO_INCREMENT,
+				`created` datetime NOT NULL,
+				`appname` varchar(60) NOT NULL,
+                `eventref` varchar(38) DEFAULT NULL,
+				`clientsourcehost` varchar(128) NOT NULL,
+				`clientsourceport` int(5) NOT NULL,
+				`eventname` varchar(60) NOT NULL,
+				`requestprotocol` varchar(10) NOT NULL,
+				`requestmethod` varchar(10) NOT NULL,
+				`requestserverhost` varchar(128) NOT NULL,
+				`requestserverport` int(5) NOT NULL,
+				`requestpath` varchar(255) NOT NULL,
+				`requestlength` bigint(19) NOT NULL,
+				`requestcontenttype` varchar(255) NOT NULL,
+				`context` varchar(1024) DEFAULT NULL,
+				`useruuid` varchar(38) DEFAULT NULL,
+				`triggeredexception` varchar(255) DEFAULT NULL,
+				PRIMARY KEY (`id`),
+                KEY `idx_audit_eventref` (`eventref`),
+				KEY `idx_audit_useruuid` (`useruuid`),
+				KEY `idx_audit_clientsourcehost` (`clientsourcehost`),
+				KEY `idx_audit_eventname` (`eventname`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+			CREATE TABLE IF NOT EXISTS `credential` (
+				`id` int(11) NOT NULL AUTO_INCREMENT,
+				`created` datetime NOT NULL,
+				`user_id` int(11) NOT NULL,
+				`realm` varchar(80) NOT NULL,
+				`login` varchar(80) NOT NULL,
+				`passwordhash` blob NOT NULL,
+				`enabled` tinyint(4) NOT NULL,
+				`totpkey` blob DEFAULT NULL,
+                `ldapdomain` varchar(80) DEFAULT NULL,
+				`mustchangepassword` tinyint(4) NOT NULL,
+				`lastlogin` datetime DEFAULT NULL,
+                `logontrial` smallint(6) NOT NULL,
+				PRIMARY KEY (`id`),
+				KEY `idx_credential_user_id` (`user_id`),
+				KEY `idx_credential_realm` (`realm`),
+				KEY `idx_credential_login_realm` (`realm`,`login`),
+				CONSTRAINT `fk_credential_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+			CREATE TABLE IF NOT EXISTS `totpbackupcode` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+				`created` datetime NOT NULL,
+				`credential_id` int(11) NOT NULL,
+				`code` varchar(6) NOT NULL,
+				PRIMARY KEY (`id`),
+				KEY `fk_totpbackupcode_credential_id` (`credential_id`),
+				CONSTRAINT `fk_totpbackupcode_credential_id` FOREIGN KEY (`credential_id`) REFERENCES `credential` (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+            CREATE TABLE IF NOT EXISTS `userprivacy` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `created` datetime NOT NULL,
+                `user_uuid` varchar(38) NOT NULL,
+                `name` blob DEFAULT NULL,
+                `address` blob DEFAULT NULL,
+                `postalcode` varchar(16) DEFAULT NULL,
+                `country` varchar(3) DEFAULT NULL,
+                `lang` varchar(3) DEFAULT NULL,
+                `email` blob DEFAULT NULL,
+                `hashed_email` varchar(128) DEFAULT NULL,
+                `company` varchar(128) DEFAULT NULL,
+                `phone` blob DEFAULT NULL,
+                PRIMARY KEY (`id`),
+                KEY `idx_userprivacy_user_uuid` (`user_uuid`),
+                KEY `idx_userprivacy_hashed_email` (`hashed_email`),
+                KEY `idx_userprivacy_company` (`company`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+		</sql>
+		<rollback>
+			DROP TABLE IF EXISTS
+				`totpbackupcode`,
+				`credential`,
+				`audit`,
+				`user`,
+				`groupp`,
+				`usergroup`,
+				`role`,
+				`grouprole`,
+				`roleright`,
+				`rolerightcontext`,
+				`userprivacy`;
+		</rollback>
+	</changeSet>
+</databaseChangeLog>
