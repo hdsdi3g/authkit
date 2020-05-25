@@ -29,14 +29,15 @@ jobs:
       with:
         host port: 3306
         mysql version: '8.0'
+        mysql database: 'authkit'
         mysql user: 'local'
         mysql password: ${{ secrets.MYSQL_PASSWORD }}
     - name: Prepare conf file for Liquibase/setupdb
       run: >-
         mkdir -p config
-        echo "spring.datasource.url=jdbc:mysql://localhost:3306/authkit?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC" >> config/application.properties
-        echo "spring.datasource.username=local" >> config/application.properties
-        echo "spring.datasource.password=${{ secrets.MYSQL_PASSWORD }}" >> config/application.properties
+        && echo "spring.datasource.url=jdbc:mysql://localhost:3306/authkit?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true" >> config/application.properties
+        && echo "spring.datasource.username=local" >> config/application.properties
+        && echo "spring.datasource.password=${{ secrets.MYSQL_PASSWORD }}" >> config/application.properties
     - name: Update db with Liquibase
       run: mvn -B setupdb:deploy --file pom.xml
     - name: Remove Liquibase/setupdb conf file
@@ -45,7 +46,7 @@ jobs:
       run: >-
         mvn -B package verify sonar:sonar
         -Dlog4j.configurationFile=scripts/log4j2-tests.xml
-        -Dspring-boot.run.arguments=--spring.datasource.password="${{ secrets.MYSQL_PASSWORD }}"
+        -Dspring.datasource.password="${{ secrets.MYSQL_PASSWORD }}"
         -Dgpg.skip=true
         -Dmaven.javadoc.skip=true
         -Dmaven.source.skip=true
