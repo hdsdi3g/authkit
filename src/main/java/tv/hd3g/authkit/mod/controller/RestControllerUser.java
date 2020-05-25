@@ -17,6 +17,7 @@
 package tv.hd3g.authkit.mod.controller;
 
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static org.owasp.encoder.Encode.forJavaScript;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -95,7 +96,7 @@ public class RestControllerUser {
 	public ResponseEntity<CreatedUserDto> addUser(@RequestBody @Validated final AddUserDto addUser) {
 		final var uuid = authenticationService.addUser(addUser);
 
-		final var result = new CreatedUserDto(addUser.getUserLogin(), uuid, realm);
+		final var result = new CreatedUserDto(forJavaScript(addUser.getUserLogin()), uuid, realm);
 		createHateoasLinksForUser(uuid, result);
 		return new ResponseEntity<>(result, CREATED);
 	}

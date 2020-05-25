@@ -19,6 +19,7 @@ package tv.hd3g.authkit.mod.service;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.apache.commons.lang3.StringUtils.leftPad;
+import static org.owasp.encoder.Encode.forJavaScript;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -102,7 +103,7 @@ public class TOTPServiceImpl implements TOTPService {
 		Objects.requireNonNull(credential, "Can't found Credential for user " + user.getUuid());
 		final var login = credential.getLogin();
 		try {
-			return new URI("otpauth://totp/" + login + "@" + totpDomain + "?secret=" + secret);
+			return new URI("otpauth://totp/" + login + "@" + forJavaScript(totpDomain) + "?secret=" + secret);
 		} catch (final URISyntaxException e) {
 			throw new IllegalArgumentException("Invalid URI parameters", e);
 		}

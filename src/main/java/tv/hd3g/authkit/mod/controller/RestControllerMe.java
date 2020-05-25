@@ -17,6 +17,7 @@
 package tv.hd3g.authkit.mod.controller;
 
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static org.owasp.encoder.Encode.forJavaScript;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import static org.springframework.http.HttpStatus.OK;
@@ -141,7 +142,7 @@ public class RestControllerMe {
 		}
 
 		final var secret = totpService.makeSecret();
-		final var totpURI = totpService.makeURI(secret, credential.getUser(), request.getServerName());
+		final var totpURI = totpService.makeURI(secret, credential.getUser(), forJavaScript(request.getServerName()));
 		final var qrcode = totpService.makeQRCode(totpURI);
 		final var backupCodes = totpService.makeBackupCodes();
 		final String jwtControl = securedTokenService.setupTOTPGenerateToken(
