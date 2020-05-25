@@ -58,7 +58,7 @@ import tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause;
 import tv.hd3g.authkit.tool.DataGenerator;
 
 @SpringBootTest
-public class AuditReportServiceTest {
+class AuditReportServiceTest {
 
 	private static final Duration ONE_MINUTE = Duration.ofMinutes(1);
 
@@ -77,7 +77,7 @@ public class AuditReportServiceTest {
 	private String userUUID;
 
 	@BeforeEach
-	public void init() {
+	void init() {
 		MockitoAnnotations.initMocks(this);
 		userUUID = makeUUID();
 		clientsourcehost = DataGenerator.setupMock(request, true, userUUID);

@@ -67,7 +67,7 @@ import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException.ExpiredS
 import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException.InvalidFormatSecuredToken;
 
 @SpringBootTest
-public class SecuredTokenServiceTest {
+class SecuredTokenServiceTest {
 
 	@Autowired
 	private SecuredTokenService securedTokenService;
@@ -80,13 +80,13 @@ public class SecuredTokenServiceTest {
 	private String formName;
 
 	@BeforeEach
-	public void init() {
+	void init() {
 		formName = makeRandomThing();
 		secret = Base64.getDecoder().decode(base64secret.getBytes());
 	}
 
 	@Test
-	public void simpleFormGenerateToken() {
+	void simpleFormGenerateToken() {
 		final String token = securedTokenService.simpleFormGenerateToken(formName, thirtyDays);
 		assertNotNull(token);
 	}
@@ -95,14 +95,14 @@ public class SecuredTokenServiceTest {
 	class SimpleForm {
 
 		@Test
-		public void ok() throws NotAcceptableSecuredTokenException {
+		void ok() throws NotAcceptableSecuredTokenException {
 			final String token = securedTokenService.simpleFormGenerateToken(formName, thirtyDays);
 			securedTokenService.simpleFormCheckToken(formName, token);
 			Assertions.assertNotNull(token);
 		}
 
 		@Test
-		public void invalidEmpty() {
+		void invalidEmpty() {
 			final String token = "";
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.simpleFormCheckToken(formName, token);
@@ -110,14 +110,14 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidNull() {
+		void invalidNull() {
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.simpleFormCheckToken(formName, null);
 			});
 		}
 
 		@Test
-		public void invalidNotAJwt() {
+		void invalidNotAJwt() {
 			final var text = makeUserLogin();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.simpleFormCheckToken(formName, text + "," + "text" + "," + text);
@@ -125,7 +125,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void expired() {
+		void expired() {
 			final String token = securedTokenService.simpleFormGenerateToken(formName, ZERO);
 			assertThrows(ExpiredSecuredToken.class, () -> {
 				securedTokenService.simpleFormCheckToken(formName, token);
@@ -148,7 +148,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidUnsupported() {
+		void invalidUnsupported() {
 			final String token = generateJwtsWithoutSign().compact();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.simpleFormCheckToken(formName, token);
@@ -156,7 +156,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void broken() {
+		void broken() {
 			final byte[] secret = makeRandomBytes(256);
 			final String token = generateJwtsWithoutSign().signWith(Keys.hmacShaKeyFor(secret), HS512).compact();
 			assertThrows(BrokenSecuredToken.class, () -> {
@@ -165,7 +165,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_issuer() {
+		void badUse_issuer() {
 			final String token = generateJwts(jwt -> {
 				jwt.setIssuer(makeRandomThing());
 			});
@@ -175,7 +175,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_audience() {
+		void badUse_audience() {
 			final String token = generateJwts(jwt -> {
 				jwt.setAudience(makeRandomThing());
 			});
@@ -185,7 +185,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_tokentype() {
+		void badUse_tokentype() {
 			final String token = generateJwts(jwt -> {
 				jwt.setHeaderParam("typ", makeRandomThing());
 			});
@@ -195,7 +195,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_tokenformName() {
+		void badUse_tokenformName() {
 			final String token = generateJwts(jwt -> {
 				jwt.claim("formname", makeRandomThing());
 			});
@@ -206,7 +206,7 @@ public class SecuredTokenServiceTest {
 	}
 
 	@Test
-	public void loggedUserRightsGenerateToken() {
+	void loggedUserRightsGenerateToken() {
 		final String token = securedTokenService.loggedUserRightsGenerateToken(makeUUID(), thirtyDays, Set.of(), null);
 		assertNotNull(token);
 	}
@@ -218,13 +218,13 @@ public class SecuredTokenServiceTest {
 		private Set<String> tags;
 
 		@BeforeEach
-		public void init() {
+		void init() {
 			userUUID = makeUUID();
 			tags = makeRandomThings().collect(toUnmodifiableSet());
 		}
 
 		@Test
-		public void ok() throws NotAcceptableSecuredTokenException {
+		void ok() throws NotAcceptableSecuredTokenException {
 			final String token = securedTokenService.loggedUserRightsGenerateToken(userUUID, thirtyDays, tags, null);
 			final var result = securedTokenService.loggedUserRightsExtractToken(token);
 			assertEquals(userUUID, result.getUserUUID());
@@ -233,7 +233,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void checkHost() throws NotAcceptableSecuredTokenException {
+		void checkHost() throws NotAcceptableSecuredTokenException {
 			final var host = makeRandomIPv4().getHostAddress();
 			final String token = securedTokenService.loggedUserRightsGenerateToken(userUUID, thirtyDays, tags, host);
 			final var result = securedTokenService.loggedUserRightsExtractToken(token);
@@ -243,7 +243,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidEmpty() {
+		void invalidEmpty() {
 			final String token = "";
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.loggedUserRightsExtractToken(token);
@@ -251,14 +251,14 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidNull() {
+		void invalidNull() {
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.loggedUserRightsExtractToken(null);
 			});
 		}
 
 		@Test
-		public void invalidNotAJwt() {
+		void invalidNotAJwt() {
 			final var text = makeUserLogin();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.loggedUserRightsExtractToken(text + "," + "text" + "," + text);
@@ -266,7 +266,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void expired() {
+		void expired() {
 			final String token = securedTokenService.loggedUserRightsGenerateToken(userUUID, ZERO, tags, null);
 			assertThrows(ExpiredSecuredToken.class, () -> {
 				securedTokenService.loggedUserRightsExtractToken(token);
@@ -290,7 +290,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidUnsupported() {
+		void invalidUnsupported() {
 			final String token = generateJwtsWithoutSign().compact();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.loggedUserRightsExtractToken(token);
@@ -298,7 +298,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void broken() {
+		void broken() {
 			final byte[] secret = makeRandomBytes(256);
 			final String token = generateJwtsWithoutSign().signWith(Keys.hmacShaKeyFor(secret), HS512).compact();
 			assertThrows(BrokenSecuredToken.class, () -> {
@@ -307,7 +307,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_issuer() {
+		void badUse_issuer() {
 			final String token = generateJwts(jwt -> {
 				jwt.setIssuer(makeRandomThing());
 			});
@@ -317,7 +317,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_audience() {
+		void badUse_audience() {
 			final String token = generateJwts(jwt -> {
 				jwt.setAudience(makeRandomThing());
 			});
@@ -327,7 +327,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_tokentype() {
+		void badUse_tokentype() {
 			final String token = generateJwts(jwt -> {
 				jwt.setHeaderParam("typ", makeRandomThing());
 			});
@@ -337,7 +337,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_tokenTags() {
+		void badUse_tokenTags() {
 			final String token = generateJwts(jwt -> {
 				jwt.claim("tags", makeRandomThing());
 			});
@@ -348,7 +348,7 @@ public class SecuredTokenServiceTest {
 	}
 
 	@Test
-	public void securedRedirectRequestGenerateToken() {
+	void securedRedirectRequestGenerateToken() {
 		final String token = securedTokenService.securedRedirectRequestGenerateToken(
 		        makeUUID(), thirtyDays, makeRandomThing());
 		assertNotNull(token);
@@ -360,12 +360,12 @@ public class SecuredTokenServiceTest {
 		private String target;
 
 		@BeforeEach
-		public void init() {
+		void init() {
 			target = makeRandomThing();
 		}
 
 		@Test
-		public void ok() throws NotAcceptableSecuredTokenException {
+		void ok() throws NotAcceptableSecuredTokenException {
 			final var uuid = makeUUID();
 			final String token = securedTokenService.securedRedirectRequestGenerateToken(
 			        uuid, thirtyDays, target);
@@ -374,21 +374,21 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidEmpty() {
+		void invalidEmpty() {
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.securedRedirectRequestExtractToken("", "");
 			});
 		}
 
 		@Test
-		public void invalidNull() {
+		void invalidNull() {
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.securedRedirectRequestExtractToken(null, null);
 			});
 		}
 
 		@Test
-		public void invalidNotAJwt() {
+		void invalidNotAJwt() {
 			final var text = makeRandomThing();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.securedRedirectRequestExtractToken(
@@ -397,7 +397,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void expired() {
+		void expired() {
 			final String token = securedTokenService.securedRedirectRequestGenerateToken(
 			        makeUUID(), ZERO, makeRandomThing());
 			assertThrows(ExpiredSecuredToken.class, () -> {
@@ -421,7 +421,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidUnsupported() {
+		void invalidUnsupported() {
 			final String token = generateJwtsWithoutSign().compact();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.securedRedirectRequestExtractToken(token, makeRandomString());
@@ -429,7 +429,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void broken() {
+		void broken() {
 			final byte[] secret = makeRandomBytes(256);
 			final String token = generateJwtsWithoutSign().signWith(Keys.hmacShaKeyFor(secret), HS512).compact();
 			assertThrows(BrokenSecuredToken.class, () -> {
@@ -438,7 +438,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_issuer() {
+		void badUse_issuer() {
 			final String token = generateJwts(jwt -> {
 				jwt.setIssuer(makeRandomThing());
 			});
@@ -448,7 +448,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_audience() {
+		void badUse_audience() {
 			final String token = generateJwts(jwt -> {
 				jwt.setAudience(makeRandomThing());
 			});
@@ -458,7 +458,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_tokentype() {
+		void badUse_tokentype() {
 			final String token = generateJwts(jwt -> {
 				jwt.setHeaderParam("typ", makeRandomThing());
 			});
@@ -468,7 +468,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_tokenTargetName() {
+		void badUse_tokenTargetName() {
 			final String token = securedTokenService.securedRedirectRequestGenerateToken(
 			        makeUUID(), thirtyDays, makeRandomString());
 			assertThrows(BadUseSecuredTokenInvalidIssuer.class, () -> {
@@ -478,7 +478,7 @@ public class SecuredTokenServiceTest {
 	}
 
 	@Test
-	public void userFormCheckToken() {
+	void userFormCheckToken() {
 		final String token = securedTokenService.userFormGenerateToken(makeRandomThing(), makeUUID(), thirtyDays);
 		assertNotNull(token);
 	}
@@ -487,7 +487,7 @@ public class SecuredTokenServiceTest {
 	class UserFormCheckToken {
 
 		@Test
-		public void ok() throws NotAcceptableSecuredTokenException {
+		void ok() throws NotAcceptableSecuredTokenException {
 			final var uuid = makeUUID();
 			final String token = securedTokenService.userFormGenerateToken(formName, uuid, thirtyDays);
 			final var result = securedTokenService.userFormExtractTokenUUID(formName, token);
@@ -495,7 +495,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidEmpty() {
+		void invalidEmpty() {
 			final String token = "";
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.userFormExtractTokenUUID(formName, token);
@@ -503,14 +503,14 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidNull() {
+		void invalidNull() {
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.userFormExtractTokenUUID(formName, null);
 			});
 		}
 
 		@Test
-		public void invalidNotAJwt() {
+		void invalidNotAJwt() {
 			final var text = makeRandomThing();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.userFormExtractTokenUUID(formName, text + "," + "text" + "," + text);
@@ -518,7 +518,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void expired() {
+		void expired() {
 			final var uuid = makeUUID();
 			final String token = securedTokenService.userFormGenerateToken(formName, uuid, ZERO);
 			assertThrows(ExpiredSecuredToken.class, () -> {
@@ -543,7 +543,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidUnsupported() {
+		void invalidUnsupported() {
 			final String token = generateJwtsWithoutSign().compact();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.userFormExtractTokenUUID(formName, token);
@@ -551,7 +551,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void broken() {
+		void broken() {
 			final byte[] secret = makeRandomBytes(256);
 			final String token = generateJwtsWithoutSign().signWith(Keys.hmacShaKeyFor(secret), HS512).compact();
 			assertThrows(BrokenSecuredToken.class, () -> {
@@ -560,7 +560,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_issuer() {
+		void badUse_issuer() {
 			final String token = generateJwts(jwt -> {
 				jwt.setIssuer(makeRandomThing());
 			});
@@ -570,7 +570,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_audience() {
+		void badUse_audience() {
 			final String token = generateJwts(jwt -> {
 				jwt.setAudience(makeRandomThing());
 			});
@@ -580,7 +580,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_tokentype() {
+		void badUse_tokentype() {
 			final String token = generateJwts(jwt -> {
 				jwt.setHeaderParam("typ", makeRandomThing());
 			});
@@ -590,7 +590,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_tokenformName() {
+		void badUse_tokenformName() {
 			final String token = generateJwts(jwt -> {
 				jwt.claim("formname", makeRandomThing());
 			});
@@ -608,14 +608,14 @@ public class SecuredTokenServiceTest {
 		private List<String> backupCodes;
 
 		@BeforeEach
-		public void init() {
+		void init() {
 			uuid = makeUUID();
 			totpSecret = makeRandomThing();
 			backupCodes = makeRandomThings().limit(6).collect(toUnmodifiableList());
 		}
 
 		@Test
-		public void ok() throws NotAcceptableSecuredTokenException {
+		void ok() throws NotAcceptableSecuredTokenException {
 			final String token = securedTokenService.setupTOTPGenerateToken(uuid, thirtyDays, totpSecret, backupCodes);
 			final var result = securedTokenService.setupTOTPExtractToken(token);
 			assertEquals(uuid, result.getUserUUID());
@@ -624,7 +624,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidEmpty() {
+		void invalidEmpty() {
 			final String token = "";
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.setupTOTPExtractToken(token);
@@ -632,14 +632,14 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidNull() {
+		void invalidNull() {
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.setupTOTPExtractToken(null);
 			});
 		}
 
 		@Test
-		public void invalidNotAJwt() {
+		void invalidNotAJwt() {
 			final var text = makeRandomThing();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.setupTOTPExtractToken(text + "," + "text" + "," + text);
@@ -647,7 +647,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void expired() {
+		void expired() {
 			final String token = securedTokenService.setupTOTPGenerateToken(uuid, ZERO, totpSecret, backupCodes);
 			assertThrows(ExpiredSecuredToken.class, () -> {
 				securedTokenService.setupTOTPExtractToken(token);
@@ -672,7 +672,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void invalidUnsupported() {
+		void invalidUnsupported() {
 			final String token = generateJwtsWithoutSign().compact();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
 				securedTokenService.setupTOTPExtractToken(token);
@@ -680,7 +680,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void broken() {
+		void broken() {
 			final byte[] secret = makeRandomBytes(256);
 			final String token = generateJwtsWithoutSign().signWith(Keys.hmacShaKeyFor(secret), HS512).compact();
 			assertThrows(BrokenSecuredToken.class, () -> {
@@ -689,7 +689,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_issuer() {
+		void badUse_issuer() {
 			final String token = generateJwts(jwt -> {
 				jwt.setIssuer(makeRandomThing());
 			});
@@ -699,7 +699,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_audience() {
+		void badUse_audience() {
 			final String token = generateJwts(jwt -> {
 				jwt.setAudience(makeRandomThing());
 			});
@@ -709,7 +709,7 @@ public class SecuredTokenServiceTest {
 		}
 
 		@Test
-		public void badUse_tokentype() {
+		void badUse_tokentype() {
 			final String token = generateJwts(jwt -> {
 				jwt.setHeaderParam("typ", makeRandomThing());
 			});

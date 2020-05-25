@@ -38,7 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import tv.hd3g.authkit.mod.entity.Totpbackupcode;
 
 @SpringBootTest
-public class UserDaoTest {
+class UserDaoTest {
 
 	@Autowired
 	private UserDao userDao;
@@ -50,7 +50,7 @@ public class UserDaoTest {
 	private TotpbackupcodeRepository totpbackupcodeRepository;
 
 	@Test
-	public void addUserCredential() throws Exception {
+	void addUserCredential() throws Exception {
 		final var userLogin = makeUserLogin();
 		final var cipherHashedPassword = makeRandomBytes(20);
 		final var uuid = userDao.addUserCredential(userLogin, cipherHashedPassword, realm);
@@ -58,7 +58,7 @@ public class UserDaoTest {
 	}
 
 	@Test
-	public void addLDAPUserCredential() throws Exception {
+	void addLDAPUserCredential() throws Exception {
 		final var userLogin = makeUserLogin();
 		final var ldapDomain = makeUserLogin();
 		final var uuid = userDao.addLDAPUserCredential(userLogin, ldapDomain, realm);
@@ -78,7 +78,7 @@ public class UserDaoTest {
 	}
 
 	@Test
-	public void deleteUser() throws Exception {
+	void deleteUser() throws Exception {
 		final var userLogin = makeUserLogin();
 		final var cipherHashedPassword = makeRandomBytes(20);
 		final var uuid = userDao.addUserCredential(userLogin, cipherHashedPassword, realm);
@@ -89,7 +89,7 @@ public class UserDaoTest {
 	}
 
 	@Test
-	public void deleteUser_withBackupCodes() throws Exception {
+	void deleteUser_withBackupCodes() throws Exception {
 		final var userLogin = makeUserLogin();
 		final var cipherHashedPassword = makeRandomBytes(20);
 		final var uuid = userDao.addUserCredential(userLogin, cipherHashedPassword, realm);
@@ -104,7 +104,7 @@ public class UserDaoTest {
 	}
 
 	@Test
-	public void getUserByUUID() throws Exception {
+	void getUserByUUID() throws Exception {
 		final var userLogin = makeUserLogin();
 		final var uuid = userDao.addUserCredential(userLogin, makeRandomBytes(20), realm);
 		final var user = userDao.getUserByUUID(uuid).get();
@@ -121,7 +121,7 @@ public class UserDaoTest {
 	}
 
 	@Test
-	public void getUserList() throws Exception {
+	void getUserList() throws Exception {
 		final Set<String> lastCreatedUUIDs = IntStream.range(0, 10)
 		        .mapToObj(i -> userDao.addUserCredential(makeUserLogin(), makeRandomBytes(20), realm))
 		        .map(UUID::toString)

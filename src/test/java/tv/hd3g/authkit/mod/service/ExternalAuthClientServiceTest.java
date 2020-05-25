@@ -38,7 +38,7 @@ import tv.hd3g.authkit.mod.exception.UserCantLoginException.BadPasswordUserCantL
 import tv.hd3g.authkit.tool.DataGenerator;
 
 @SpringBootTest
-public class ExternalAuthClientServiceTest {
+class ExternalAuthClientServiceTest {
 
 	@Autowired
 	private ExternalAuthClientService externalAuthService;

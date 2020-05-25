@@ -47,7 +47,7 @@ class GroupOrRoleDtoTest extends HashCodeEqualsTest {
 	}
 
 	@Test
-	public void getName() {
+	void getName() {
 		var groupOrRoleDto = new GroupOrRoleDto(name, description);
 		assertEquals(name, groupOrRoleDto.getName());
 
@@ -59,7 +59,7 @@ class GroupOrRoleDtoTest extends HashCodeEqualsTest {
 	}
 
 	@Test
-	public void getDescription() {
+	void getDescription() {
 		var groupOrRoleDto = new GroupOrRoleDto(name, description);
 		assertEquals(description, groupOrRoleDto.getDescription());
 

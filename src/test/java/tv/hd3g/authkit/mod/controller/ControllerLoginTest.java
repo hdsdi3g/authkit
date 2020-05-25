@@ -78,7 +78,7 @@ import tv.hd3g.authkit.tool.DataGenerator;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ControllerLoginTest {
+class ControllerLoginTest {
 
 	private static final MediaType TEXT_HTML_UTF8 = new MediaType("text", "html", UTF_8);
 
@@ -110,7 +110,7 @@ public class ControllerLoginTest {
 	private int timeStepSeconds;
 
 	@Test
-	public void login() throws Exception {
+	void login() throws Exception {
 		mvc.perform(get("/login")
 		        .accept(TEXT_HTML))
 		        .andExpect(statusOk)
@@ -122,7 +122,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_NothingSend() throws Exception {
+	void doLogin_NothingSend() throws Exception {
 		mvc.perform(post("/login")
 		        .accept(TEXT_HTML))
 		        .andExpect(statusBadRequest)
@@ -135,7 +135,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_InvalidUserPassword() throws Exception {
+	void doLogin_InvalidUserPassword() throws Exception {
 		final var validToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, thirtyDays);
 		mvc.perform(post("/login").contentType(APPLICATION_FORM_URLENCODED)
 		        .content(createUserBadPassword(validToken).makeForm())
@@ -149,7 +149,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_BlockedUser() throws Exception {
+	void doLogin_BlockedUser() throws Exception {
 		final var validToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, thirtyDays);
 
 		final var addUser = new AddUserTestDto();
@@ -177,7 +177,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_EmptyForm() throws Exception {
+	void doLogin_EmptyForm() throws Exception {
 		mvc.perform(post("/login").contentType(APPLICATION_FORM_URLENCODED)
 		        .content(createFormLoginContent("", "", ""))
 		        .accept(TEXT_HTML))
@@ -191,7 +191,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_EmptyFormLogin() throws Exception {
+	void doLogin_EmptyFormLogin() throws Exception {
 		final var validToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, thirtyDays);
 
 		mvc.perform(post("/login").contentType(APPLICATION_FORM_URLENCODED)
@@ -207,7 +207,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_EmptyToken() throws Exception {
+	void doLogin_EmptyToken() throws Exception {
 		mvc.perform(post("/login").contentType(APPLICATION_FORM_URLENCODED)
 		        .content(createUser("").makeForm())
 		        .accept(TEXT_HTML))
@@ -221,7 +221,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_InvalidToken() throws Exception {
+	void doLogin_InvalidToken() throws Exception {
 		final long now = System.currentTimeMillis();
 		final byte[] secret = makeRandomBytes(128);
 
@@ -248,7 +248,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_OldToken() throws Exception {
+	void doLogin_OldToken() throws Exception {
 		final var oldToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, ZERO);
 
 		mvc.perform(post("/login").contentType(APPLICATION_FORM_URLENCODED)
@@ -264,7 +264,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_Ok() throws Exception {
+	void doLogin_Ok() throws Exception {
 		final var validToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, thirtyDays);
 		mvc.perform(post("/login").contentType(APPLICATION_FORM_URLENCODED)
 		        .content(createUser(validToken).makeForm())
@@ -277,7 +277,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_Disabled() throws Exception {
+	void doLogin_Disabled() throws Exception {
 		final var validToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, thirtyDays);
 		mvc.perform(post("/login").contentType(APPLICATION_FORM_URLENCODED)
 		        .content(createDisabledUser(validToken).makeForm())
@@ -292,7 +292,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_MustChangePassword() throws Exception {
+	void doLogin_MustChangePassword() throws Exception {
 		final var validToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, thirtyDays);
 		final var form = createUserMustChangePassword(validToken);
 		final var resultActions = mvc.perform(post("/login").contentType(APPLICATION_FORM_URLENCODED)
@@ -310,7 +310,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void logout() throws Exception {
+	void logout() throws Exception {
 		mvc.perform(get("/logout")
 		        .accept(TEXT_HTML))
 		        .andExpect(statusOk)
@@ -321,7 +321,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doResetPassword() throws Exception {
+	void doResetPassword() throws Exception {
 		final var userPassword = makeUserPassword();
 		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
@@ -359,7 +359,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doResetPassword_NotSameInputPassword() throws Exception {
+	void doResetPassword_NotSameInputPassword() throws Exception {
 		final var userPassword = makeUserPassword();
 		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
@@ -398,7 +398,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doResetPassword_SamePassword() throws Exception {
+	void doResetPassword_SamePassword() throws Exception {
 		final var userPassword = makeUserPassword();
 		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
@@ -434,7 +434,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doResetPassword_BlockedUser() throws Exception {
+	void doResetPassword_BlockedUser() throws Exception {
 		final var userPassword = makeUserPassword();
 		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
@@ -466,7 +466,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void resetPassword_GetForm() throws Exception {
+	void resetPassword_GetForm() throws Exception {
 		final var addUser = new AddUserTestDto();
 		final var uuid = authenticationService.addUser(addUser.makeClassicDto());
 		final var token = tokenService.securedRedirectRequestGenerateToken(uuid, thirtyDays, TOKEN_REDIRECT_RESET_PSD);
@@ -482,7 +482,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doTOTPLogin() throws Exception {
+	void doTOTPLogin() throws Exception {
 		final var addUser = new AddUserTestDto();
 		final var uuid = authenticationService.addUser(addUser.makeClassicDto());
 		final var secret = totpService.makeSecret();
@@ -507,7 +507,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doLogin_TOTPAccount() throws Exception {
+	void doLogin_TOTPAccount() throws Exception {
 		final var validToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, thirtyDays);
 		final var createUser = createUser(validToken);
 		final var uuid = createUser.uuid;
@@ -527,7 +527,7 @@ public class ControllerLoginTest {
 	}
 
 	@Test
-	public void doTOTPLogin_badCode() throws Exception {
+	void doTOTPLogin_badCode() throws Exception {
 		final var addUser = new AddUserTestDto();
 		final var uuid = authenticationService.addUser(addUser.makeClassicDto());
 		final var secret = totpService.makeSecret();

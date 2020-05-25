@@ -75,7 +75,7 @@ import tv.hd3g.authkit.tool.ValidationTOTPTestDto;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class RestControllerMeTest {
+class RestControllerMeTest {
 
 	private static final String baseMapping = RestControllerMe.class.getAnnotation(RequestMapping.class).value()[0];
 
@@ -133,7 +133,7 @@ public class RestControllerMeTest {
 	}
 
 	@Test
-	public void changeMyPassword() throws Exception {
+	void changeMyPassword() throws Exception {
 		final var chPasswordDto = new ChangeMyPasswordTestDto();
 		chPasswordDto.setCurrentpassword(userPassword);
 		final var newPassword = makeUserPassword();
@@ -154,7 +154,7 @@ public class RestControllerMeTest {
 	}
 
 	@Test
-	public void prepareTOTP() throws Exception {
+	void prepareTOTP() throws Exception {
 		mvc.perform(get(baseMapping + "/" + "set2auth")
 		        .headers(baseHeaders))
 		        .andExpect(statusOkUtf8Hateoas)
@@ -166,7 +166,7 @@ public class RestControllerMeTest {
 	}
 
 	@Test
-	public void prepareTOTP_userAlreadyHaveTOTP() throws Exception {
+	void prepareTOTP_userAlreadyHaveTOTP() throws Exception {
 		final var secret = totpService.makeSecret();
 		final var backupCodes = totpService.makeBackupCodes();
 		totpService.setupTOTP(secret, backupCodes, userUUID);
@@ -179,7 +179,7 @@ public class RestControllerMeTest {
 	}
 
 	@Test
-	public void confirmTOTP() throws Exception {
+	void confirmTOTP() throws Exception {
 		final var secret = totpService.makeSecret();
 		final var backupCodes = totpService.makeBackupCodes();
 		final var setupDto = new ValidationSetupTOTPTestDto();
@@ -197,7 +197,7 @@ public class RestControllerMeTest {
 	}
 
 	@Test
-	public void confirmTOTP_userAlreadyHaveTOTP() throws Exception {
+	void confirmTOTP_userAlreadyHaveTOTP() throws Exception {
 		final var secret = totpService.makeSecret();
 		final var backupCodes = totpService.makeBackupCodes();
 		totpService.setupTOTP(secret, backupCodes, userUUID);
@@ -218,7 +218,7 @@ public class RestControllerMeTest {
 	}
 
 	@Test
-	public void hasATOTP_yes() throws Exception {
+	void hasATOTP_yes() throws Exception {
 		final var secret = totpService.makeSecret();
 		final var backupCodes = totpService.makeBackupCodes();
 		totpService.setupTOTP(secret, backupCodes, userUUID);
@@ -231,7 +231,7 @@ public class RestControllerMeTest {
 	}
 
 	@Test
-	public void hasATOTP_no() throws Exception {
+	void hasATOTP_no() throws Exception {
 		mvc.perform(get(baseMapping + "/" + "has2auth")
 		        .headers(baseHeaders))
 		        .andExpect(statusOkUtf8Hateoas)
@@ -240,7 +240,7 @@ public class RestControllerMeTest {
 	}
 
 	@Test
-	public void removeTOTP() throws Exception {
+	void removeTOTP() throws Exception {
 		final var secret = totpService.makeSecret();
 		final var backupCodes = totpService.makeBackupCodes();
 		totpService.setupTOTP(secret, backupCodes, userUUID);
@@ -258,7 +258,7 @@ public class RestControllerMeTest {
 	}
 
 	@Test
-	public void isExternalAuth_no() throws Exception {
+	void isExternalAuth_no() throws Exception {
 		mvc.perform(get(baseMapping + "/" + "is-external-auth")
 		        .headers(baseHeaders))
 		        .andExpect(statusOkUtf8Hateoas)
@@ -267,7 +267,7 @@ public class RestControllerMeTest {
 	}
 
 	@Test
-	public void isExternalAuth_yes() throws Exception {
+	void isExternalAuth_yes() throws Exception {
 		final Credential c = credentialRepository.getByUserUUID(userUUID);
 		final var domain = makeUserLogin();
 		c.setLdapdomain(domain);
@@ -288,7 +288,7 @@ public class RestControllerMeTest {
 		UserPrivacyDto userPrivacyDto;
 
 		@BeforeEach
-		public void init() {
+		void init() {
 			userPrivacyDto = new UserPrivacyDto();
 			userPrivacyDto.setAddress(makeUserLogin());
 			userPrivacyDto.setCompany(makeUserLogin());
@@ -302,7 +302,7 @@ public class RestControllerMeTest {
 		}
 
 		@Test
-		public void getPrivacy() throws Exception {
+		void getPrivacy() throws Exception {
 			final var expected = authenticationService.getUserPrivacyList(List.of(userUUID)).get(0);
 
 			mvc.perform(get(baseMapping + "/" + "privacy")
@@ -320,7 +320,7 @@ public class RestControllerMeTest {
 		}
 
 		@Test
-		public void setPrivacy() throws Exception {
+		void setPrivacy() throws Exception {
 			final var expected = authenticationService.getUserPrivacyList(List.of(userUUID)).get(0);
 			expected.setAddress(makeUserLogin());
 			expected.setCompany(makeUserLogin());

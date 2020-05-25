@@ -22,13 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class SqlFileResourceHelperTest {
+class SqlFileResourceHelperTest {
 
 	@Autowired
 	private SqlFileResourceHelper sqlFileResourceHelper;
 
 	@Test
-	public void getSql() {
+	void getSql() {
 		final var sql = sqlFileResourceHelper.getSql("listuser.sql");
 		Assertions.assertNotNull(sql);
 		Assertions.assertFalse(sql.isEmpty());

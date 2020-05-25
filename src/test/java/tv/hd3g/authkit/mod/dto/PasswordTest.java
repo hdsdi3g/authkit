@@ -34,46 +34,46 @@ import tv.hd3g.authkit.mod.exception.PasswordComplexityException.PasswordTooShor
 import tv.hd3g.authkit.mod.exception.PasswordComplexityException.PasswordTooSimpleException;
 import tv.hd3g.authkit.tool.HashCodeEqualsTest;
 
-public class PasswordTest extends HashCodeEqualsTest {
+class PasswordTest extends HashCodeEqualsTest {
 
 	private Password password;
 	private String passwordValue;
 
 	@BeforeEach
-	public void init() {
+	void init() {
 		passwordValue = makeUserPassword();
 		password = new Password(passwordValue);
 	}
 
 	@Test
-	public void toStringBeforeReset() {
+	void toStringBeforeReset() {
 		final String rawValue = password.toString();
 		assertEquals(StringUtils.repeat("*", passwordValue.length()), rawValue);
 	}
 
 	@Test
-	public void toStringAfterReset() {
+	void toStringAfterReset() {
 		password.reset();
 		final String rawValue = password.toString();
 		assertEquals(StringUtils.repeat("*", passwordValue.length()), rawValue);
 	}
 
 	@Test
-	public void charAtBeforeReset() {
+	void charAtBeforeReset() {
 		IntStream.range(0, passwordValue.length()).forEach(i -> {
 			assertEquals(passwordValue.charAt(i), password.charAt(i));
 		});
 	}
 
 	@Test
-	public void length() {
+	void length() {
 		assertEquals(passwordValue.length(), password.length());
 		password.reset();
 		assertEquals(passwordValue.length(), password.length());
 	}
 
 	@Test
-	public void charAtAfterReset() {
+	void charAtAfterReset() {
 		password.reset();
 		assertThrows(IndexOutOfBoundsException.class, () -> {
 			password.charAt(0);
@@ -81,14 +81,14 @@ public class PasswordTest extends HashCodeEqualsTest {
 	}
 
 	@Test
-	public void subSequenceBeforeReset() {
+	void subSequenceBeforeReset() {
 		final CharSequence sub = password.subSequence(0, passwordValue.length());
 		password.reset();
 		assertTrue(passwordValue.contentEquals(sub));
 	}
 
 	@Test
-	public void subSequenceAfterReset() {
+	void subSequenceAfterReset() {
 		password.reset();
 		assertThrows(IllegalStateException.class, () -> {
 			password.subSequence(0, 1);
@@ -96,7 +96,7 @@ public class PasswordTest extends HashCodeEqualsTest {
 	}
 
 	@Test
-	public void duplicate() {
+	void duplicate() {
 		final var p2 = password.duplicate();
 		final CharSequence sub = p2.subSequence(0, p2.length());
 		p2.reset();
@@ -109,7 +109,7 @@ public class PasswordTest extends HashCodeEqualsTest {
 	}
 
 	@Test
-	public void equalsInsensitive() {
+	void equalsInsensitive() {
 		assertTrue(Password.equalsInsensitive("".toCharArray(), "".toCharArray()));
 		assertTrue(Password.equalsInsensitive("A".toCharArray(), "a".toCharArray()));
 		assertTrue(Password.equalsInsensitive("AaBb Cc é".toCharArray(), "AABB CC é".toCharArray()));
@@ -119,7 +119,7 @@ public class PasswordTest extends HashCodeEqualsTest {
 	}
 
 	@Test
-	public void contain() {
+	void contain() {
 		assertFalse(password.contain(""));
 		assertFalse(password.contain(makeUserPassword()));
 		assertFalse(password.contain(passwordValue + passwordValue));
@@ -140,7 +140,7 @@ public class PasswordTest extends HashCodeEqualsTest {
 	}
 
 	@Test
-	public void checkSomeComplexity() throws PasswordComplexityException {
+	void checkSomeComplexity() throws PasswordComplexityException {
 		Password.checkSomeComplexity(4, false, "aB76".toCharArray());
 		Password.checkSomeComplexity(4, true, "Ab7!".toCharArray());
 		Password.checkSomeComplexity(4, false, "Aqzsed".toCharArray());
@@ -172,7 +172,7 @@ public class PasswordTest extends HashCodeEqualsTest {
 	}
 
 	@Test
-	public void containCharArray() throws PasswordComplexityException {
+	void containCharArray() throws PasswordComplexityException {
 		assertTrue(Password.containCharArray("AbCd".toCharArray(), "abcdef".toCharArray()));
 		assertTrue(Password.containCharArray("uioPasd".toCharArray(), "qwertyuiopasdfghj".toCharArray()));
 		assertTrue(Password.containCharArray("vwxyz".toCharArray(), "pqrstuvwxyz".toCharArray()));
@@ -180,7 +180,7 @@ public class PasswordTest extends HashCodeEqualsTest {
 	}
 
 	@Test
-	public void checkComplexity() throws PasswordComplexityException {
+	void checkComplexity() throws PasswordComplexityException {
 		password.checkComplexity(4, true);
 		new Password("aQz,").checkComplexity(4, true);
 
@@ -199,7 +199,7 @@ public class PasswordTest extends HashCodeEqualsTest {
 	}
 
 	@Test
-	public void checkComplexity_withTerm() throws PasswordComplexityException {
+	void checkComplexity_withTerm() throws PasswordComplexityException {
 		password.checkComplexity(4, true, "aaaa");
 		new Password("Aaa,").checkComplexity(4, true, "");
 		new Password("aC O C O A").checkComplexity(4, false, "COCO");

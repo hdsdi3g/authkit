@@ -42,7 +42,7 @@ import tv.hd3g.authkit.mod.dto.Password;
 import tv.hd3g.authkit.mod.exception.PasswordComplexityException;
 
 @SpringBootTest
-public class ValidPasswordPolicyServiceTest {
+class ValidPasswordPolicyServiceTest {
 
 	@Autowired
 	private ValidPasswordPolicyService validPasswordPolicy;

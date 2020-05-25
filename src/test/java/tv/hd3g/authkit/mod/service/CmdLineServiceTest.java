@@ -37,7 +37,7 @@ import tv.hd3g.authkit.mod.exception.UserCantLoginException;
 import tv.hd3g.authkit.tool.DataGenerator;
 
 @SpringBootTest
-public class CmdLineServiceTest {
+class CmdLineServiceTest {
 
 	@Autowired
 	private CmdLineService cmdLineService;
@@ -47,13 +47,13 @@ public class CmdLineServiceTest {
 	private HttpServletRequest request;
 
 	@BeforeEach
-	public void init() {
+	void init() {
 		MockitoAnnotations.initMocks(this);
 		DataGenerator.setupMock(request);
 	}
 
 	@Test
-	public void addOrUpdateSecurityAdminUser_add() throws ResetWithSamePasswordException, UserCantLoginException {
+	void addOrUpdateSecurityAdminUser_add() throws ResetWithSamePasswordException, UserCantLoginException {
 		final var login = makeUserLogin();
 		final var password = makeUserPassword();
 
@@ -66,7 +66,7 @@ public class CmdLineServiceTest {
 	}
 
 	@Test
-	public void addOrUpdateSecurityAdminUser_update() throws ResetWithSamePasswordException, UserCantLoginException {
+	void addOrUpdateSecurityAdminUser_update() throws ResetWithSamePasswordException, UserCantLoginException {
 		final var addUserDto = new AddUserDto();
 		addUserDto.setUserLogin(makeUserLogin());
 		addUserDto.setUserPassword(new Password(makeUserPassword()));

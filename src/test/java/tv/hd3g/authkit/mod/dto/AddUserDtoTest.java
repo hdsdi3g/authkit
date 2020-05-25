@@ -28,7 +28,7 @@ import org.mockito.MockitoAnnotations;
 
 import tv.hd3g.authkit.mod.dto.validated.AddUserDto;
 
-public class AddUserDtoTest {
+class AddUserDtoTest {
 
 	private AddUserDto addUserDto;
 	private String userLogin;
@@ -37,7 +37,7 @@ public class AddUserDtoTest {
 	private Password userPassword;
 
 	@BeforeEach
-	public void init() {
+	void init() {
 		MockitoAnnotations.initMocks(this);
 		userLogin = makeUserLogin();
 
@@ -47,24 +47,24 @@ public class AddUserDtoTest {
 	}
 
 	@Test
-	public void setUserlogin() {
+	void setUserlogin() {
 		addUserDto.setUserLogin(makeUserLogin());
 		assertNotEquals(addUserDto.getUserLogin(), userLogin);
 	}
 
 	@Test
-	public void setUserpassword() {
+	void setUserpassword() {
 		addUserDto.setUserPassword(Mockito.mock(Password.class));
 		assertNotEquals(addUserDto.getUserPassword(), userPassword);
 	}
 
 	@Test
-	public void getUserlogin() {
+	void getUserlogin() {
 		assertEquals(addUserDto.getUserLogin(), userLogin);
 	}
 
 	@Test
-	public void getUserpassword() {
+	void getUserpassword() {
 		assertEquals(addUserDto.getUserPassword(), userPassword);
 	}
 

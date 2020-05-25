@@ -32,13 +32,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import tv.hd3g.commons.authkit.CipherService;
 
 @SpringBootTest
-public class CipherServiceTest {
+class CipherServiceTest {
 
 	@Autowired
 	private CipherService cipherService;
 
 	@Test
-	public void cipherFromString() {
+	void cipherFromString() {
 		final var text = makeRandomString();
 		final var result = cipherService.cipherFromString(text);
 		assertNotNull(result);
@@ -48,7 +48,7 @@ public class CipherServiceTest {
 	}
 
 	@Test
-	public void cipherFromData() {
+	void cipherFromData() {
 		final var clearData = makeRandomString();
 		final var result = cipherService.cipherFromData(clearData.getBytes());
 		assertNotNull(result);
@@ -58,7 +58,7 @@ public class CipherServiceTest {
 	}
 
 	@Test
-	public void unCipherToString() {
+	void unCipherToString() {
 		final var text = makeRandomString();
 		final var crypedText = cipherService.cipherFromString(text);
 		final var result = cipherService.unCipherToString(crypedText);
@@ -66,7 +66,7 @@ public class CipherServiceTest {
 	}
 
 	@Test
-	public void unCipherToData() {
+	void unCipherToData() {
 		final var clearData = makeRandomString();
 		final var crypedData = cipherService.cipherFromData(clearData.getBytes());
 		final var result = cipherService.unCipherToData(crypedData);
@@ -77,7 +77,7 @@ public class CipherServiceTest {
 	 * https://en.wikipedia.org/wiki/SHA-3#Comparison_of_SHA_functions
 	 */
 	@Test
-	public void computeSHA3FromString() {
+	void computeSHA3FromString() {
 		final var digest = cipherService.computeSHA3FromString("");
 		assertEquals(
 		        "a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a615b2123af1f5f94c11e3e9402c3ac558f500199d95b6d3e301758586281dcd26",

@@ -67,7 +67,7 @@ import tv.hd3g.authkit.mod.repository.TotpbackupcodeRepository;
 import tv.hd3g.authkit.tool.DataGenerator;
 
 @SpringBootTest
-public class TOTPServiceTest {
+class TOTPServiceTest {
 
 	@Autowired
 	private TOTPService totpService;
@@ -88,7 +88,7 @@ public class TOTPServiceTest {
 	private long windowMillis;
 
 	@Test
-	public void makeSecret() {
+	void makeSecret() {
 		final var secret = totpService.makeSecret();
 		assertNotNull(secret);
 		final var base32 = new Base32(false);
@@ -98,7 +98,7 @@ public class TOTPServiceTest {
 	}
 
 	@Test
-	public void makeURI() {
+	void makeURI() {
 		final var secret = totpService.makeSecret();
 		final var user = new User();
 		final var login = makeUserLogin();
@@ -110,7 +110,7 @@ public class TOTPServiceTest {
 	}
 
 	@Test
-	public void makeQRCode() throws NotFoundException, IOException, URISyntaxException {
+	void makeQRCode() throws NotFoundException, IOException, URISyntaxException {
 		final var uri = new URI(
 		        "otpauth://totp/" + makeUserLogin() + "@" + makeUserLogin() + "?secret=" + makeUserLogin());
 		final String qr = totpService.makeQRCode(uri);
@@ -124,14 +124,14 @@ public class TOTPServiceTest {
 	}
 
 	@Test
-	public void makeBackupCodes() {
+	void makeBackupCodes() {
 		assertEquals(backupCodeQuantity, totpService.makeBackupCodes().size());
 		assertTrue(totpService.makeBackupCodes().stream()
 		        .allMatch(code -> code.length() == 6 && Integer.parseInt(code) >= 0));
 	}
 
 	@Test
-	public void checkCode() throws BadTOTPCodeCantLoginException, GeneralSecurityException {
+	void checkCode() throws BadTOTPCodeCantLoginException, GeneralSecurityException {
 		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
 		final var userPassword = makeUserPassword();
@@ -150,7 +150,7 @@ public class TOTPServiceTest {
 	}
 
 	@Test
-	public void checkCode_withBackupCode() throws BadTOTPCodeCantLoginException, GeneralSecurityException {
+	void checkCode_withBackupCode() throws BadTOTPCodeCantLoginException, GeneralSecurityException {
 		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
 		final var userPassword = makeUserPassword();
@@ -173,7 +173,7 @@ public class TOTPServiceTest {
 	}
 
 	@Test
-	public void checkCode_fail() {
+	void checkCode_fail() {
 		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
 		final var userPassword = makeUserPassword();
@@ -189,7 +189,7 @@ public class TOTPServiceTest {
 	}
 
 	@Test
-	public void makeCodeAtTime_overTime() throws GeneralSecurityException {
+	void makeCodeAtTime_overTime() throws GeneralSecurityException {
 		final var secret = totpService.makeSecret();
 		final var binSecret = base32.decode(secret);
 		final var now = System.currentTimeMillis();
@@ -201,7 +201,7 @@ public class TOTPServiceTest {
 	}
 
 	@Test
-	public void checkCode_underTime() throws GeneralSecurityException, BadTOTPCodeCantLoginException {
+	void checkCode_underTime() throws GeneralSecurityException, BadTOTPCodeCantLoginException {
 		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
 		final var userPassword = makeUserPassword();
@@ -222,7 +222,7 @@ public class TOTPServiceTest {
 	}
 
 	@Test
-	public void checkCode_bruteForce() throws GeneralSecurityException {
+	void checkCode_bruteForce() throws GeneralSecurityException {
 		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
 		final var userPassword = makeUserPassword();
@@ -242,7 +242,7 @@ public class TOTPServiceTest {
 	}
 
 	@Test
-	public void setupTOTPWithChecks() throws GeneralSecurityException {
+	void setupTOTPWithChecks() throws GeneralSecurityException {
 		final AddUserDto addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
 		final String userPassword = makeUserPassword();
@@ -269,7 +269,7 @@ public class TOTPServiceTest {
 	}
 
 	@Test
-	public void removeTOTP() throws UserCantLoginException {
+	void removeTOTP() throws UserCantLoginException {
 		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
 		final var userPassword = makeUserPassword();

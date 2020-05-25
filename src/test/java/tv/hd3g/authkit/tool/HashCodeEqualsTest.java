@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-public abstract class HashCodeEqualsTest {
+public abstract class HashCodeEqualsTest {// NOSONAR
 
 	protected abstract Object[] makeSameInstances();
 
@@ -60,7 +60,7 @@ public abstract class HashCodeEqualsTest {
 	}
 
 	@Nested
-	public static class OppositeTest {
+	static class OppositeTest {
 
 		@Test
 		void testHashCode() {

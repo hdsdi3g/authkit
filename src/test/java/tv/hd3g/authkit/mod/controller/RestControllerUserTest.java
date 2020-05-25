@@ -83,7 +83,7 @@ import tv.hd3g.authkit.tool.DataGenerator;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class RestControllerUserTest {
+class RestControllerUserTest {
 
 	private static final String baseMapping = RestControllerUser.class.getAnnotation(RequestMapping.class).value()[0];
 
@@ -134,7 +134,7 @@ public class RestControllerUserTest {
 	@Nested
 	class User {
 		@Test
-		public void addUser() throws Exception {
+		void addUser() throws Exception {
 			final var addUser = new AddUserTestDto();
 
 			mvc.perform(post(baseMapping + "/" + "users")
@@ -150,7 +150,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void getUser() throws Exception {
+		void getUser() throws Exception {
 			final var addUser = new AddUserTestDto();
 			final var uuid = authenticationService.addUser(addUser.makeClassicDto());
 
@@ -169,7 +169,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void listUserSimple() throws Exception {
+		void listUserSimple() throws Exception {
 			assertHasSomeUsersInDb();
 			final var response = mvc.perform(get(baseMapping + "/" + "users")
 			        .headers(baseHeaders))
@@ -186,7 +186,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void listUserRange() throws Exception {
+		void listUserRange() throws Exception {
 			assertHasSomeUsersInDb();
 			final var response = mvc.perform(get(baseMapping + "/" + "users?pos=1&size=5")
 			        .headers(baseHeaders))
@@ -203,7 +203,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void disableUser() throws Exception {
+		void disableUser() throws Exception {
 			final var userUUID = authenticationService.addUser(new AddUserTestDto().makeClassicDto());
 
 			mvc.perform(put(baseMapping + "/users/" + userUUID + "/disable")
@@ -217,7 +217,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void enableUser() throws Exception {
+		void enableUser() throws Exception {
 			final var userUUID = authenticationService.addUser(new AddUserTestDto().makeClassicDto());
 			authenticationService.disableUser(userUUID);
 
@@ -230,7 +230,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void switchUserMustResetPassword() throws Exception {
+		void switchUserMustResetPassword() throws Exception {
 			final var userUUID = authenticationService.addUser(new AddUserTestDto().makeClassicDto());
 
 			mvc.perform(put(baseMapping + "/users/" + userUUID + "/switchresetpassword")
@@ -244,7 +244,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void resetUserLogonTrials() throws Exception {
+		void resetUserLogonTrials() throws Exception {
 			final var addUser = new AddUserTestDto();
 			final var userUUID = authenticationService.addUser(addUser.makeClassicDto());
 
@@ -268,7 +268,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void removeUser() throws Exception {
+		void removeUser() throws Exception {
 			final var userUUID = authenticationService.addUser(new AddUserTestDto().makeClassicDto());
 
 			mvc.perform(delete(baseMapping + "/users/" + userUUID)
@@ -294,7 +294,7 @@ public class RestControllerUserTest {
 	@Nested
 	class Group {
 		@Test
-		public void addGroup() throws Exception {
+		void addGroup() throws Exception {
 			final var addGroup = new AddGroupOrRoleDto();
 			addGroup.setName(makeUserLogin());
 			addGroup.setDescription(makeRandomThing());
@@ -309,7 +309,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void renameGroup() throws Exception {
+		void renameGroup() throws Exception {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -326,7 +326,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void setGroupDescription() throws Exception {
+		void setGroupDescription() throws Exception {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			g.setDescription(makeRandomThing());
@@ -344,7 +344,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void addUserInGroup() throws Exception {
+		void addUserInGroup() throws Exception {
 			final var addUser = new AddUserDto();
 			addUser.setUserLogin(makeUserLogin());
 			addUser.setUserPassword(new Password(makeUserPassword()));
@@ -362,7 +362,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void removeUserInGroup() throws Exception {
+		void removeUserInGroup() throws Exception {
 			final var addUser = new AddUserDto();
 			addUser.setUserLogin(makeUserLogin());
 			addUser.setUserPassword(new Password(makeUserPassword()));
@@ -379,7 +379,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void removeGroup() throws Exception {
+		void removeGroup() throws Exception {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -390,7 +390,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void listAllGroups() throws Exception {
+		void listAllGroups() throws Exception {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -402,7 +402,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void listGroupsForUser() throws Exception {
+		void listGroupsForUser() throws Exception {
 			final var addUser = new AddUserDto();
 			addUser.setUserLogin(makeUserLogin());
 			addUser.setUserPassword(new Password(makeUserPassword()));
@@ -424,7 +424,7 @@ public class RestControllerUserTest {
 	@Nested
 	class Role {
 		@Test
-		public void addRole() throws Exception {
+		void addRole() throws Exception {
 			final var addRole = new AddGroupOrRoleDto();
 			addRole.setName(makeUserLogin());
 			addRole.setDescription(makeRandomThing());
@@ -439,7 +439,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void renameRole() throws Exception {
+		void renameRole() throws Exception {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -456,7 +456,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void setRoleDescription() throws Exception {
+		void setRoleDescription() throws Exception {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			r.setDescription(makeRandomThing());
@@ -474,7 +474,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void setRoleOnlyForClient() throws Exception {
+		void setRoleOnlyForClient() throws Exception {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -491,7 +491,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void addGroupInRole() throws Exception {
+		void addGroupInRole() throws Exception {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -507,7 +507,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void removeGroupInRole() throws Exception {
+		void removeGroupInRole() throws Exception {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -523,7 +523,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void removeRole() throws Exception {
+		void removeRole() throws Exception {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -534,7 +534,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void listAllRoles() throws Exception {
+		void listAllRoles() throws Exception {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -546,7 +546,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void listRolesForGroup() throws Exception {
+		void listRolesForGroup() throws Exception {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -568,7 +568,7 @@ public class RestControllerUserTest {
 	class Rights {
 
 		@Test
-		public void addRightInRole() throws Exception {
+		void addRightInRole() throws Exception {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -582,7 +582,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void removeRightInRole() throws Exception {
+		void removeRightInRole() throws Exception {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -595,7 +595,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void getAllRights() throws Exception {
+		void getAllRights() throws Exception {
 			mvc.perform(get(baseMapping + "/" + "rights")
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
@@ -603,7 +603,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void listRightsForRole() throws Exception {
+		void listRightsForRole() throws Exception {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -618,7 +618,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void listContextsForRight() throws Exception {
+		void listContextsForRight() throws Exception {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -635,7 +635,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void addContextInRight() throws Exception {
+		void addContextInRight() throws Exception {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -652,7 +652,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void removeContextInRight() throws Exception {
+		void removeContextInRight() throws Exception {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -669,7 +669,7 @@ public class RestControllerUserTest {
 	}
 
 	@Test
-	public void listLinkedUsersForGroup() throws Exception {
+	void listLinkedUsersForGroup() throws Exception {
 		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
 		addUser.setUserPassword(new Password(makeUserPassword()));
@@ -687,7 +687,7 @@ public class RestControllerUserTest {
 	}
 
 	@Test
-	public void listLinkedGroupsForRole() throws Exception {
+	void listLinkedGroupsForRole() throws Exception {
 		final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 		g.setName("test:" + makeUserLogin());
 		authenticationService.addGroup(g);
@@ -710,7 +710,7 @@ public class RestControllerUserTest {
 		Map<String, UserPrivacyDto> expectedItems;
 
 		@BeforeEach
-		public void init() {
+		void init() {
 			uuidList = IntStream.range(0, 10).mapToObj(i -> makeUUID()).collect(toUnmodifiableList());
 
 			expectedItems = uuidList.stream().collect(Collectors.toUnmodifiableMap(u -> u, u -> {
@@ -730,7 +730,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void getUserPrivacy() throws Exception {
+		void getUserPrivacy() throws Exception {
 			final var uuid = uuidList.get(0);
 			final var expected = authenticationService.getUserPrivacyList(List.of(uuid)).get(0);
 
@@ -749,7 +749,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void getUsersPrivacy() throws Exception {
+		void getUsersPrivacy() throws Exception {
 			final ListStringDto userUUIDList = new ListStringDto();
 			userUUIDList.setList(uuidList);
 
@@ -763,7 +763,7 @@ public class RestControllerUserTest {
 		}
 
 		@Test
-		public void setUserPrivacy() throws Exception {
+		void setUserPrivacy() throws Exception {
 			final var uuid = uuidList.get(0);
 			final var expected = authenticationService.getUserPrivacyList(List.of(uuid)).get(0);
 			expected.setAddress(makeUserLogin());

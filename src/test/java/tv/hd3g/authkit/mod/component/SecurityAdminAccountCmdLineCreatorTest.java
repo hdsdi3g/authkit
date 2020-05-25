@@ -44,7 +44,7 @@ import tv.hd3g.authkit.mod.service.AuthenticationService;
 import tv.hd3g.authkit.tool.DataGenerator;
 
 @SpringBootTest
-public class SecurityAdminAccountCmdLineCreatorTest {
+class SecurityAdminAccountCmdLineCreatorTest {
 
 	@Autowired
 	private SecurityAdminAccountCmdLineCreator securityAdminAccountCmdLineCreator;
@@ -56,19 +56,19 @@ public class SecurityAdminAccountCmdLineCreatorTest {
 	private HttpServletRequest request;
 
 	@BeforeEach
-	public void init() {
+	void init() {
 		MockitoAnnotations.initMocks(this);
 		DataGenerator.setupMock(request);
 	}
 
 	@AfterEach
-	public void clean() {
+	void clean() {
 		System.clearProperty(AUTHKIT_NEWADMIN_ENVKEY);
 		System.clearProperty(AUTHKIT_PASSWORD_ENVKEY);
 	}
 
 	@Test
-	public void testRun_create() throws Exception {
+	void testRun_create() throws Exception {
 		final var list = List.of("create-security-admin", "dont-quit-after-done");
 		Mockito.when(args.getNonOptionArgs()).thenReturn(list);
 
@@ -82,7 +82,7 @@ public class SecurityAdminAccountCmdLineCreatorTest {
 	}
 
 	@Test
-	public void testRun_update() throws Exception {
+	void testRun_update() throws Exception {
 		final var login = makeUserLogin();
 		final var password = makeUserPassword();
 		final AddUserDto addUser = new AddUserDto();

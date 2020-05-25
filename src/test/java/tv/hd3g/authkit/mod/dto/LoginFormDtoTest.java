@@ -35,7 +35,7 @@ import com.github.javafaker.Faker;
 
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
 
-public class LoginFormDtoTest {
+class LoginFormDtoTest {
 
 	@Mock
 	private Password password;
@@ -44,14 +44,14 @@ public class LoginFormDtoTest {
 	private LoginFormDto loginFormDto;
 
 	@BeforeEach
-	public void init() {
+	void init() {
 		MockitoAnnotations.initMocks(this);
 		loginFormDto = new LoginFormDto();
 		securetoken = makeUserPassword();
 	}
 
 	@Test
-	public void setUserlogin() {
+	void setUserlogin() {
 		assertNull(loginFormDto.getUserlogin());
 		final String name = Faker.instance().address().firstName();
 		loginFormDto.setUserlogin(name);
@@ -59,7 +59,7 @@ public class LoginFormDtoTest {
 	}
 
 	@Test
-	public void getSetShorttime() {
+	void getSetShorttime() {
 		assertNull(loginFormDto.getShorttime());
 		assertFalse(loginFormDto.isShortSessionTime());
 		loginFormDto.setShorttime(true);
@@ -68,7 +68,7 @@ public class LoginFormDtoTest {
 	}
 
 	@Test
-	public void setUserpassword() {
+	void setUserpassword() {
 		assertNull(loginFormDto.getUserpassword());
 		loginFormDto.setUserpassword(password);
 		assertEquals(password, loginFormDto.getUserpassword());
@@ -80,14 +80,14 @@ public class LoginFormDtoTest {
 	}
 
 	@Test
-	public void setSecuretoken() {
+	void setSecuretoken() {
 		assertNull(loginFormDto.getSecuretoken());
 		loginFormDto.setSecuretoken(securetoken);
 		assertEquals(securetoken, loginFormDto.getSecuretoken());
 	}
 
 	@Test
-	public void toStringNotHavePassword() {
+	void toStringNotHavePassword() {
 		loginFormDto.setUserpassword(password);
 		final var passwordToString = makeUserPassword();
 		Mockito.when(password.toString()).thenReturn(passwordToString);

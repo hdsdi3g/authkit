@@ -81,7 +81,7 @@ import tv.hd3g.authkit.mod.repository.UserDao;
 import tv.hd3g.authkit.tool.DataGenerator;
 
 @SpringBootTest
-public class AuthenticationServiceTest {
+class AuthenticationServiceTest {
 
 	@Autowired
 	private AuthenticationService authenticationService;
@@ -131,7 +131,7 @@ public class AuthenticationServiceTest {
 	private HttpServletRequest request;
 
 	@BeforeEach
-	public void init() {
+	void init() {
 		MockitoAnnotations.initMocks(this);
 		DataGenerator.setupMock(request);
 		addUser = new AddUserDto();
@@ -145,7 +145,7 @@ public class AuthenticationServiceTest {
 	class User {
 
 		@Test
-		public void addUser() {
+		void addUser() {
 			final var uuid = authenticationService.addUser(addUser);
 			assertNotNull(uuid);
 			assertFalse(uuid.isEmpty());
@@ -153,7 +153,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void addUserExists() {
+		void addUserExists() {
 			authenticationService.addUser(addUser);
 			addUser.setUserPassword(new Password(userPassword));
 			assertThrows(AuthKitException.class, () -> {
@@ -162,7 +162,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void removeUser() {
+		void removeUser() {
 			final var uuid = authenticationService.addUser(addUser);
 			authenticationService.removeUser(uuid);
 			addUser.setUserPassword(new Password(userPassword));
@@ -170,14 +170,14 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void removeUserNotExists() {
+		void removeUserNotExists() {
 			assertThrows(AuthKitException.class, () -> {
 				authenticationService.removeUser(makeUUID());
 			});
 		}
 
 		@Test
-		public void getRightsForUser_simpleRole() {
+		void getRightsForUser_simpleRole() {
 			final var uuid = authenticationService.addUser(addUser);
 			final var list1 = authenticationService.getRightsForUser(uuid, randomIp);
 			assertNotNull(list1);
@@ -205,7 +205,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void getRightsForUser_multipleGroups() {
+		void getRightsForUser_multipleGroups() {
 			final var uuid = authenticationService.addUser(addUser);
 
 			final AddGroupOrRoleDto g1 = new AddGroupOrRoleDto();
@@ -240,7 +240,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void getRightsForUser_duplicateRole_inGroup() {
+		void getRightsForUser_duplicateRole_inGroup() {
 			final var uuid = authenticationService.addUser(addUser);
 
 			final AddGroupOrRoleDto g1 = new AddGroupOrRoleDto();
@@ -268,7 +268,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void getRightsForUser_duplicateRoleRight_inRole() {
+		void getRightsForUser_duplicateRoleRight_inRole() {
 			final var uuid = authenticationService.addUser(addUser);
 
 			final AddGroupOrRoleDto g1 = new AddGroupOrRoleDto();
@@ -301,7 +301,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void getContextRightsForUser() {
+		void getContextRightsForUser() {
 			final var rightNameYep = makeUserLogin();
 			final var rightNameNope = makeUserLogin();
 			final var uuid = authenticationService.addUser(addUser);
@@ -342,7 +342,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void getRightsForUser_clientOnly() {
+		void getRightsForUser_clientOnly() {
 			final var uuid = authenticationService.addUser(addUser);
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
@@ -365,7 +365,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void getContextRightsForUser_clientOnly() {
+		void getContextRightsForUser_clientOnly() {
 			final var rightName = makeUserLogin();
 			final var uuid = authenticationService.addUser(addUser);
 
@@ -394,7 +394,7 @@ public class AuthenticationServiceTest {
 	}
 
 	@Test
-	public void checkPassword() throws Exception {
+	void checkPassword() throws Exception {
 		final var uuid = authenticationService.addUser(addUser);
 		final var credential = credentialRepository.getByUserUUID(uuid);
 
@@ -409,7 +409,7 @@ public class AuthenticationServiceTest {
 	}
 
 	@Test
-	public void checkPassword_LDAP() throws Exception {
+	void checkPassword_LDAP() throws Exception {
 		if (ldapSimpleUserName == null || ldapSimpleUserName.isBlank()) {
 			return;
 		}
@@ -436,7 +436,7 @@ public class AuthenticationServiceTest {
 	class UserLoginRequest {
 
 		@Test
-		public void userLoginRequest() throws Exception {
+		void userLoginRequest() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			final var loginForm = new LoginFormDto();
 			loginForm.setUserlogin(addUser.getUserLogin());
@@ -455,7 +455,7 @@ public class AuthenticationServiceTest {
 		class LDAP {
 
 			@BeforeEach
-			public void init() {
+			void init() {
 				if (ldapSimpleUserName == null || ldapSimpleUserName.isBlank()) {
 					return;
 				}
@@ -469,7 +469,7 @@ public class AuthenticationServiceTest {
 			}
 
 			@Test
-			public void userLoginRequest() throws Exception {
+			void userLoginRequest() throws Exception {
 				if (ldapSimpleUserName == null || ldapSimpleUserName.isBlank()) {
 					return;
 				}
@@ -493,7 +493,7 @@ public class AuthenticationServiceTest {
 			}
 
 			@Test
-			public void userLoginRequest_twice() throws Exception {
+			void userLoginRequest_twice() throws Exception {
 				if (ldapSimpleUserName == null || ldapSimpleUserName.isBlank()) {
 					return;
 				}
@@ -523,7 +523,7 @@ public class AuthenticationServiceTest {
 			}
 
 			@Test
-			public void userLoginRequestInvalidPassword() throws Exception {
+			void userLoginRequestInvalidPassword() throws Exception {
 				if (ldapSimpleUserName == null || ldapSimpleUserName.isBlank()) {
 					return;
 				}
@@ -537,7 +537,7 @@ public class AuthenticationServiceTest {
 			}
 
 			@Test
-			public void userLoginRequestNoPassword() throws Exception {
+			void userLoginRequestNoPassword() throws Exception {
 				if (ldapSimpleUserName == null || ldapSimpleUserName.isBlank()) {
 					return;
 				}
@@ -550,7 +550,7 @@ public class AuthenticationServiceTest {
 			}
 
 			@Test
-			public void userLoginRequest_TOTP() throws Exception {
+			void userLoginRequest_TOTP() throws Exception {
 				if (ldapSimpleUserName == null || ldapSimpleUserName.isBlank()) {
 					return;
 				}
@@ -593,7 +593,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequest_maxLogonTrial_UnderLimit() throws Exception {
+		void userLoginRequest_maxLogonTrial_UnderLimit() throws Exception {
 			authenticationService.addUser(addUser);
 			final var loginFormFail = new LoginFormDto();
 			loginFormFail.setUserlogin(addUser.getUserLogin());
@@ -612,7 +612,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequest_maxLogonTrial_OverLimit() throws Exception {
+		void userLoginRequest_maxLogonTrial_OverLimit() throws Exception {
 			authenticationService.addUser(addUser);
 			final var loginFormFail = new LoginFormDto();
 			loginFormFail.setUserlogin(addUser.getUserLogin());
@@ -638,7 +638,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequestLongDuration() throws Exception {
+		void userLoginRequestLongDuration() throws Exception {
 			authenticationService.addUser(addUser);
 			final var loginForm = new LoginFormDto();
 			loginForm.setUserlogin(addUser.getUserLogin());
@@ -654,7 +654,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequestShortDuration() throws Exception {
+		void userLoginRequestShortDuration() throws Exception {
 			authenticationService.addUser(addUser);
 			final var loginForm = new LoginFormDto();
 			loginForm.setUserlogin(addUser.getUserLogin());
@@ -671,7 +671,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequestInvalidUser() throws Exception {
+		void userLoginRequestInvalidUser() throws Exception {
 			final var loginForm = new LoginFormDto();
 			loginForm.setUserlogin(addUser.getUserLogin());
 			loginForm.setUserpassword(new Password(userPassword));
@@ -682,7 +682,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequestInvalidPassword() throws Exception {
+		void userLoginRequestInvalidPassword() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			final var loginForm = new LoginFormDto();
 			loginForm.setUserlogin(addUser.getUserLogin());
@@ -695,7 +695,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequestNoPassword() throws Exception {
+		void userLoginRequestNoPassword() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			final var loginForm = new LoginFormDto();
 			loginForm.setUserlogin(addUser.getUserLogin());
@@ -707,7 +707,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequestUserMustChangePassword() throws Exception {
+		void userLoginRequestUserMustChangePassword() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			authenticationService.setUserMustChangePassword(uuid);
 			final var loginForm = new LoginFormDto();
@@ -721,7 +721,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequestDisabledUser() throws Exception {
+		void userLoginRequestDisabledUser() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			authenticationService.disableUser(uuid);
 			final var loginForm = new LoginFormDto();
@@ -734,7 +734,7 @@ public class AuthenticationServiceTest {
 			assertNull(getLastLogin(uuid));
 		}
 
-		public void userLoginRequestEnabledUser() throws Exception {
+		void userLoginRequestEnabledUser() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			authenticationService.disableUser(uuid);
 			authenticationService.enableUser(uuid);
@@ -749,7 +749,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequest_TOTP() throws Exception {
+		void userLoginRequest_TOTP() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			final var secret = totpService.makeSecret();
 			final var checkCode = makeCodeAtTime(base32.decode(secret), System.currentTimeMillis(), timeStepSeconds);
@@ -783,7 +783,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequestRoleWithIPRestriction_differentAddr() throws Exception {
+		void userLoginRequestRoleWithIPRestriction_differentAddr() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
@@ -810,7 +810,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void userLoginRequestRoleWithIPRestriction_sameAddr() throws Exception {
+		void userLoginRequestRoleWithIPRestriction_sameAddr() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
@@ -838,7 +838,7 @@ public class AuthenticationServiceTest {
 	}
 
 	@Test
-	public void resetUserLogonTrials() throws Exception {
+	void resetUserLogonTrials() throws Exception {
 		final var uuid = authenticationService.addUser(addUser);
 		final var c = credentialRepository.getByUserUUID(uuid);
 		c.setLogontrial(100);
@@ -853,13 +853,13 @@ public class AuthenticationServiceTest {
 	class IsUserEnabledAndNonBlocked {
 
 		@Test
-		public void isUserEnabledAndNonBlocked_ok() throws Exception {
+		void isUserEnabledAndNonBlocked_ok() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			assertTrue(authenticationService.isUserEnabledAndNonBlocked(uuid));
 		}
 
 		@Test
-		public void isUserEnabledAndNonBlocked_blocked() throws Exception {
+		void isUserEnabledAndNonBlocked_blocked() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			final var c = credentialRepository.getByUserUUID(uuid);
 			c.setLogontrial(100);
@@ -868,7 +868,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void isUserEnabledAndNonBlocked_disabled() throws Exception {
+		void isUserEnabledAndNonBlocked_disabled() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			final var c = credentialRepository.getByUserUUID(uuid);
 			c.setEnabled(false);
@@ -877,7 +877,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void isUserEnabledAndNonBlocked_mustchangepassword() throws Exception {
+		void isUserEnabledAndNonBlocked_mustchangepassword() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			final var c = credentialRepository.getByUserUUID(uuid);
 			c.setMustchangepassword(true);
@@ -886,7 +886,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void isUserEnabledAndNonBlocked_deleted() throws Exception {
+		void isUserEnabledAndNonBlocked_deleted() throws Exception {
 			assertFalse(authenticationService.isUserEnabledAndNonBlocked(makeUUID()));
 		}
 	}
@@ -895,7 +895,7 @@ public class AuthenticationServiceTest {
 	class ChangeUserPassword {
 
 		@Test
-		public void changeUserPassword() throws Exception {
+		void changeUserPassword() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			final var newPassword = makeUserPassword();
 			authenticationService.changeUserPassword(uuid, new Password(newPassword));
@@ -912,7 +912,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void changeUserPassword_SamePassword() throws Exception {
+		void changeUserPassword_SamePassword() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			assertThrows(ResetWithSamePasswordException.class, () -> {
 				authenticationService.changeUserPassword(uuid, new Password(userPassword));
@@ -920,7 +920,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void changeUserPassword_BlockedUser() throws Exception {
+		void changeUserPassword_BlockedUser() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 			final var loginFormFail = new LoginFormDto();
 			loginFormFail.setUserlogin(addUser.getUserLogin());
@@ -946,7 +946,7 @@ public class AuthenticationServiceTest {
 	class Group {
 
 		@Test
-		public void addGroup() {
+		void addGroup() {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			g.setDescription(makeRandomThing());
@@ -958,7 +958,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void renameGroup() {
+		void renameGroup() {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -977,7 +977,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void setGroupDescription() {
+		void setGroupDescription() {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			g.setDescription(makeRandomThing());
@@ -997,7 +997,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void addUserInGroup() {
+		void addUserInGroup() {
 			final var uuid = authenticationService.addUser(addUser);
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
@@ -1010,7 +1010,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void removeUserInGroup() {
+		void removeUserInGroup() {
 			final var uuid = authenticationService.addUser(addUser);
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
@@ -1023,7 +1023,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void removeGroup() {
+		void removeGroup() {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -1032,7 +1032,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void listAllGroups() {
+		void listAllGroups() {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -1045,7 +1045,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void listGroupsForUser() {
+		void listGroupsForUser() {
 			final var uuid = authenticationService.addUser(addUser);
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
@@ -1063,7 +1063,7 @@ public class AuthenticationServiceTest {
 	class Role {
 
 		@Test
-		public void addRole() {
+		void addRole() {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			r.setDescription(makeRandomThing());
@@ -1075,7 +1075,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void renameRole() {
+		void renameRole() {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1094,7 +1094,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void setRoleDescription() {
+		void setRoleDescription() {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			r.setDescription(makeRandomThing());
@@ -1114,7 +1114,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void setRoleOnlyForClients_ipv4() throws UnknownHostException {
+		void setRoleOnlyForClients_ipv4() throws UnknownHostException {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1126,7 +1126,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void setRoleOnlyForClients_ipv6() throws UnknownHostException {
+		void setRoleOnlyForClients_ipv6() throws UnknownHostException {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1138,7 +1138,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void setRoleOnlyForClients_invalidIp() throws UnknownHostException {
+		void setRoleOnlyForClients_invalidIp() throws UnknownHostException {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1147,7 +1147,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void addGroupInRole() {
+		void addGroupInRole() {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -1163,7 +1163,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void removeGroupInRole() {
+		void removeGroupInRole() {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -1179,7 +1179,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void removeRole() {
+		void removeRole() {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1188,7 +1188,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void listAllRoles() {
+		void listAllRoles() {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1201,7 +1201,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void listRolesForGroup() {
+		void listRolesForGroup() {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -1222,7 +1222,7 @@ public class AuthenticationServiceTest {
 	class Right {
 
 		@Test
-		public void addRightInRole() {
+		void addRightInRole() {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1234,7 +1234,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void removeRightInRole() {
+		void removeRightInRole() {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1246,14 +1246,14 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void listAllRights() {
+		void listAllRights() {
 			final var list = authenticationService.getAllRights();
 			assertNotNull(list);
 			assertFalse(list.isEmpty());
 		}
 
 		@Test
-		public void listRightsForRole() {
+		void listRightsForRole() {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1267,7 +1267,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void addContextInRight() {
+		void addContextInRight() {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1281,7 +1281,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void removeContextInRight() {
+		void removeContextInRight() {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1296,7 +1296,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void listContextsForRight() {
+		void listContextsForRight() {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
@@ -1310,7 +1310,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void listLinkedUsersForGroup() {
+		void listLinkedUsersForGroup() {
 			final var uuid = authenticationService.addUser(addUser);
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
@@ -1324,7 +1324,7 @@ public class AuthenticationServiceTest {
 		}
 
 		@Test
-		public void listLinkedGroupsForRole() {
+		void listLinkedGroupsForRole() {
 			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
@@ -1341,7 +1341,7 @@ public class AuthenticationServiceTest {
 	}
 
 	@Test
-	public void getSetUserPrivacyList() {
+	void getSetUserPrivacyList() {
 		final var empty = authenticationService.getUserPrivacyList(List.of(makeUUID()));
 		assertNotNull(empty);
 		assertTrue(empty.isEmpty());

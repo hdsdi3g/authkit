@@ -61,7 +61,7 @@ import tv.hd3g.authkit.mod.service.AuthenticationService;
 import tv.hd3g.authkit.mod.service.SecuredTokenService;
 import tv.hd3g.authkit.tool.DataGenerator;
 
-public class ControllerInterceptorTest {
+class ControllerInterceptorTest {
 
 	@Mock
 	private AuditReportService auditService;
@@ -85,7 +85,7 @@ public class ControllerInterceptorTest {
 	private String uuid;
 
 	@BeforeEach
-	public void init() {
+	void init() {
 		MockitoAnnotations.initMocks(this);
 		DataGenerator.setupMock(request);
 		endpointsListener = new EndpointsListener();
@@ -96,7 +96,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void preHandleUserNotLogged_CtrlWithoutSecure_verbWithoutSecure() throws Exception {
+	void preHandleUserNotLogged_CtrlWithoutSecure_verbWithoutSecure() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerWithoutSecure.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerWithoutSecure.class.getMethod("verbWithoutSecure"));
 		when(request.getMethod()).thenReturn("GET");
@@ -117,7 +117,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void preHandleUserNotLogged_CtrlWithoutSecure_verbWithSecure() throws Exception {
+	void preHandleUserNotLogged_CtrlWithoutSecure_verbWithSecure() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerWithoutSecure.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerWithoutSecure.class.getMethod("verbWithSecure"));
 		when(request.getMethod()).thenReturn("GET");
@@ -138,7 +138,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void preHandleUserNotLogged_CtrlWithSecure() throws Exception {
+	void preHandleUserNotLogged_CtrlWithSecure() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerWithSecure.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerWithSecure.class.getMethod("verbWithoutSecure"));
 		when(request.getMethod()).thenReturn("GET");
@@ -159,7 +159,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void afterCompletionAudit_NoAudit() throws Exception {
+	void afterCompletionAudit_NoAudit() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerWithoutSecure.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerWithoutSecure.class.getMethod("verbWithoutSecure"));
 
@@ -175,7 +175,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void afterCompletionAudit_verbUseSecurity() throws Exception {
+	void afterCompletionAudit_verbUseSecurity() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerAudit.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerAudit.class.getMethod("verbUseSecurity"));
 
@@ -191,7 +191,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void afterCompletionAudit_verbChangeSecurity() throws Exception {
+	void afterCompletionAudit_verbChangeSecurity() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerAudit.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerAudit.class.getMethod("verbChangeSecurity"));
 
@@ -207,7 +207,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void afterCompletionAudit_verbCantDoErrors() throws Exception {
+	void afterCompletionAudit_verbCantDoErrors() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerAudit.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerAudit.class.getMethod("verbCantDoErrors"));
 
@@ -224,7 +224,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void afterCompletionAudit_verbAll() throws Exception {
+	void afterCompletionAudit_verbAll() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerAudit.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerAudit.class.getMethod("verbAll"));
 
@@ -241,7 +241,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void afterCompletionAudit_verbSimple() throws Exception {
+	void afterCompletionAudit_verbSimple() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerAudit.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerAudit.class.getMethod("verbSimple"));
 
@@ -257,7 +257,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void afterCompletionAudit_verbCombinated() throws Exception {
+	void afterCompletionAudit_verbCombinated() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerAudit.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerAudit.class.getMethod("verbCombinated"));
 
@@ -274,7 +274,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void preHandleUserLoggedWithoutRights_CtrlWithoutSecure_verbWithSecure() throws Exception {
+	void preHandleUserLoggedWithoutRights_CtrlWithoutSecure_verbWithSecure() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerWithoutSecure.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerWithoutSecure.class.getMethod("verbWithSecure"));
 		when(request.getMethod()).thenReturn("GET");
@@ -300,7 +300,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void preHandleUserLoggedWithoutRights_CtrlWithSecure() throws Exception {
+	void preHandleUserLoggedWithoutRights_CtrlWithSecure() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerWithSecure.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerWithSecure.class.getMethod("verbWithoutSecure"));
 		when(request.getMethod()).thenReturn("GET");
@@ -329,7 +329,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void preHandleUserLoggedWithRights_CtrlWithoutSecure_verbWithSecure() throws Exception {
+	void preHandleUserLoggedWithRights_CtrlWithoutSecure_verbWithSecure() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerWithoutSecure.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerWithoutSecure.class.getMethod("verbWithSecure"));
 		when(request.getMethod()).thenReturn("GET");
@@ -355,7 +355,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void preHandleUserLoggedWithRights_CtrlWithSecure() throws Exception {
+	void preHandleUserLoggedWithRights_CtrlWithSecure() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerWithSecure.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerWithSecure.class.getMethod("verbWithoutSecure"));
 		when(request.getMethod()).thenReturn("GET");
@@ -382,7 +382,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void preHandleUserLoggedWithRights_InvalidRightsLinkedIP() throws Exception {
+	void preHandleUserLoggedWithRights_InvalidRightsLinkedIP() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerWithSecure.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerWithSecure.class.getMethod("verbWithoutSecure"));
 		when(request.getMethod()).thenReturn("GET");
@@ -409,7 +409,7 @@ public class ControllerInterceptorTest {
 	}
 
 	@Test
-	public void preHandleUserLoggedWithRights_ValidRightsLinkedIP() throws Exception {
+	void preHandleUserLoggedWithRights_ValidRightsLinkedIP() throws Exception {
 		when(handlerMethod.getBeanType()).then(i -> ControllerWithSecure.class);
 		when(handlerMethod.getMethod()).then(i -> ControllerWithSecure.class.getMethod("verbWithoutSecure"));
 		when(request.getMethod()).thenReturn("GET");
@@ -442,7 +442,7 @@ public class ControllerInterceptorTest {
 		private ResourceHttpRequestHandler resourceHttpRequest;
 
 		@BeforeEach
-		public void initMocks() {
+		void initMocks() {
 			MockitoAnnotations.initMocks(this);
 		}
 
@@ -458,25 +458,25 @@ public class ControllerInterceptorTest {
 		}
 
 		@Test
-		public void preHandleHttpRequest() throws Exception {
+		void preHandleHttpRequest() throws Exception {
 			assertTrue(controlerInterceptor.preHandle(request, response, resourceHttpRequest));
 			afterEach();
 		}
 
 		@Test
-		public void afterCompletionHttpRequest() throws Exception {
+		void afterCompletionHttpRequest() throws Exception {
 			controlerInterceptor.afterCompletion(request, response, resourceHttpRequest, null);
 			afterEach();
 		}
 
 		@Test
-		public void preHandleOtherRequest() throws Exception {
+		void preHandleOtherRequest() throws Exception {
 			assertTrue(controlerInterceptor.preHandle(request, response, new Object()));
 			afterEach();
 		}
 
 		@Test
-		public void afterCompletionOtherRequest() throws Exception {
+		void afterCompletionOtherRequest() throws Exception {
 			controlerInterceptor.afterCompletion(request, response, new Object(), null);
 			afterEach();
 		}
@@ -486,7 +486,7 @@ public class ControllerInterceptorTest {
 	class PreHandleUserLoggedWithRights_RenforceCheck {
 
 		@Test
-		public void method_badRights() throws Exception {
+		void method_badRights() throws Exception {
 			when(handlerMethod.getBeanType()).then(i -> ControllerMethodRequireRenforceCheck.class);
 			when(handlerMethod.getMethod()).then(i -> ControllerMethodRequireRenforceCheck.class.getMethod("verb"));
 			when(request.getMethod()).thenReturn("GET");
@@ -515,7 +515,7 @@ public class ControllerInterceptorTest {
 		}
 
 		@Test
-		public void method_badDisabledOrBlocked() throws Exception {
+		void method_badDisabledOrBlocked() throws Exception {
 			when(handlerMethod.getBeanType()).then(i -> ControllerMethodRequireRenforceCheck.class);
 			when(handlerMethod.getMethod()).then(i -> ControllerMethodRequireRenforceCheck.class.getMethod("verb"));
 			when(request.getMethod()).thenReturn("GET");
@@ -544,7 +544,7 @@ public class ControllerInterceptorTest {
 		}
 
 		@Test
-		public void class_badRights() throws Exception {
+		void class_badRights() throws Exception {
 			when(handlerMethod.getBeanType()).then(i -> ControllerClassRequireRenforceCheck.class);
 			when(handlerMethod.getMethod()).then(i -> ControllerClassRequireRenforceCheck.class.getMethod("verb"));
 			when(request.getMethod()).thenReturn("GET");
@@ -573,7 +573,7 @@ public class ControllerInterceptorTest {
 		}
 
 		@Test
-		public void class_badDisabledOrBlocked() throws Exception {
+		void class_badDisabledOrBlocked() throws Exception {
 			when(handlerMethod.getBeanType()).then(i -> ControllerClassRequireRenforceCheck.class);
 			when(handlerMethod.getMethod()).then(i -> ControllerClassRequireRenforceCheck.class.getMethod("verb"));
 			when(request.getMethod()).thenReturn("GET");

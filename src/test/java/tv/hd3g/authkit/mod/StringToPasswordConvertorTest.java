@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import tv.hd3g.authkit.tool.DataGenerator;
 
-public class StringToPasswordConvertorTest {
+class StringToPasswordConvertorTest {
 
 	@Test
-	public void convert() {
+	void convert() {
 		final String password = DataGenerator.makeUserPassword();
 		final StringToPasswordConvertor stst = new StringToPasswordConvertor();
 		assertNotNull(stst.convert(password));
