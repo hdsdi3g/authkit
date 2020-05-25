@@ -6,7 +6,7 @@ spring:
         banner-mode: "off"
         log-startup-info: false
     datasource:
-        url: jdbc:mysql://localhost:3306/authkit?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
+        url: jdbc:mysql://localhost:3306/authkit?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
         username: local
         password: ""
     jpa:
