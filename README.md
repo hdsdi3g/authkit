@@ -4,6 +4,10 @@ Authentification and RBAC module for Spring Boot 2 (Java 11).
 
 It's still in alpha.
 
+![Java CI with Maven](https://github.com/hdsdi3g/authkit/workflows/Java%20CI%20with%20Maven/badge.svg)
+
+---
+
 AuthKit provide a **backend API-only** with:
 
 - User/Group/Role/Right (access to a controller)/Right Context (access context limitation for a controller) as RBAC objects
