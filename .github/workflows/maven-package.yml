@@ -22,4 +22,32 @@ jobs:
         java-version: 11
     - name: Unshallow git
       run: git fetch --unshallow
+    - name: Shutdown Ubuntu MySQL
+      run: sudo service mysql stop
+    - name: Set up MySQL
+      uses: mirromutth/mysql-action@v1.1
+      with:
+        host port: 3306
+        mysql version: '8.0'
+        mysql user: 'local'
+        mysql password: ''
+    - name: Update db with Liquibase
+      run: mvn -B setupdb:deploy --file pom.xml
+    - name: Build with Maven
+      run: >-
+        mvn -B package verify sonar:sonar
+        -Dlog4j.configurationFile=scripts/log4j2-tests.xml
+        -Dgpg.skip=true
+        -Dmaven.javadoc.skip=true
+        -Dmaven.source.skip=true
+        -Dsonar.projectKey=hdsdi3g_authkit
+        -Dsonar.organization=hdsdi3g
+        -Dsonar.host.url=https://sonarcloud.io
+        -Dsonar.sources="src/main/java,src/main/resources"
+        -Dsonar.login=$SONAR_TOKEN
+        -Dsonar.java.source=11
+        --file pom.xml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
