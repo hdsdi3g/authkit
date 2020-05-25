@@ -171,8 +171,9 @@ class AuthenticationServiceTest {
 
 		@Test
 		void removeUserNotExists() {
+			final var uuid = makeUUID();
 			assertThrows(AuthKitException.class, () -> {
-				authenticationService.removeUser(makeUUID());
+				authenticationService.removeUser(uuid);
 			});
 		}
 
@@ -1142,8 +1143,11 @@ class AuthenticationServiceTest {
 			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
+
+			final var name = r.getName();
+			final var thing = makeRandomThing();
 			Assertions.assertThrows(IllegalArgumentException.class,
-			        () -> authenticationService.setRoleOnlyForClient(r.getName(), makeRandomThing()));
+			        () -> authenticationService.setRoleOnlyForClient(name, thing));
 		}
 
 		@Test

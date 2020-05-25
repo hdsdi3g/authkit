@@ -121,7 +121,10 @@ public class Password implements CharSequence {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof Password)) {
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final Password other = (Password) obj;

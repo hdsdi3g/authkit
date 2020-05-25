@@ -41,7 +41,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(AuthKitException.class)
 	protected ResponseEntity<Object> handleRESTException(final AuthKitException e, final WebRequest request) {
-		log.warn("REST Error for " + request.getDescription(true), e);
+		log.warn("REST Error for {}", request.getDescription(true), e);
 		return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.resolve(e.getReturnCode()));
 	}
 }

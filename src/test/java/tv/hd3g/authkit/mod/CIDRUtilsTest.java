@@ -26,67 +26,73 @@ import static tv.hd3g.authkit.tool.DataGenerator.makeRandomIPv6;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CIDRUtilsTest {
 
-	private static String mkIPv4() {
-		return makeRandomIPv4().getHostAddress();
-	}
+	String ipv4;
+	String ipv6;
+	InetAddress addrv4;
+	InetAddress addrv6;
 
-	private static String mkIPv6() {
-		return makeRandomIPv6().getHostAddress();
+	@BeforeEach
+	void init() {
+		addrv4 = makeRandomIPv4();
+		addrv6 = makeRandomIPv6();
+		ipv4 = addrv4.getHostAddress();
+		ipv6 = addrv6.getHostAddress();
 	}
 
 	@Test
 	void testCIDRUtils_v4() throws UnknownHostException {
-		new CIDRUtils(mkIPv4() + "/1");
-		new CIDRUtils(mkIPv4() + "/24");
-		new CIDRUtils(mkIPv4() + "/32");
-		new CIDRUtils(mkIPv4() + "/0");
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(mkIPv4() + "/5555"));
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(mkIPv4() + "/-1"));
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(mkIPv4() + "/"));
-		assertThrows(UnknownHostException.class, () -> new CIDRUtils("[" + mkIPv4() + "]/5"));
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(mkIPv4()));
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(mkIPv4() + "/55/55"));
+		new CIDRUtils(ipv4 + "/1");
+		new CIDRUtils(ipv4 + "/24");
+		new CIDRUtils(ipv4 + "/32");
+		new CIDRUtils(ipv4 + "/0");
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(ipv4 + "/5555"));
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(ipv4 + "/-1"));
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(ipv4 + "/"));
+		assertThrows(UnknownHostException.class, () -> new CIDRUtils("[" + ipv4 + "]/5"));
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(ipv4));
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(ipv4 + "/55/55"));
 	}
 
 	@Test
 	void testCIDRUtils_v6() throws UnknownHostException {
-		new CIDRUtils(mkIPv6() + "/1");
-		new CIDRUtils(mkIPv6() + "/64");
-		new CIDRUtils(mkIPv6() + "/128");
-		new CIDRUtils(mkIPv6() + "/0");
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(mkIPv6() + "/5555"));
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(mkIPv6() + "/-1"));
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(mkIPv6() + "/"));
-		new CIDRUtils("[" + mkIPv6() + "]/5");
+		new CIDRUtils(ipv6 + "/1");
+		new CIDRUtils(ipv6 + "/64");
+		new CIDRUtils(ipv6 + "/128");
+		new CIDRUtils(ipv6 + "/0");
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(ipv6 + "/5555"));
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(ipv6 + "/-1"));
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(ipv6 + "/"));
+		new CIDRUtils("[" + ipv6 + "]/5");
 		new CIDRUtils("::5" + "/5");
 		new CIDRUtils("5::" + "/5");
 		assertThrows(UnknownHostException.class, () -> new CIDRUtils("[::5::]/5"));
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(mkIPv6()));
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(mkIPv6() + "/55/55"));
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(ipv6));
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(ipv6 + "/55/55"));
 	}
 
 	@Test
 	void testCIDRUtils_InetAddressInt_v4() throws UnknownHostException {
-		new CIDRUtils(makeRandomIPv4(), 1);
-		new CIDRUtils(makeRandomIPv4(), 24);
-		new CIDRUtils(makeRandomIPv4(), 32);
-		new CIDRUtils(makeRandomIPv4(), 0);
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(makeRandomIPv4(), 5555));
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(makeRandomIPv4(), -1));
+		new CIDRUtils(addrv4, 1);
+		new CIDRUtils(addrv4, 24);
+		new CIDRUtils(addrv4, 32);
+		new CIDRUtils(addrv4, 0);
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(addrv4, 5555));
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(addrv4, -1));
 	}
 
 	@Test
 	void testCIDRUtils_InetAddressInt_v6() throws UnknownHostException {
-		new CIDRUtils(makeRandomIPv6(), 1);
-		new CIDRUtils(makeRandomIPv6(), 64);
-		new CIDRUtils(makeRandomIPv6(), 128);
-		new CIDRUtils(makeRandomIPv6(), 0);
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(makeRandomIPv6(), 5555));
-		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(makeRandomIPv6(), -1));
+		new CIDRUtils(addrv6, 1);
+		new CIDRUtils(addrv6, 64);
+		new CIDRUtils(addrv6, 128);
+		new CIDRUtils(addrv6, 0);
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(addrv6, 5555));
+		assertThrows(IllegalArgumentException.class, () -> new CIDRUtils(addrv6, -1));
 	}
 
 	@Test

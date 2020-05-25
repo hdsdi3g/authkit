@@ -17,12 +17,10 @@
 package tv.hd3g.authkit.tool;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public abstract class HashCodeEqualsTest {// NOSONAR
@@ -52,14 +50,9 @@ public abstract class HashCodeEqualsTest {// NOSONAR
 		for (final Object instance : instances) {
 			assertNotNull(instance);
 		}
-		for (int i = 0; i < instances.length; i++) {
-			for (int j = i; j < instances.length; j++) {
-				assertTrue(instances[i].equals(instances[j]));
-			}
-		}
+		assertEquals(instances, instances);
 	}
 
-	@Nested
 	static class OppositeTest {
 
 		@Test
@@ -71,7 +64,7 @@ public abstract class HashCodeEqualsTest {// NOSONAR
 		@Test
 		void testEquals() {
 			final var instances = new Object[] { new Object(), new Object() };
-			assertFalse(instances[0].equals(instances[1]));
+			assertNotEquals(instances[0], instances[1]);
 		}
 
 	}

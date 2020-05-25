@@ -56,9 +56,7 @@ public class EndpointsListener implements ApplicationListener<ApplicationEvent> 
 			((ContextRefreshedEvent) event).getApplicationContext()
 			        .getBean(RequestMappingHandlerMapping.class)
 			        .getHandlerMethods().values().stream()
-			        .map(HandlerMethod::getBeanType).forEach(cl -> {
-				        getAnnotatedClass(cl);
-			        });
+			        .map(HandlerMethod::getBeanType).forEach(this::getAnnotatedClass);
 		}
 	}
 

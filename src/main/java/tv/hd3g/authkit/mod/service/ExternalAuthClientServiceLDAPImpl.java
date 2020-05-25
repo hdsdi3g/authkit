@@ -138,10 +138,10 @@ public class ExternalAuthClientServiceLDAPImpl implements ExternalAuthClientServ
 			        userEmail,
 			        memberOf);
 		} catch (final CommunicationException e) {
-			log.error("Failed to connect to " + configuration.getHost() + ":" + configuration.getPort(), e);
+			log.error("Failed to connect to {}: {}", configuration.getHost(), configuration.getPort(), e);
 			throw new ExternalAuthErrorCantLoginException();
 		} catch (final NamingException e) {
-			log.error("Failed to authenticate " + login + "@" + domain + " through " + configuration.getHost(), e);
+			log.error("Failed to authenticate {}@{} through {}", login, domain, configuration.getHost(), e);
 			throw new BadPasswordUserCantLoginException();
 		}
 	}
