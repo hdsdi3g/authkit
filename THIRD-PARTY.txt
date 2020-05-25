@@ -1,5 +1,5 @@
 
-Lists of 142 third-party dependencies.
+Lists of 143 third-party dependencies.
      (BSD License) AntLR Parser Generator (antlr:antlr:2.7.7 - http://www.antlr.org/)
      (Apache 2.0) jcommander (com.beust:jcommander:1.72 - http://jcommander.org)
      (The Apache Software License, Version 2.0) ClassMate (com.fasterxml:classmate:1.4.0 - http://github.com/FasterXML/java-classmate)
@@ -95,6 +95,7 @@ Lists of 142 third-party dependencies.
      (Apache 2) Objenesis (org.objenesis:objenesis:2.6 - http://objenesis.org)
      (The Apache License, Version 2.0) org.opentest4j:opentest4j (org.opentest4j:opentest4j:1.1.1 - https://github.com/ota4j-team/opentest4j)
      (BSD) ASM Core (org.ow2.asm:asm:5.0.4 - http://asm.objectweb.org/asm/)
+     (The BSD 3-Clause License) Java Encoder (org.owasp.encoder:encoder:1.2.2 - https://www.owasp.org/index.php/OWASP_Java_Encoder_Project/encoder)
      (The Apache Software License, Version 2.0) JSONassert (org.skyscreamer:jsonassert:1.5.0 - https://github.com/skyscreamer/JSONassert)
      (MIT License) JUL to SLF4J bridge (org.slf4j:jul-to-slf4j:1.7.26 - http://www.slf4j.org)
      (MIT License) SLF4J API Module (org.slf4j:slf4j-api:1.7.26 - http://www.slf4j.org)
@@ -139,6 +140,6 @@ Lists of 142 third-party dependencies.
      (The Apache Software License, Version 2.0) unbescape (org.unbescape:unbescape:1.1.6.RELEASE - http://www.unbescape.org)
      (The Apache Software License, Version 2.0) org.xmlunit:xmlunit-core (org.xmlunit:xmlunit-core:2.6.3 - https://www.xmlunit.org/)
      (Apache License, Version 2.0) SnakeYAML (org.yaml:snakeyaml:1.23 - http://www.snakeyaml.org)
-     (GNU Lesser General Public License, Version 3) CodePolicyValidation (tv.hd3g.commons:codepolicyvalidation:0.0.1 - https://github.com/hdsdi3g/codepolicyvalidation)
+     (GNU Lesser General Public License, Version 3) CodePolicyValidation (tv.hd3g.commons:codepolicyvalidation:0.1.0 - https://github.com/hdsdi3g/codepolicyvalidation)
      (GNU Lesser General Public License, Version 3) Commons Interfaces (tv.hd3g.commons:interfaces:0.2.0 - https://github.com/hdsdi3g/interfaces)
      (GNU Lesser General Public License, Version 3) SelfAutoRESTDoc (tv.hd3g.commons:selfautorestdoc:0.0.1 - https://github.com/hdsdi3g/selfautorestdoc)
