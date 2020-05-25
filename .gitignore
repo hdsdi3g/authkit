@@ -1,6 +1,7 @@
 # Spring conf
 config/application.yml
 config/application-dev.yml
+config/application.properties
 config/log4j2.xml
 secret-application.yml
 
