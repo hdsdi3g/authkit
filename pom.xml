@@ -62,9 +62,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>tv.hd3g.commons</groupId>
+			<groupId>tv.hd3g</groupId>
 			<artifactId>selfautorestdoc</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.3-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
