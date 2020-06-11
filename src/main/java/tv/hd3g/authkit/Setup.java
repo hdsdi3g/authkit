@@ -25,7 +25,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@ComponentScan(basePackages = { "tv.hd3g.authkit", "tv.hd3g.selfautorestdoc" })
+@ComponentScan(basePackages = { "tv.hd3g.authkit", "tv.hd3g.selfautorestdoc.mod" })
 @EnableJpaRepositories("tv.hd3g.authkit.mod.repository")
 @EntityScan("tv.hd3g.authkit.mod.entity")
 public class Setup {
