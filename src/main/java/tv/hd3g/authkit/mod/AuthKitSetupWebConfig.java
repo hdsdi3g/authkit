@@ -22,7 +22,7 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import tv.hd3g.authkit.mod.component.EndpointsListener;
+import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener;
 import tv.hd3g.authkit.mod.service.AuditReportService;
 import tv.hd3g.authkit.mod.service.AuthenticationService;
 import tv.hd3g.authkit.mod.service.SecuredTokenService;
@@ -32,17 +32,17 @@ public class AuthKitSetupWebConfig implements WebMvcConfigurer {
 
 	private final AuditReportService auditService;
 	private final SecuredTokenService securedTokenService;
-	private final EndpointsListener endpointsListener;
+	private final AuthKitEndpointsListener authKitEndpointsListener;
 	private final AuthenticationService authenticationService;
 
 	@Autowired
 	public AuthKitSetupWebConfig(final AuditReportService auditService,
 	                             final SecuredTokenService securedTokenService,
-	                             final EndpointsListener endpointsListener,
+	                             final AuthKitEndpointsListener authKitEndpointsListener,
 	                             final AuthenticationService authenticationService) {
 		this.auditService = auditService;
 		this.securedTokenService = securedTokenService;
-		this.endpointsListener = endpointsListener;
+		this.authKitEndpointsListener = authKitEndpointsListener;
 		this.authenticationService = authenticationService;
 	}
 
@@ -54,6 +54,6 @@ public class AuthKitSetupWebConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(final InterceptorRegistry registry) {
 		registry.addInterceptor(new ControllerInterceptor(
-		        auditService, securedTokenService, endpointsListener, authenticationService));
+		        auditService, securedTokenService, authKitEndpointsListener, authenticationService));
 	}
 }

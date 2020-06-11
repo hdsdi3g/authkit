@@ -53,7 +53,7 @@ import tv.hd3g.authkit.dummy.ControllerClassRequireRenforceCheck;
 import tv.hd3g.authkit.dummy.ControllerMethodRequireRenforceCheck;
 import tv.hd3g.authkit.dummy.ControllerWithSecure;
 import tv.hd3g.authkit.dummy.ControllerWithoutSecure;
-import tv.hd3g.authkit.mod.component.EndpointsListener;
+import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener;
 import tv.hd3g.authkit.mod.dto.LoggedUserTagsTokenDto;
 import tv.hd3g.authkit.mod.repository.UserRepository;
 import tv.hd3g.authkit.mod.service.AuditReportService;
@@ -80,7 +80,7 @@ class ControllerInterceptorTest {
 	@Mock
 	private AuthenticationService authenticationService;
 
-	private EndpointsListener endpointsListener;
+	private AuthKitEndpointsListener authKitEndpointsListener;
 	private ControllerInterceptor controlerInterceptor;
 	private String uuid;
 
@@ -88,9 +88,9 @@ class ControllerInterceptorTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		DataGenerator.setupMock(request);
-		endpointsListener = new EndpointsListener();
+		authKitEndpointsListener = new AuthKitEndpointsListener();
 		controlerInterceptor = new ControllerInterceptor(
-		        auditService, securedTokenService, endpointsListener, authenticationService);
+		        auditService, securedTokenService, authKitEndpointsListener, authenticationService);
 		uuid = makeUUID();
 		when(request.getAttribute(eq(USER_UUID_ATTRIBUTE_NAME))).then(i -> uuid);
 	}

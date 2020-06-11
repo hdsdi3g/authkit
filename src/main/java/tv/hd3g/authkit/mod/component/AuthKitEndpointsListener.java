@@ -42,11 +42,11 @@ import tv.hd3g.commons.authkit.CheckOneBefore;
 import tv.hd3g.commons.authkit.RenforceCheckBefore;
 
 @Component
-public class EndpointsListener implements ApplicationListener<ApplicationEvent> {
+public class AuthKitEndpointsListener implements ApplicationListener<ApplicationEvent> {
 
 	private final ConcurrentHashMap<Class<?>, AnnotatedClass> annotationCache;
 
-	public EndpointsListener() {
+	public AuthKitEndpointsListener() {
 		annotationCache = new ConcurrentHashMap<>();
 	}
 

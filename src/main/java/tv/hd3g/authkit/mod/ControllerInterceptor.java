@@ -40,8 +40,8 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
-import tv.hd3g.authkit.mod.component.EndpointsListener;
-import tv.hd3g.authkit.mod.component.EndpointsListener.AnnotatedClass;
+import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener;
+import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener.AnnotatedClass;
 import tv.hd3g.authkit.mod.dto.LoggedUserTagsTokenDto;
 import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException;
 import tv.hd3g.authkit.mod.service.AuditReportService;
@@ -55,16 +55,16 @@ public class ControllerInterceptor implements HandlerInterceptor {
 
 	private final AuditReportService auditService;
 	private final SecuredTokenService securedTokenService;
-	private final EndpointsListener endpointsListener;
+	private final AuthKitEndpointsListener authKitEndpointsListener;
 	private final AuthenticationService authenticationService;
 
 	public ControllerInterceptor(final AuditReportService auditService,
 	                             final SecuredTokenService securedTokenService,
-	                             final EndpointsListener endpointsListener,
+	                             final AuthKitEndpointsListener authKitEndpointsListener,
 	                             final AuthenticationService authenticationService) {
 		this.auditService = auditService;
 		this.securedTokenService = securedTokenService;
-		this.endpointsListener = endpointsListener;
+		this.authKitEndpointsListener = authKitEndpointsListener;
 		this.authenticationService = authenticationService;
 	}
 
@@ -191,7 +191,7 @@ public class ControllerInterceptor implements HandlerInterceptor {
 
 			final var handlerMethod = (HandlerMethod) handler;
 			final var controllerClass = handlerMethod.getBeanType();
-			final var annotatedClass = endpointsListener.getAnnotatedClass(controllerClass);
+			final var annotatedClass = authKitEndpointsListener.getAnnotatedClass(controllerClass);
 			final var classMethod = handlerMethod.getMethod();
 
 			checkRenforcedRightsChecks(request, annotatedClass, classMethod, tokenPayload);
@@ -285,7 +285,7 @@ public class ControllerInterceptor implements HandlerInterceptor {
 
 		final var handlerMethod = (HandlerMethod) handler;
 		final var controllerClass = handlerMethod.getBeanType();
-		final var annotatedClass = endpointsListener.getAnnotatedClass(controllerClass);
+		final var annotatedClass = authKitEndpointsListener.getAnnotatedClass(controllerClass);
 		final var classMethod = handlerMethod.getMethod();
 		final var auditList = annotatedClass.getAudits(classMethod);
 

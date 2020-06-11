@@ -63,7 +63,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import tv.hd3g.authkit.mod.component.EndpointsListener;
+import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener;
 import tv.hd3g.authkit.mod.dto.Password;
 import tv.hd3g.authkit.mod.dto.ressource.UserPrivacyDto;
 import tv.hd3g.authkit.mod.dto.validated.AddGroupOrRoleDto;
@@ -96,7 +96,7 @@ class RestControllerUserTest {
 	@Autowired
 	private SecuredTokenService securedTokenService;
 	@Autowired
-	private EndpointsListener endpointsListener;
+	private AuthKitEndpointsListener authKitEndpointsListener;
 	@Autowired
 	private UserDao userDao;
 	@Autowired
@@ -120,7 +120,7 @@ class RestControllerUserTest {
 	@BeforeEach
 	private void init() {
 		final var authToken = securedTokenService.loggedUserRightsGenerateToken(
-		        makeUUID(), Duration.ofDays(1), endpointsListener.getAllRights(), null);
+		        makeUUID(), Duration.ofDays(1), authKitEndpointsListener.getAllRights(), null);
 		baseHeaders = new HttpHeaders();
 		baseHeaders.set(AUTHORIZATION, "bearer " + authToken);
 		baseHeaders.setAccept(Arrays.asList(APPLICATION_JSON_UTF8));

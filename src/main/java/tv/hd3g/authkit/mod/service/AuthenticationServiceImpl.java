@@ -50,7 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
-import tv.hd3g.authkit.mod.component.EndpointsListener;
+import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener;
 import tv.hd3g.authkit.mod.dto.Password;
 import tv.hd3g.authkit.mod.dto.ressource.GroupOrRoleDto;
 import tv.hd3g.authkit.mod.dto.ressource.UserDto;
@@ -111,7 +111,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Autowired
 	private TOTPService totpService;
 	@Autowired
-	private EndpointsListener endpointsListener;
+	private AuthKitEndpointsListener authKitEndpointsListener;
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
@@ -656,7 +656,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public Set<String> getAllRights() {
-		return endpointsListener.getAllRights();
+		return authKitEndpointsListener.getAllRights();
 	}
 
 	@Override
