@@ -117,10 +117,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<groupId>tv.hd3g.mvnplugin</groupId>
 				<artifactId>setupdb</artifactId>
 				<version>0.0.2</version>
