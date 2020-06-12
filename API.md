@@ -67,7 +67,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: setGroupDescription](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#229)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: setGroupDescription](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#230)
 
 ## **POST** /v1/authkit/groups/rename
 
@@ -88,7 +88,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: renameGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#219)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: renameGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#220)
 
 ## **DELETE** /v1/authkit/groups/{groupname}/inrole/{rolename}
 
@@ -106,7 +106,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: removeGroupInRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#343)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: removeGroupInRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#344)
 
 ## **POST** /v1/authkit/groups/{groupname}/inrole/{rolename}
 
@@ -124,7 +124,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: addGroupInRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#332)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: addGroupInRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#333)
 
 ## **GET** /v1/authkit/groups/{groupname}/roles
 
@@ -146,7 +146,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: listRolesForGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#373)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: listRolesForGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#374)
 
 ## **GET** /v1/authkit/groups/{name}/users
 
@@ -175,7 +175,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: listLinkedUsersForGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#462)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: listLinkedUsersForGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#463)
 
 ## **DELETE** /v1/authkit/groups/{name}
 
@@ -192,7 +192,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: removeGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#261)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: removeGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#262)
 
 ## **GET** /v1/authkit/groups
 
@@ -211,7 +211,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: listAllGroups](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#271)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: listAllGroups](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#272)
 
 ## **POST** /v1/authkit/groups
 
@@ -232,7 +232,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: addGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#209)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: addGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#210)
 
 ## **POST** /v1/authkit/me/chpasswd
 
@@ -252,7 +252,7 @@ Response: "application/json;charset=UTF-8" {
 }
 ```
 
-[Go to the top](#rest-api) &bull; [RestControllerMe :: changeMyPassword](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#98)
+[Go to the top](#rest-api) &bull; [RestControllerMe :: changeMyPassword](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#99)
 
 ## **GET** /v1/authkit/me/has2auth
 
@@ -265,7 +265,7 @@ Response: "application/json;charset=UTF-8" {
 }
 ```
 
-[Go to the top](#rest-api) &bull; [RestControllerMe :: hasATOTP](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#174)
+[Go to the top](#rest-api) &bull; [RestControllerMe :: hasATOTP](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#175)
 
 ## **GET** /v1/authkit/me/is-external-auth
 
@@ -279,7 +279,7 @@ Response: "application/json;charset=UTF-8" {
 }
 ```
 
-[Go to the top](#rest-api) &bull; [RestControllerMe :: isExternalAuth](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#126)
+[Go to the top](#rest-api) &bull; [RestControllerMe :: isExternalAuth](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#127)
 
 ## **GET** /v1/authkit/me/privacy
 
@@ -301,7 +301,7 @@ Response: "application/json;charset=UTF-8" {
 }
 ```
 
-[Go to the top](#rest-api) &bull; [RestControllerMe :: getPrivacy](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#203)
+[Go to the top](#rest-api) &bull; [RestControllerMe :: getPrivacy](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#204)
 
 ## **PUT** /v1/authkit/me/privacy
 
@@ -326,7 +326,7 @@ Response: "application/json;charset=UTF-8" {
 }
 ```
 
-[Go to the top](#rest-api) &bull; [RestControllerMe :: setPrivacy](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#219)
+[Go to the top](#rest-api) &bull; [RestControllerMe :: setPrivacy](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#220)
 
 ## **DELETE** /v1/authkit/me/set2auth
 
@@ -345,7 +345,7 @@ Response: "application/json;charset=UTF-8" {
 }
 ```
 
-[Go to the top](#rest-api) &bull; [RestControllerMe :: removeTOTP](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#185)
+[Go to the top](#rest-api) &bull; [RestControllerMe :: removeTOTP](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#186)
 
 ## **GET** /v1/authkit/me/set2auth
 
@@ -362,7 +362,7 @@ Response: "application/json;charset=UTF-8" {
 }
 ```
 
-[Go to the top](#rest-api) &bull; [RestControllerMe :: prepareTOTP](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#136)
+[Go to the top](#rest-api) &bull; [RestControllerMe :: prepareTOTP](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#137)
 
 ## **POST** /v1/authkit/me/set2auth
 
@@ -382,7 +382,7 @@ Response: "application/json;charset=UTF-8" {
 }
 ```
 
-[Go to the top](#rest-api) &bull; [RestControllerMe :: confirmTOTP](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#158)
+[Go to the top](#rest-api) &bull; [RestControllerMe :: confirmTOTP](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerMe.java#159)
 
 ## **GET** /v1/authkit/rights
 
@@ -397,7 +397,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: getAllRights](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#406)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: getAllRights](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#407)
 
 ## **PUT** /v1/authkit/roles/description
 
@@ -418,7 +418,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: setRoleDescription](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#311)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: setRoleDescription](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#312)
 
 ## **POST** /v1/authkit/roles/rename
 
@@ -439,7 +439,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: renameRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#301)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: renameRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#302)
 
 ## **GET** /v1/authkit/roles/{name}/groups
 
@@ -461,7 +461,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: listLinkedGroupsForRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#471)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: listLinkedGroupsForRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#472)
 
 ## **DELETE** /v1/authkit/roles/{rolename}/rights/{rightname}/contexts/{context}
 
@@ -480,7 +480,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: removeContextInRight](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#438)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: removeContextInRight](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#439)
 
 ## **POST** /v1/authkit/roles/{rolename}/rights/{rightname}/contexts/{context}
 
@@ -499,7 +499,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: addContextInRight](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#426)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: addContextInRight](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#427)
 
 ## **GET** /v1/authkit/roles/{rolename}/rights/{rightname}/contexts
 
@@ -518,7 +518,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: listContextsForRight](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#450)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: listContextsForRight](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#451)
 
 ## **DELETE** /v1/authkit/roles/{rolename}/rights/{rightname}
 
@@ -536,7 +536,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: removeRightInRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#395)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: removeRightInRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#396)
 
 ## **POST** /v1/authkit/roles/{rolename}/rights/{rightname}
 
@@ -554,7 +554,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: addRightInRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#384)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: addRightInRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#385)
 
 ## **GET** /v1/authkit/roles/{rolename}/rights
 
@@ -572,7 +572,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: listRightsForRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#415)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: listRightsForRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#416)
 
 ## **PUT** /v1/authkit/roles/{rolename}/setOnlyForClient
 
@@ -595,7 +595,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: setRoleOnlyForClient](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#321)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: setRoleOnlyForClient](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#322)
 
 ## **DELETE** /v1/authkit/roles/{rolename}
 
@@ -612,7 +612,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: removeRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#354)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: removeRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#355)
 
 ## **GET** /v1/authkit/roles
 
@@ -631,7 +631,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: listAllRoles](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#364)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: listAllRoles](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#365)
 
 ## **POST** /v1/authkit/roles
 
@@ -652,7 +652,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: addRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#291)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: addRole](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#292)
 
 ## **GET** /v1/authkit/users/privacy
 
@@ -685,7 +685,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: getUsersPrivacy](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#497)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: getUsersPrivacy](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#498)
 
 ## **PUT** /v1/authkit/users/{uuid}/disable
 
@@ -702,7 +702,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: disableUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#152)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: disableUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#153)
 
 ## **PUT** /v1/authkit/users/{uuid}/enable
 
@@ -719,7 +719,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: enableUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#163)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: enableUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#164)
 
 ## **GET** /v1/authkit/users/{uuid}/groups
 
@@ -741,7 +741,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: listGroupsForUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#280)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: listGroupsForUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#281)
 
 ## **DELETE** /v1/authkit/users/{uuid}/ingroup/{name}
 
@@ -759,7 +759,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: removeUserInGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#250)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: removeUserInGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#251)
 
 ## **POST** /v1/authkit/users/{uuid}/ingroup/{name}
 
@@ -777,7 +777,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: addUserInGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#239)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: addUserInGroup](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#240)
 
 ## **GET** /v1/authkit/users/{uuid}/privacy
 
@@ -804,7 +804,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: getUserPrivacy](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#482)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: getUserPrivacy](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#483)
 
 ## **PUT** /v1/authkit/users/{uuid}/privacy
 
@@ -834,7 +834,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: setUserPrivacy](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#507)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: setUserPrivacy](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#508)
 
 ## **PUT** /v1/authkit/users/{uuid}/resetlogontrials
 
@@ -851,7 +851,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: resetUserLogonTrials](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#185)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: resetUserLogonTrials](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#186)
 
 ## **PUT** /v1/authkit/users/{uuid}/switchresetpassword
 
@@ -868,7 +868,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: switchUserMustResetPassword](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#174)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: switchUserMustResetPassword](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#175)
 
 ## **DELETE** /v1/authkit/users/{uuid}
 
@@ -885,7 +885,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: removeUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#196)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: removeUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#197)
 
 ## **GET** /v1/authkit/users/{uuid}
 
@@ -911,7 +911,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: getUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#106)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: getUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#107)
 
 ## **GET** /v1/authkit/users?pos=0&size=0
 
@@ -937,7 +937,7 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: listUsers](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#117)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: listUsers](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#118)
 
 ## **POST** /v1/authkit/users
 
@@ -961,4 +961,4 @@ Response: "application/json;charset=UTF-8" {
 
 _Mandatory rights: SecurityAdmin_
 
-[Go to the top](#rest-api) &bull; [RestControllerUser :: addUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#95)
+[Go to the top](#rest-api) &bull; [RestControllerUser :: addUser](/blob/master/src/main/java/tv/hd3g/authkit/mod/controller/RestControllerUser.java#96)
