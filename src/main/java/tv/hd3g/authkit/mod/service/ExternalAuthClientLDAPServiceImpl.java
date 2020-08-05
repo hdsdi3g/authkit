@@ -57,7 +57,7 @@ import tv.hd3g.authkit.mod.exception.UserCantLoginException.NoPasswordUserCantLo
 import tv.hd3g.authkit.mod.exception.UserCantLoginException.UnknownUserCantLoginException;
 
 @Service
-public class ExternalAuthClientServiceLDAPImpl implements ExternalAuthClientService {
+public class ExternalAuthClientLDAPServiceImpl implements ExternalAuthClientService {
 	private static Logger log = LogManager.getLogger();
 
 	@Autowired
