@@ -47,7 +47,6 @@ import com.github.javafaker.Animal;
 import com.github.javafaker.service.RandomService;
 
 public class DataGenerator {
-
 	public final static RandomService random = instance().random();
 	private final static Animal animal = instance().animal();
 	public final static RandomStringGenerator pwdGenerator = new RandomStringGenerator.Builder().build();

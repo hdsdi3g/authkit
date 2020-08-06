@@ -20,7 +20,8 @@ import static java.time.Duration.ofDays;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static tv.hd3g.authkit.mod.service.TOTPServiceImpl.base32;
 import static tv.hd3g.authkit.mod.service.TOTPServiceImpl.makeCodeAtTime;
+import static tv.hd3g.authkit.tool.CheckHateoas.checkHateoasPresence;
 import static tv.hd3g.authkit.tool.DataGenerator.makeRandomThing;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUserLogin;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUserPassword;
@@ -63,7 +65,6 @@ import tv.hd3g.authkit.mod.dto.Password;
 import tv.hd3g.authkit.mod.dto.ressource.UserPrivacyDto;
 import tv.hd3g.authkit.mod.dto.validated.AddUserDto;
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
-import tv.hd3g.authkit.mod.entity.Credential;
 import tv.hd3g.authkit.mod.repository.CredentialRepository;
 import tv.hd3g.authkit.mod.service.AuthenticationService;
 import tv.hd3g.authkit.mod.service.SecuredTokenService;
@@ -81,7 +82,7 @@ class RestControllerMeTest {
 
 	private static final ResultMatcher statusOk = status().isOk();
 	private static final ResultMatcher statusBadRequest = status().isBadRequest();
-	private static final ResultMatcher contentTypeJsonUtf8 = content().contentType(APPLICATION_JSON_UTF8);
+	private static final ResultMatcher contentTypeJsonUtf8 = content().contentType(APPLICATION_JSON_VALUE);
 	private static final ResultMatcher statusOkUtf8Hateoas = ResultMatcher.matchAll(
 	        statusOk, contentTypeJsonUtf8, checkHateoasPresence());
 
@@ -124,12 +125,7 @@ class RestControllerMeTest {
 		final var authToken = securedTokenService.loggedUserRightsGenerateToken(userUUID, ofDays(1), Set.of(), null);
 		baseHeaders = new HttpHeaders();
 		baseHeaders.set(AUTHORIZATION, "bearer " + authToken);
-		baseHeaders.setAccept(Arrays.asList(APPLICATION_JSON_UTF8));
-	}
-
-	private static ResultMatcher checkHateoasPresence() {
-		final var linkPresence = jsonPath("$.links").isArray();
-		return ResultMatcher.matchAll(linkPresence);
+		baseHeaders.setAccept(Arrays.asList(APPLICATION_JSON));
 	}
 
 	@Test
@@ -141,7 +137,7 @@ class RestControllerMeTest {
 
 		mvc.perform(post(baseMapping + "/" + "chpasswd")
 		        .headers(baseHeaders)
-		        .contentType(APPLICATION_JSON_UTF8)
+		        .contentType(APPLICATION_JSON_VALUE)
 		        .content(objectMapper.writeValueAsString(chPasswordDto)))
 		        .andExpect(statusOkUtf8Hateoas);
 
@@ -191,7 +187,7 @@ class RestControllerMeTest {
 
 		mvc.perform(post(baseMapping + "/" + "set2auth")
 		        .headers(baseHeaders)
-		        .contentType(APPLICATION_JSON_UTF8)
+		        .contentType(APPLICATION_JSON_VALUE)
 		        .content(objectMapper.writeValueAsString(setupDto)))
 		        .andExpect(statusOkUtf8Hateoas);
 	}
@@ -212,7 +208,7 @@ class RestControllerMeTest {
 
 		mvc.perform(post(baseMapping + "/" + "set2auth")
 		        .headers(baseHeaders)
-		        .contentType(APPLICATION_JSON_UTF8)
+		        .contentType(APPLICATION_JSON_VALUE)
 		        .content(objectMapper.writeValueAsString(setupDtoSecond)))
 		        .andExpect(statusBadRequest);
 	}
@@ -252,7 +248,7 @@ class RestControllerMeTest {
 
 		mvc.perform(delete(baseMapping + "/" + "set2auth")
 		        .headers(baseHeaders)
-		        .contentType(APPLICATION_JSON_UTF8)
+		        .contentType(APPLICATION_JSON_VALUE)
 		        .content(objectMapper.writeValueAsString(setupDto)))
 		        .andExpect(statusOkUtf8Hateoas);
 	}
@@ -268,7 +264,7 @@ class RestControllerMeTest {
 
 	@Test
 	void isExternalAuth_yes() throws Exception {
-		final Credential c = credentialRepository.getByUserUUID(userUUID);
+		final var c = credentialRepository.getByUserUUID(userUUID);
 		final var domain = makeUserLogin();
 		c.setLdapdomain(domain);
 		credentialRepository.save(c);
@@ -333,7 +329,7 @@ class RestControllerMeTest {
 
 			mvc.perform(put(baseMapping + "/" + "privacy")
 			        .headers(baseHeaders)
-			        .contentType(APPLICATION_JSON_UTF8)
+			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(expected)))
 			        .andExpect(statusOkUtf8Hateoas);
 

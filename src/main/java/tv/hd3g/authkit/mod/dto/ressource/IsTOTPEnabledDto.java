@@ -18,11 +18,9 @@ package tv.hd3g.authkit.mod.dto.ressource;
 
 import java.util.Objects;
 
-import org.springframework.hateoas.ResourceSupport;
-
 import tv.hd3g.authkit.mod.entity.Credential;
 
-public class IsTOTPEnabledDto extends ResourceSupport {
+public class IsTOTPEnabledDto extends BaseRepresentationModel {
 
 	private final boolean twoAuthEnabled;
 
@@ -36,8 +34,8 @@ public class IsTOTPEnabledDto extends ResourceSupport {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
+		final var prime = 31;
+		var result = super.hashCode();
 		result = prime * result + Objects.hash(twoAuthEnabled);
 		return result;
 	}
@@ -53,7 +51,7 @@ public class IsTOTPEnabledDto extends ResourceSupport {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final IsTOTPEnabledDto other = (IsTOTPEnabledDto) obj;
+		final var other = (IsTOTPEnabledDto) obj;
 		return twoAuthEnabled == other.twoAuthEnabled;
 	}
 

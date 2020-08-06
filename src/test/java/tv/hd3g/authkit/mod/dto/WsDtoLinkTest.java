@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.LinkRelation;
 import org.springframework.hateoas.UriTemplate;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -48,7 +49,7 @@ class WsDtoLinkTest extends HashCodeEqualsTest {
 		MockitoAnnotations.initMocks(this);
 		Mockito.when(link.getTemplate()).thenReturn(uriTemplate);
 		rel = makeRandomString();
-		Mockito.when(link.getRel()).thenReturn(rel);
+		Mockito.when(link.getRel()).thenReturn(LinkRelation.of(rel));
 		method = getRandomEnum(RequestMethod.class);
 
 		ws = new WsDtoLink(link, method);
@@ -66,7 +67,7 @@ class WsDtoLinkTest extends HashCodeEqualsTest {
 
 	@Test
 	void testGetRel() {
-		assertEquals(rel, ws.getRel());
+		assertEquals(rel, ws.getRel().value());
 	}
 
 	@Override

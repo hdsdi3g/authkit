@@ -19,9 +19,7 @@ package tv.hd3g.authkit.mod.dto.ressource;
 import java.util.Collection;
 import java.util.Objects;
 
-import org.springframework.hateoas.ResourceSupport;
-
-public class ItemListDto<T> extends ResourceSupport {
+public class ItemListDto<T> extends BaseRepresentationModel {
 
 	private final Collection<T> items;
 
@@ -35,8 +33,8 @@ public class ItemListDto<T> extends ResourceSupport {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
+		final var prime = 31;
+		var result = super.hashCode();
 		result = prime * result + Objects.hash(items);
 		return result;
 	}

@@ -22,7 +22,6 @@ import java.util.function.Function;
 
 import javax.validation.constraints.Size;
 
-import org.springframework.hateoas.ResourceSupport;
 import org.springframework.lang.Nullable;
 
 import tv.hd3g.authkit.mod.dto.ExternalAuthUserDto;
@@ -31,7 +30,7 @@ import tv.hd3g.authkit.mod.entity.Userprivacy;
 /**
  * In and Out DTO
  */
-public class UserPrivacyDto extends ResourceSupport {
+public class UserPrivacyDto extends BaseRepresentationModel {
 
 	/**
 	 * Ignored during creation/update
@@ -121,8 +120,8 @@ public class UserPrivacyDto extends ResourceSupport {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
+		final var prime = 31;
+		var result = super.hashCode();
 		result = prime * result + Objects.hash(address, company, country, created, email, lang, name,
 		        phone, postalcode, userUUID);
 		return result;
@@ -139,7 +138,7 @@ public class UserPrivacyDto extends ResourceSupport {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final UserPrivacyDto other = (UserPrivacyDto) obj;
+		final var other = (UserPrivacyDto) obj;
 		return Objects.equals(address, other.address) && Objects.equals(company, other.company) && Objects.equals(
 		        country, other.country) && Objects.equals(created, other.created) && Objects.equals(email, other.email)
 		       && Objects.equals(lang, other.lang) && Objects.equals(

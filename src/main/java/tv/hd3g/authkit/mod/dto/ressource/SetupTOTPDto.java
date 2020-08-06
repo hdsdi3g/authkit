@@ -20,9 +20,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
-import org.springframework.hateoas.ResourceSupport;
-
-public class SetupTOTPDto extends ResourceSupport {
+public class SetupTOTPDto extends BaseRepresentationModel {
 
 	private final String secret;
 	private final URI totpURI;
@@ -44,8 +42,8 @@ public class SetupTOTPDto extends ResourceSupport {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
+		final var prime = 31;
+		var result = super.hashCode();
 		result = prime * result + Objects.hash(backupCodes, qrcode, secret, totpURI, jwtControl);
 		return result;
 	}
@@ -61,7 +59,7 @@ public class SetupTOTPDto extends ResourceSupport {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final SetupTOTPDto other = (SetupTOTPDto) obj;
+		final var other = (SetupTOTPDto) obj;
 		return Objects.equals(backupCodes, other.backupCodes) && Objects.equals(qrcode, other.qrcode)
 		       && Objects.equals(secret, other.secret) && Objects.equals(totpURI, other.totpURI)
 		       && Objects.equals(jwtControl, other.jwtControl);

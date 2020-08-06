@@ -19,11 +19,9 @@ package tv.hd3g.authkit.mod.dto.ressource;
 import java.util.Date;
 import java.util.Objects;
 
-import org.springframework.hateoas.ResourceSupport;
-
 import tv.hd3g.authkit.mod.entity.User;
 
-public class UserDto extends ResourceSupport {
+public class UserDto extends BaseRepresentationModel {
 
 	private final Date created;
 	private final String uuid;
@@ -99,8 +97,8 @@ public class UserDto extends ResourceSupport {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
+		final var prime = 31;
+		var result = super.hashCode();
 		result = prime * result + Objects.hash(created, enabled, lastlogin, ldapDomain, login, mustChangePassword,
 		        realm, totpEnabled, uuid);
 		return result;
@@ -117,7 +115,7 @@ public class UserDto extends ResourceSupport {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final UserDto other = (UserDto) obj;
+		final var other = (UserDto) obj;
 		return Objects.equals(created, other.created) && enabled == other.enabled && Objects.equals(lastlogin,
 		        other.lastlogin) && Objects.equals(ldapDomain, other.ldapDomain) && Objects.equals(login, other.login)
 		       && mustChangePassword == other.mustChangePassword && Objects.equals(realm, other.realm)

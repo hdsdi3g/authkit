@@ -18,10 +18,10 @@ package tv.hd3g.authkit.mod.controller;
 
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.owasp.encoder.Encode.forJavaScript;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -49,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import tv.hd3g.authkit.mod.ControllerInterceptor;
+import tv.hd3g.authkit.mod.dto.ressource.BaseRepresentationModel;
 import tv.hd3g.authkit.mod.dto.ressource.IsExternalAuthDto;
 import tv.hd3g.authkit.mod.dto.ressource.IsTOTPEnabledDto;
 import tv.hd3g.authkit.mod.dto.ressource.SetupTOTPDto;
@@ -68,7 +68,7 @@ import tv.hd3g.authkit.mod.service.TOTPService;
 import tv.hd3g.commons.authkit.AuditAfter;
 
 @RestController
-@RequestMapping(value = "/v1/authkit/me", produces = APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = "/v1/authkit/me", produces = APPLICATION_JSON_VALUE)
 public class RestControllerMe {
 
 	@Autowired
@@ -96,8 +96,8 @@ public class RestControllerMe {
 	@Transactional(readOnly = false)
 	@PostMapping(value = "chpasswd")
 	@AuditAfter(value = "changeMyPassword", changeSecurity = true)
-	public ResponseEntity<ResourceSupport> changeMyPassword(@RequestBody @Validated final ChangeMyPasswordDto chPasswordDto,
-	                                                        final HttpServletRequest request) {
+	public ResponseEntity<BaseRepresentationModel> changeMyPassword(@RequestBody @Validated final ChangeMyPasswordDto chPasswordDto,
+	                                                                final HttpServletRequest request) {
 		final var userUUID = getCurrentUserUUID(request);
 		final var credential = getCurrentUserCredential(userUUID);
 		if (credential.getLdapdomain() != null) {
@@ -117,7 +117,7 @@ public class RestControllerMe {
 			throw new AuthKitException("You can't change the password for a blocked account");
 		}
 
-		final var result = new ResourceSupport();
+		final var result = new BaseRepresentationModel();
 		createHateoasLinks(result);
 		return new ResponseEntity<>(result, OK);
 	}
@@ -145,7 +145,7 @@ public class RestControllerMe {
 		final var totpURI = totpService.makeURI(secret, credential.getUser(), forJavaScript(request.getServerName()));
 		final var qrcode = totpService.makeQRCode(totpURI);
 		final var backupCodes = totpService.makeBackupCodes();
-		final String jwtControl = securedTokenService.setupTOTPGenerateToken(
+		final var jwtControl = securedTokenService.setupTOTPGenerateToken(
 		        userUUID, expirationDuration, secret, backupCodes);
 
 		final var result = new SetupTOTPDto(secret, totpURI, qrcode, backupCodes, jwtControl);
@@ -156,8 +156,8 @@ public class RestControllerMe {
 	@Transactional(readOnly = false)
 	@PostMapping(value = "set2auth")
 	@AuditAfter(value = "setTOTP", changeSecurity = true)
-	public ResponseEntity<ResourceSupport> confirmTOTP(@RequestBody @Validated final ValidationSetupTOTPDto setupDto,
-	                                                   final HttpServletRequest request) {
+	public ResponseEntity<BaseRepresentationModel> confirmTOTP(@RequestBody @Validated final ValidationSetupTOTPDto setupDto,
+	                                                           final HttpServletRequest request) {
 		final var userUUID = getCurrentUserUUID(request);
 		final var credential = getCurrentUserCredential(userUUID);
 		if (credential.getTotpkey() != null) {
@@ -165,7 +165,7 @@ public class RestControllerMe {
 		}
 		totpService.setupTOTPWithChecks(setupDto, userUUID);
 
-		final var result = new ResourceSupport();
+		final var result = new BaseRepresentationModel();
 		createHateoasLinks(result);
 		return new ResponseEntity<>(result, OK);
 	}
@@ -183,8 +183,8 @@ public class RestControllerMe {
 	@Transactional(readOnly = false)
 	@DeleteMapping(value = "set2auth")
 	@AuditAfter(value = "setTOTP", changeSecurity = true)
-	public ResponseEntity<ResourceSupport> removeTOTP(@RequestBody @Validated final ValidationTOTPDto validationDto,
-	                                                  final HttpServletRequest request) {
+	public ResponseEntity<BaseRepresentationModel> removeTOTP(@RequestBody @Validated final ValidationTOTPDto validationDto,
+	                                                          final HttpServletRequest request) {
 		final var userUUID = getCurrentUserUUID(request);
 		final var credential = getCurrentUserCredential(userUUID);
 		if (credential.getTotpkey() == null) {
@@ -193,7 +193,7 @@ public class RestControllerMe {
 		totpService.checkCodeAndPassword(credential, validationDto);
 		totpService.removeTOTP(credential);
 
-		final var result = new ResourceSupport();
+		final var result = new BaseRepresentationModel();
 		createHateoasLinks(result);
 		return new ResponseEntity<>(result, OK);
 	}
@@ -217,11 +217,11 @@ public class RestControllerMe {
 	@Transactional(readOnly = false)
 	@PutMapping(value = "privacy")
 	@AuditAfter(value = "setPrivacy", changeSecurity = true)
-	public ResponseEntity<ResourceSupport> setPrivacy(@RequestBody @Validated final UserPrivacyDto userPrivacyDto,
-	                                                  final HttpServletRequest request) {
+	public ResponseEntity<BaseRepresentationModel> setPrivacy(@RequestBody @Validated final UserPrivacyDto userPrivacyDto,
+	                                                          final HttpServletRequest request) {
 		final var userUUID = getCurrentUserUUID(request);
 		authenticationService.setUserPrivacy(userUUID, userPrivacyDto);
-		final var result = new ResourceSupport();
+		final var result = new BaseRepresentationModel();
 		createHateoasLinks(result);
 		return new ResponseEntity<>(result, OK);
 	}
@@ -229,16 +229,16 @@ public class RestControllerMe {
 	/**
 	 * prepareHateoasLink
 	 */
-	private void prepHLink(final ResourceSupport ressource,
+	private void prepHLink(final BaseRepresentationModel ressource,
 	                       final Function<RestControllerMe, Object> linkTo,
 	                       final String rel,
 	                       final RequestMethod method) {
-		final Class<RestControllerMe> c = RestControllerMe.class;
+		final var c = RestControllerMe.class;
 		final var link = linkTo.apply(methodOn(c));
 		ressource.add(new WsDtoLink(linkTo(link).withRel(rel), method));
 	}
 
-	private void createHateoasLinks(final ResourceSupport res) {
+	private void createHateoasLinks(final BaseRepresentationModel res) {
 		prepHLink(res, c -> c.isExternalAuth(null), "IsExternalAuth", GET);
 		prepHLink(res, c -> c.changeMyPassword(new ChangeMyPasswordDto(), null), "changeMyPassword", POST);
 		prepHLink(res, c -> c.prepareTOTP(null), "prepareToSet2authTOTP", GET);

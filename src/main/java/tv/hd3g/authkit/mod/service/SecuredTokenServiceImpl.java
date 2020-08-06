@@ -72,7 +72,7 @@ public class SecuredTokenServiceImpl implements SecuredTokenService {
 
 	@Override
 	public String simpleFormGenerateToken(final String formName, final Duration expirationDuration) {
-		final long now = System.currentTimeMillis();
+		final var now = System.currentTimeMillis();
 
 		return Jwts.builder()
 		        .signWith(Keys.hmacShaKeyFor(secret), HS512)
@@ -88,7 +88,7 @@ public class SecuredTokenServiceImpl implements SecuredTokenService {
 	private Jws<Claims> extractToken(final String token,
 	                                 final String expectedIssuer) throws NotAcceptableSecuredTokenException {
 		try {
-			final var parsedToken = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+			final var parsedToken = Jwts.parserBuilder().setSigningKey(secret).build().parseClaimsJws(token);
 			log.debug("Check token: {}", () -> parsedToken);
 
 			final var type = parsedToken.getHeader().getType();
@@ -145,7 +145,7 @@ public class SecuredTokenServiceImpl implements SecuredTokenService {
 	                                            final Duration expirationDuration,
 	                                            final Set<String> tags,
 	                                            final String onlyForHost) {
-		final long now = System.currentTimeMillis();
+		final var now = System.currentTimeMillis();
 
 		return Jwts.builder()
 		        .signWith(Keys.hmacShaKeyFor(secret), HS512)
@@ -177,7 +177,7 @@ public class SecuredTokenServiceImpl implements SecuredTokenService {
 	public String securedRedirectRequestGenerateToken(final String userUUID,
 	                                                  final Duration expirationDuration,
 	                                                  final String target) {
-		final long now = System.currentTimeMillis();
+		final var now = System.currentTimeMillis();
 		return Jwts.builder()
 		        .signWith(Keys.hmacShaKeyFor(secret), HS512)
 		        .setHeaderParam("typ", TOKEN_TYPE)
@@ -198,7 +198,7 @@ public class SecuredTokenServiceImpl implements SecuredTokenService {
 	public String userFormGenerateToken(final String formName,
 	                                    final String userUUID,
 	                                    final Duration expirationDuration) {
-		final long now = System.currentTimeMillis();
+		final var now = System.currentTimeMillis();
 
 		return Jwts.builder()
 		        .signWith(Keys.hmacShaKeyFor(secret), HS512)
@@ -228,7 +228,7 @@ public class SecuredTokenServiceImpl implements SecuredTokenService {
 	                                     final Duration expirationDuration,
 	                                     final String secret,
 	                                     final List<String> backupCodes) {
-		final long now = System.currentTimeMillis();
+		final var now = System.currentTimeMillis();
 
 		return Jwts.builder()
 		        .signWith(Keys.hmacShaKeyFor(this.secret), HS512)

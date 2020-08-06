@@ -14,32 +14,36 @@
 	<parent>
 		<groupId>tv.hd3g.commons</groupId>
 		<artifactId>parent-persistence</artifactId>
-		<version>2.1.7.RELEASE-9</version>
+		<version>2.2.9.RELEASE-2</version>
 		<relativePath />
 	</parent>
+
+	<properties>
+		<jna.version>5.5.0</jna.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
-			<version>0.10.7</version>
+			<version>0.11.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-impl</artifactId>
-			<version>0.10.7</version>
+			<version>0.11.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
-			<version>0.10.7</version>
+			<version>0.11.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>de.mkammerer</groupId>
 			<artifactId>argon2-jvm</artifactId>
-			<version>2.5</version>
+			<version>2.7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.zxing</groupId>

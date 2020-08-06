@@ -18,9 +18,7 @@ package tv.hd3g.authkit.mod.dto.ressource;
 
 import java.util.Objects;
 
-import org.springframework.hateoas.ResourceSupport;
-
-public class CreatedUserDto extends ResourceSupport {
+public class CreatedUserDto extends BaseRepresentationModel {
 
 	private final String userName;
 	private final String userUUID;
@@ -46,8 +44,8 @@ public class CreatedUserDto extends ResourceSupport {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
+		final var prime = 31;
+		var result = super.hashCode();
 		result = prime * result + Objects.hash(realm, userName, userUUID);
 		return result;
 	}
@@ -63,7 +61,7 @@ public class CreatedUserDto extends ResourceSupport {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final CreatedUserDto other = (CreatedUserDto) obj;
+		final var other = (CreatedUserDto) obj;
 		return Objects.equals(realm, other.realm) && Objects.equals(userName, other.userName) && Objects.equals(
 		        userUUID, other.userUUID);
 	}

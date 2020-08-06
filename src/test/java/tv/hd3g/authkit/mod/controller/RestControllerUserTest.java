@@ -23,7 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static tv.hd3g.authkit.tool.CheckHateoas.checkHateoasPresence;
 import static tv.hd3g.authkit.tool.DataGenerator.makeRandomThing;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUUID;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUserLogin;
@@ -113,7 +115,7 @@ class RestControllerUserTest {
 	private static final ResultMatcher statusCreated = status().isCreated();
 	private static final ResultMatcher statusOk = status().isOk();
 	private static final ResultMatcher statusPartial = status().isPartialContent();
-	private static final ResultMatcher contentTypeJsonUtf8 = content().contentType(APPLICATION_JSON_UTF8);
+	private static final ResultMatcher contentTypeJsonUtf8 = content().contentType(APPLICATION_JSON_VALUE);
 	private static final ResultMatcher statusOkUtf8Hateoas = ResultMatcher.matchAll(
 	        statusOk, contentTypeJsonUtf8, checkHateoasPresence());
 
@@ -123,12 +125,7 @@ class RestControllerUserTest {
 		        makeUUID(), Duration.ofDays(1), authKitEndpointsListener.getAllRights(), null);
 		baseHeaders = new HttpHeaders();
 		baseHeaders.set(AUTHORIZATION, "bearer " + authToken);
-		baseHeaders.setAccept(Arrays.asList(APPLICATION_JSON_UTF8));
-	}
-
-	private static ResultMatcher checkHateoasPresence() {
-		final var linkPresence = jsonPath("$.links").isArray();
-		return ResultMatcher.matchAll(linkPresence);
+		baseHeaders.setAccept(Arrays.asList(APPLICATION_JSON));
 	}
 
 	@Nested
@@ -139,7 +136,7 @@ class RestControllerUserTest {
 
 			mvc.perform(post(baseMapping + "/" + "users")
 			        .headers(baseHeaders)
-			        .contentType(APPLICATION_JSON_UTF8)
+			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(addUser)))
 			        .andExpect(statusCreated)
 			        .andExpect(contentTypeJsonUtf8)
@@ -180,7 +177,7 @@ class RestControllerUserTest {
 			        .andExpect(checkHateoasPresence())
 			        .andReturn().getResponse();
 
-			final int finalCount = (int) userRepository.count();
+			final var finalCount = (int) userRepository.count();
 			assertEquals("user " + dbMaxFetchSize, response.getHeader("Accept-Range"));
 			assertEquals("0-" + dbMaxFetchSize + "/" + finalCount, response.getHeader("Content-Range"));
 		}
@@ -197,7 +194,7 @@ class RestControllerUserTest {
 			        .andExpect(checkHateoasPresence())
 			        .andReturn().getResponse();
 
-			final int finalCount = (int) userRepository.count();
+			final var finalCount = (int) userRepository.count();
 			assertEquals("user " + dbMaxFetchSize, response.getHeader("Accept-Range"));
 			assertEquals("1-5/" + finalCount, response.getHeader("Content-Range"));
 		}
@@ -282,7 +279,7 @@ class RestControllerUserTest {
 		}
 
 		private void assertHasSomeUsersInDb() {
-			final int initialCount = (int) userRepository.count();
+			final var initialCount = (int) userRepository.count();
 			if (initialCount < dbMaxFetchSize + 1) {
 				IntStream.range(0, dbMaxFetchSize + 1).forEach(i -> {
 					authenticationService.addUser(new AddUserTestDto().makeClassicDto());
@@ -301,7 +298,7 @@ class RestControllerUserTest {
 
 			mvc.perform(post(baseMapping + "/" + "groups")
 			        .headers(baseHeaders)
-			        .contentType(APPLICATION_JSON_UTF8)
+			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(addGroup)))
 			        .andExpect(statusCreated)
 			        .andExpect(contentTypeJsonUtf8)
@@ -310,7 +307,7 @@ class RestControllerUserTest {
 
 		@Test
 		void renameGroup() throws Exception {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 
@@ -320,14 +317,14 @@ class RestControllerUserTest {
 
 			mvc.perform(post(baseMapping + "/" + "groups/rename")
 			        .headers(baseHeaders)
-			        .contentType(APPLICATION_JSON_UTF8)
+			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(rename)))
 			        .andExpect(statusOkUtf8Hateoas);
 		}
 
 		@Test
 		void setGroupDescription() throws Exception {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			g.setDescription(makeRandomThing());
 			authenticationService.addGroup(g);
@@ -338,7 +335,7 @@ class RestControllerUserTest {
 
 			mvc.perform(put(baseMapping + "/" + "groups/description")
 			        .headers(baseHeaders)
-			        .contentType(APPLICATION_JSON_UTF8)
+			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(change)))
 			        .andExpect(statusOkUtf8Hateoas);
 		}
@@ -350,7 +347,7 @@ class RestControllerUserTest {
 			addUser.setUserPassword(new Password(makeUserPassword()));
 
 			final var uuid = authenticationService.addUser(addUser);
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 
@@ -368,7 +365,7 @@ class RestControllerUserTest {
 			addUser.setUserPassword(new Password(makeUserPassword()));
 
 			final var uuid = authenticationService.addUser(addUser);
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
@@ -380,7 +377,7 @@ class RestControllerUserTest {
 
 		@Test
 		void removeGroup() throws Exception {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 
@@ -391,7 +388,7 @@ class RestControllerUserTest {
 
 		@Test
 		void listAllGroups() throws Exception {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 
@@ -407,7 +404,7 @@ class RestControllerUserTest {
 			addUser.setUserLogin(makeUserLogin());
 			addUser.setUserPassword(new Password(makeUserPassword()));
 			final var uuid = authenticationService.addUser(addUser);
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
@@ -431,7 +428,7 @@ class RestControllerUserTest {
 
 			mvc.perform(post(baseMapping + "/" + "roles")
 			        .headers(baseHeaders)
-			        .contentType(APPLICATION_JSON_UTF8)
+			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(addRole)))
 			        .andExpect(statusCreated)
 			        .andExpect(contentTypeJsonUtf8)
@@ -440,7 +437,7 @@ class RestControllerUserTest {
 
 		@Test
 		void renameRole() throws Exception {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 
@@ -450,14 +447,14 @@ class RestControllerUserTest {
 
 			mvc.perform(post(baseMapping + "/" + "roles/rename")
 			        .headers(baseHeaders)
-			        .contentType(APPLICATION_JSON_UTF8)
+			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(rename)))
 			        .andExpect(statusOkUtf8Hateoas);
 		}
 
 		@Test
 		void setRoleDescription() throws Exception {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			r.setDescription(makeRandomThing());
 			authenticationService.addRole(r);
@@ -468,14 +465,14 @@ class RestControllerUserTest {
 
 			mvc.perform(put(baseMapping + "/" + "roles/description")
 			        .headers(baseHeaders)
-			        .contentType(APPLICATION_JSON_UTF8)
+			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(change)))
 			        .andExpect(statusOkUtf8Hateoas);
 		}
 
 		@Test
 		void setRoleOnlyForClient() throws Exception {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 
@@ -485,17 +482,17 @@ class RestControllerUserTest {
 
 			mvc.perform(put(baseMapping + "/" + "roles/" + r.getName() + "/setOnlyForClient")
 			        .headers(baseHeaders)
-			        .contentType(APPLICATION_JSON_UTF8)
+			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(change)))
 			        .andExpect(statusOkUtf8Hateoas);
 		}
 
 		@Test
 		void addGroupInRole() throws Exception {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 
@@ -508,10 +505,10 @@ class RestControllerUserTest {
 
 		@Test
 		void removeGroupInRole() throws Exception {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 
@@ -524,7 +521,7 @@ class RestControllerUserTest {
 
 		@Test
 		void removeRole() throws Exception {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 
@@ -535,7 +532,7 @@ class RestControllerUserTest {
 
 		@Test
 		void listAllRoles() throws Exception {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 
@@ -547,10 +544,10 @@ class RestControllerUserTest {
 
 		@Test
 		void listRolesForGroup() throws Exception {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			authenticationService.addGroupInRole(g.getName(), r.getName());
@@ -569,7 +566,7 @@ class RestControllerUserTest {
 
 		@Test
 		void addRightInRole() throws Exception {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -583,7 +580,7 @@ class RestControllerUserTest {
 
 		@Test
 		void removeRightInRole() throws Exception {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -604,7 +601,7 @@ class RestControllerUserTest {
 
 		@Test
 		void listRightsForRole() throws Exception {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -619,7 +616,7 @@ class RestControllerUserTest {
 
 		@Test
 		void listContextsForRight() throws Exception {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -636,7 +633,7 @@ class RestControllerUserTest {
 
 		@Test
 		void addContextInRight() throws Exception {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -653,7 +650,7 @@ class RestControllerUserTest {
 
 		@Test
 		void removeContextInRight() throws Exception {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -674,7 +671,7 @@ class RestControllerUserTest {
 		addUser.setUserLogin(makeUserLogin());
 		addUser.setUserPassword(new Password(makeUserPassword()));
 		final var uuid = authenticationService.addUser(addUser);
-		final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+		final var g = new AddGroupOrRoleDto();
 		g.setName("test:" + makeUserLogin());
 		authenticationService.addGroup(g);
 		authenticationService.addUserInGroup(uuid, g.getName());
@@ -688,10 +685,10 @@ class RestControllerUserTest {
 
 	@Test
 	void listLinkedGroupsForRole() throws Exception {
-		final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+		final var g = new AddGroupOrRoleDto();
 		g.setName("test:" + makeUserLogin());
 		authenticationService.addGroup(g);
-		final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+		final var r = new AddGroupOrRoleDto();
 		r.setName("test:" + makeUserLogin());
 		authenticationService.addRole(r);
 		authenticationService.addGroupInRole(g.getName(), r.getName());
@@ -750,12 +747,12 @@ class RestControllerUserTest {
 
 		@Test
 		void getUsersPrivacy() throws Exception {
-			final ListStringDto userUUIDList = new ListStringDto();
+			final var userUUIDList = new ListStringDto();
 			userUUIDList.setList(uuidList);
 
 			mvc.perform(get(baseMapping + "/" + "users/privacy")
 			        .headers(baseHeaders)
-			        .contentType(APPLICATION_JSON_UTF8)
+			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(userUUIDList)))
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(uuidList.size())))
@@ -777,7 +774,7 @@ class RestControllerUserTest {
 
 			mvc.perform(put(baseMapping + "/" + "users/" + uuid + "/privacy")
 			        .headers(baseHeaders)
-			        .contentType(APPLICATION_JSON_UTF8)
+			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(expected)))
 			        .andExpect(statusOkUtf8Hateoas);
 

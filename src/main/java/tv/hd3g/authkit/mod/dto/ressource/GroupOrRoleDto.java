@@ -18,12 +18,10 @@ package tv.hd3g.authkit.mod.dto.ressource;
 
 import java.util.Objects;
 
-import org.springframework.hateoas.ResourceSupport;
-
 import tv.hd3g.authkit.mod.entity.Group;
 import tv.hd3g.authkit.mod.entity.Role;
 
-public class GroupOrRoleDto extends ResourceSupport {
+public class GroupOrRoleDto extends BaseRepresentationModel {
 
 	private final String name;
 	private final String description;
@@ -53,8 +51,8 @@ public class GroupOrRoleDto extends ResourceSupport {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
+		final var prime = 31;
+		var result = super.hashCode();
 		result = prime * result + Objects.hash(description, name);
 		return result;
 	}
@@ -70,7 +68,7 @@ public class GroupOrRoleDto extends ResourceSupport {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final GroupOrRoleDto other = (GroupOrRoleDto) obj;
+		final var other = (GroupOrRoleDto) obj;
 		return Objects.equals(description, other.description) && Objects.equals(name, other.name);
 	}
 

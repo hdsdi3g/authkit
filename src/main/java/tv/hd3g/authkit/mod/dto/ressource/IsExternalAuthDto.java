@@ -18,11 +18,9 @@ package tv.hd3g.authkit.mod.dto.ressource;
 
 import java.util.Objects;
 
-import org.springframework.hateoas.ResourceSupport;
-
 import tv.hd3g.authkit.mod.entity.Credential;
 
-public class IsExternalAuthDto extends ResourceSupport {
+public class IsExternalAuthDto extends BaseRepresentationModel {
 
 	private final boolean externalAuthEnabled;
 	private final String domain;
@@ -42,8 +40,8 @@ public class IsExternalAuthDto extends ResourceSupport {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
+		final var prime = 31;
+		var result = super.hashCode();
 		result = prime * result + Objects.hash(domain, externalAuthEnabled);
 		return result;
 	}
@@ -59,7 +57,7 @@ public class IsExternalAuthDto extends ResourceSupport {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final IsExternalAuthDto other = (IsExternalAuthDto) obj;
+		final var other = (IsExternalAuthDto) obj;
 		return Objects.equals(domain, other.domain) && externalAuthEnabled == other.externalAuthEnabled;
 	}
 
