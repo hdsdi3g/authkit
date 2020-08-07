@@ -17,8 +17,7 @@
 package tv.hd3g.authkit.mod;
 
 /**
- * Used for replace new lines/tabs in a String + trim.
- * @see https://sonarcloud.io/organizations/hdsdi3g/rules?open=javasecurity%3AS5145&rule_key=javasecurity%3AS5145
+ * Used for replace new lines/tabs in a String + trim: see Sonar S5145
  */
 public class LogSanitizer {
 
