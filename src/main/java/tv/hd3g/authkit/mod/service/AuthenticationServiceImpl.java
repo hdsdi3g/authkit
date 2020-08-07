@@ -17,6 +17,7 @@
 package tv.hd3g.authkit.mod.service;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
+import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
 import static tv.hd3g.authkit.mod.controller.ControllerLogin.TOKEN_FORMNAME_ENTER_TOTP;
 import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.DISABLED_LOGIN;
 import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.EMPTY_PASSWORD;
@@ -282,7 +283,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				if (groupNames.contains(ldapGroupName)) {
 					return;
 				}
-				Group group = groupRepository.getByName(ldapGroupName);
+				var group = groupRepository.getByName(ldapGroupName);
 				if (group == null) {
 					group = new Group(ldapGroupName);
 					group.setDescription("Imported from LDAP");
@@ -300,7 +301,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public String userLoginRequest(final HttpServletRequest request,
 	                               final LoginFormDto form) throws UserCantLoginException {
-		Credential credential = credentialRepository.getFromRealmLogin(realm, form.getUserlogin());
+		var credential = credentialRepository.getFromRealmLogin(realm, form.getUserlogin());
 		if (credential == null && externalAuthClientService.isAvailable()) {
 			credential = importLDAPUserFirstTime(request, form);
 		}
@@ -330,7 +331,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	                                   final Credential credential,
 	                                   final String userUUID) {
 		final var clientAddr = getOriginalRemoteAddr(request);
-		final Set<String> tags = Set.copyOf(userDao.getRightsForUser(userUUID, clientAddr));
+		final var tags = Set.copyOf(userDao.getRightsForUser(userUUID, clientAddr));
 
 		credential.setLastlogin(new Date());
 		credential.setLogontrial(0);
@@ -349,7 +350,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			host = null;
 		}
 
-		final String userSessionToken = tokenService.loggedUserRightsGenerateToken(
+		final var userSessionToken = tokenService.loggedUserRightsGenerateToken(
 		        userUUID, sessionDuration, tags, host);
 		auditReportService.onLogin(request, longSessionDuration, tags);
 		return userSessionToken;
@@ -358,7 +359,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public String userLoginRequest(final HttpServletRequest request,
 	                               final TOTPLogonCodeFormDto form) throws UserCantLoginException, NotAcceptableSecuredTokenException {
-		final String userUUID = tokenService.userFormExtractTokenUUID(TOKEN_FORMNAME_ENTER_TOTP, form.getSecuretoken());
+		final var userUUID = tokenService.userFormExtractTokenUUID(TOKEN_FORMNAME_ENTER_TOTP, form.getSecuretoken());
 		final var credential = credentialRepository.getByUserUUID(userUUID);
 		checkLoginUserNoCredential(request, credential, userUUID);
 		checkLoginUserBlocked(credential);
@@ -467,7 +468,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		/**
 		 * Test if user change with the same password
 		 */
-		final Password newPasswordForChecks = newPassword.duplicate();
+		final var newPasswordForChecks = newPassword.duplicate();
 		final var passwordHashCheck = cipherService.unCipherToString(credential.getPasswordhash());
 		if (newPasswordForChecks.verify(ARGON2, passwordHashCheck)) {
 			throw new ResetWithSamePasswordException();
@@ -529,7 +530,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	public void setGroupDescription(final AddGroupOrRoleDto changeGroup) {
 		final var name = changeGroup.getName();
 		getGroupByName(name).setDescription(changeGroup.getDescription());
-		log.info("Change role \"{}\" description to \"{}\"", name, changeGroup.getDescription());
+		log.info(() -> "Change role \"" + name + "\" description to \""
+		               + sanitize(changeGroup.getDescription()) + "\"");
 	}
 
 	@Override
@@ -589,7 +591,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		final var name = changeRole.getName();
 		final var role = getRoleByName(name);
 		role.setDescription(changeRole.getDescription());
-		log.info("Change role \"{}\" description to \"{}\"", name, changeRole.getDescription());
+		log.info(() -> "Change role \"" + name + "\" description to \""
+		               + sanitize(changeRole.getDescription()) + "\"");
 	}
 
 	@Override
@@ -642,7 +645,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			return;
 		}
 
-		final RoleRight rr = new RoleRight(rightName, role);
+		final var rr = new RoleRight(rightName, role);
 		roleRightRepository.save(rr);
 		log.info("Add right \"{}\" in role \"{}\"", rightName, roleName);
 	}

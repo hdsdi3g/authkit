@@ -16,6 +16,8 @@
  */
 package tv.hd3g.authkit.mod.dto.validated;
 
+import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -29,7 +31,7 @@ public class RenameGroupOrRoleDto {
 	private String newname;
 
 	public String getName() {
-		return name;
+		return sanitize(name);
 	}
 
 	public void setName(final String name) {
@@ -37,7 +39,7 @@ public class RenameGroupOrRoleDto {
 	}
 
 	public String getNewname() {
-		return newname;
+		return sanitize(newname);
 	}
 
 	public void setNewname(final String newname) {

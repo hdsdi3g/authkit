@@ -16,6 +16,8 @@
  */
 package tv.hd3g.authkit.mod.dto.validated;
 
+import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
+
 import java.util.Optional;
 
 import javax.validation.constraints.NotBlank;
@@ -37,7 +39,7 @@ public class LoginFormDto {
 	private Boolean shorttime;
 
 	public String getUserlogin() {
-		return userlogin;
+		return sanitize(userlogin);
 	}
 
 	public void setUserlogin(final String userlogin) {
@@ -73,7 +75,7 @@ public class LoginFormDto {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder();
+		final var sb = new StringBuilder();
 		sb.append("userLogin: ");
 		sb.append(userlogin);
 		sb.append(", userPassword: ");
