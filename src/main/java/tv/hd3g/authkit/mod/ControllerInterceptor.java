@@ -20,6 +20,7 @@ import static java.util.Arrays.stream;
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
 import static tv.hd3g.authkit.mod.service.AuditReportServiceImpl.getOriginalRemoteAddr;
 
 import java.io.IOException;
@@ -270,7 +271,8 @@ public class ControllerInterceptor implements HandlerInterceptor {
 	}
 
 	public static final Optional<String> getRequestUserUUID(final HttpServletRequest request) {
-		return Optional.ofNullable(request.getAttribute(USER_UUID_ATTRIBUTE_NAME)).map(o -> (String) o);
+		return Optional.ofNullable(request.getAttribute(USER_UUID_ATTRIBUTE_NAME))
+		        .map(o -> sanitize((String) o));
 	}
 
 	@Override

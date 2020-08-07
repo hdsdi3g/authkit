@@ -17,6 +17,8 @@
 package tv.hd3g.authkit.mod.dto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +45,8 @@ class ListStringDtoTest {
 
 	@Test
 	void testGetList() {
-		assertEquals(list, listStringDto.getList());
+		assertNotNull(listStringDto.getList());
+		assertTrue(listStringDto.getList().isEmpty());
 	}
 
 	@Test

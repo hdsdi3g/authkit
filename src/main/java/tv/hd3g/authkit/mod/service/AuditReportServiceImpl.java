@@ -17,6 +17,7 @@
 package tv.hd3g.authkit.mod.service;
 
 import static tv.hd3g.authkit.mod.ControllerInterceptor.getRequestUserUUID;
+import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -70,7 +71,7 @@ public class AuditReportServiceImpl implements AuditReportService {
 
 	private static String getFullURLQuery(final HttpServletRequest request) {
 		final var queryString = Optional.ofNullable(request.getQueryString()).map(qs -> "?" + qs).orElse("");
-		return request.getContextPath() + request.getPathInfo() + queryString;
+		return sanitize(request.getContextPath() + request.getPathInfo() + queryString);
 	}
 
 	private Audit prepareAudit(final HttpServletRequest request, final String eventName) {

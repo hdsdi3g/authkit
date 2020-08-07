@@ -11,27 +11,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
- * Copyright (C) hdsdi3g for hd3g.tv 2019
+ * Copyright (C) hdsdi3g for hd3g.tv 2020
  *
  */
-package tv.hd3g.authkit.mod.dto.validated;
+package tv.hd3g.authkit.mod;
 
-import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
+/**
+ * Used for replace new lines/tabs in a String + trim.
+ * @see https://sonarcloud.io/organizations/hdsdi3g/rules?open=javasecurity%3AS5145&rule_key=javasecurity%3AS5145
+ */
+public class LogSanitizer {
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-
-public class ChangeIPDto {
-
-	@NotBlank
-	@Size(min = 7, max = 160)
-	private String ip;
-
-	public String getIp() {
-		return ip;
+	private LogSanitizer() {
 	}
 
-	public void setIp(final String ip) {
-		this.ip = sanitize(ip);
+	public static final String sanitize(final String value) {
+		return value.replaceAll("[\n|\r|\t]", " ").trim();
 	}
 }

@@ -28,6 +28,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
 
 import java.util.List;
 import java.util.UUID;
@@ -104,7 +105,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = true)
 	@GetMapping(value = "users/{uuid}")
 	@AuditAfter(value = "getUser", changeSecurity = false)
-	public ResponseEntity<UserDto> getUser(@PathVariable("uuid") @NotEmpty final String uuid) {
+	public ResponseEntity<UserDto> getUser(@PathVariable("uuid") @NotEmpty final String _uuid) {
+		final var uuid = sanitize(_uuid);
 		final var result = userDao.getUserByUUID(UUID.fromString(uuid))
 		        .orElseThrow(() -> new AuthKitException(SC_NOT_FOUND, "Can't found user " + uuid));
 
@@ -150,7 +152,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@PutMapping(value = "users/{uuid}/disable")
 	@AuditAfter(value = "disableUser", changeSecurity = true)
-	public ResponseEntity<BaseRepresentationModel> disableUser(@PathVariable("uuid") @NotEmpty final String uuid) {
+	public ResponseEntity<BaseRepresentationModel> disableUser(@PathVariable("uuid") @NotEmpty final String _uuid) {
+		final var uuid = sanitize(_uuid);
 		authenticationService.disableUser(uuid);
 
 		final var result = new BaseRepresentationModel();
@@ -161,7 +164,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@PutMapping(value = "users/{uuid}/enable")
 	@AuditAfter(value = "enableUser", changeSecurity = true)
-	public ResponseEntity<BaseRepresentationModel> enableUser(@PathVariable("uuid") @NotEmpty final String uuid) {
+	public ResponseEntity<BaseRepresentationModel> enableUser(@PathVariable("uuid") @NotEmpty final String _uuid) {
+		final var uuid = sanitize(_uuid);
 		authenticationService.enableUser(uuid);
 
 		final var result = new BaseRepresentationModel();
@@ -172,7 +176,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@PutMapping(value = "users/{uuid}/switchresetpassword")
 	@AuditAfter(value = "switchUserMustResetPassword", changeSecurity = true)
-	public ResponseEntity<BaseRepresentationModel> switchUserMustResetPassword(@PathVariable("uuid") @NotEmpty final String uuid) {
+	public ResponseEntity<BaseRepresentationModel> switchUserMustResetPassword(@PathVariable("uuid") @NotEmpty final String _uuid) {
+		final var uuid = sanitize(_uuid);
 		authenticationService.setUserMustChangePassword(uuid);
 
 		final var result = new BaseRepresentationModel();
@@ -183,7 +188,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@PutMapping(value = "users/{uuid}/resetlogontrials")
 	@AuditAfter(value = "resetUserLogonTrials", changeSecurity = true)
-	public ResponseEntity<BaseRepresentationModel> resetUserLogonTrials(@PathVariable("uuid") @NotEmpty final String uuid) {
+	public ResponseEntity<BaseRepresentationModel> resetUserLogonTrials(@PathVariable("uuid") @NotEmpty final String _uuid) {
+		final var uuid = sanitize(_uuid);
 		authenticationService.resetUserLogonTrials(uuid);
 
 		final var result = new BaseRepresentationModel();
@@ -194,7 +200,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@DeleteMapping(value = "users/{uuid}")
 	@AuditAfter(value = "removeUser", changeSecurity = true)
-	public ResponseEntity<BaseRepresentationModel> removeUser(@PathVariable("uuid") @NotEmpty final String uuid) {
+	public ResponseEntity<BaseRepresentationModel> removeUser(@PathVariable("uuid") @NotEmpty final String _uuid) {
+		final var uuid = sanitize(_uuid);
 		authenticationService.removeUser(uuid);
 
 		final var result = new BaseRepresentationModel();
@@ -237,8 +244,10 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "addUserInGroup", changeSecurity = true)
 	@PostMapping(value = "users/{uuid}/ingroup/{name}")
-	public ResponseEntity<BaseRepresentationModel> addUserInGroup(@PathVariable("uuid") @NotEmpty final String userUUID,
-	                                                              @PathVariable("name") @NotEmpty final String groupName) {
+	public ResponseEntity<BaseRepresentationModel> addUserInGroup(@PathVariable("uuid") @NotEmpty final String _userUUID,
+	                                                              @PathVariable("name") @NotEmpty final String _groupName) {
+		final var userUUID = sanitize(_userUUID);
+		final var groupName = sanitize(_groupName);
 		authenticationService.addUserInGroup(userUUID, groupName);
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForUser(userUUID, result);
@@ -248,8 +257,10 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "removeUserInGroup", changeSecurity = true)
 	@DeleteMapping(value = "users/{uuid}/ingroup/{name}")
-	public ResponseEntity<BaseRepresentationModel> removeUserInGroup(@PathVariable("uuid") @NotEmpty final String userUUID,
-	                                                                 @PathVariable("name") @NotEmpty final String groupName) {
+	public ResponseEntity<BaseRepresentationModel> removeUserInGroup(@PathVariable("uuid") @NotEmpty final String _userUUID,
+	                                                                 @PathVariable("name") @NotEmpty final String _groupName) {
+		final var userUUID = sanitize(_userUUID);
+		final var groupName = sanitize(_groupName);
 		authenticationService.removeUserInGroup(userUUID, groupName);
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForUser(userUUID, result);
@@ -259,7 +270,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "removeGroup", changeSecurity = true)
 	@DeleteMapping(value = "groups/{name}")
-	public ResponseEntity<BaseRepresentationModel> removeGroup(@PathVariable("name") @NotEmpty final String groupName) {
+	public ResponseEntity<BaseRepresentationModel> removeGroup(@PathVariable("name") @NotEmpty final String _groupName) {
+		final var groupName = sanitize(_groupName);
 		authenticationService.removeGroup(groupName);
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForGroup(groupName, result);
@@ -278,7 +290,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "listGroupsForUser", changeSecurity = false)
 	@GetMapping(value = "users/{uuid}/groups")
-	public ResponseEntity<ItemListDto<GroupOrRoleDto>> listGroupsForUser(@PathVariable("uuid") @NotEmpty final String userUUID) {
+	public ResponseEntity<ItemListDto<GroupOrRoleDto>> listGroupsForUser(@PathVariable("uuid") @NotEmpty final String _userUUID) {
+		final var userUUID = sanitize(_userUUID);
 		final var result = new ItemListDto<>(authenticationService.listGroupsForUser(userUUID));
 		createHateoasLinksForUser(userUUID, result);
 		return new ResponseEntity<>(result, OK);
@@ -319,8 +332,9 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "setRoleOnlyForClients", changeSecurity = true)
 	@PutMapping(value = "roles/{rolename}/setOnlyForClient")
-	public ResponseEntity<BaseRepresentationModel> setRoleOnlyForClient(@PathVariable("rolename") @NotEmpty final String roleName,
+	public ResponseEntity<BaseRepresentationModel> setRoleOnlyForClient(@PathVariable("rolename") @NotEmpty final String _roleName,
 	                                                                    @RequestBody @Validated final ChangeIPDto setIp) {
+		final var roleName = sanitize(_roleName);
 		authenticationService.setRoleOnlyForClient(roleName, setIp.getIp());
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForRoles(roleName, result);
@@ -330,8 +344,10 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "addGroupInRole", changeSecurity = true)
 	@PostMapping(value = "groups/{groupname}/inrole/{rolename}")
-	public ResponseEntity<BaseRepresentationModel> addGroupInRole(@PathVariable("groupname") @NotEmpty final String groupName,
-	                                                              @PathVariable("rolename") @NotEmpty final String roleName) {
+	public ResponseEntity<BaseRepresentationModel> addGroupInRole(@PathVariable("groupname") @NotEmpty final String _groupName,
+	                                                              @PathVariable("rolename") @NotEmpty final String _roleName) {
+		final var roleName = sanitize(_roleName);
+		final var groupName = sanitize(_groupName);
 		authenticationService.addGroupInRole(groupName, roleName);
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForRoles(roleName, result);
@@ -341,8 +357,10 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "removeGroupInRole", changeSecurity = true)
 	@DeleteMapping(value = "groups/{groupname}/inrole/{rolename}")
-	public ResponseEntity<BaseRepresentationModel> removeGroupInRole(@PathVariable("groupname") @NotEmpty final String groupName,
-	                                                                 @PathVariable("rolename") @NotEmpty final String roleName) {
+	public ResponseEntity<BaseRepresentationModel> removeGroupInRole(@PathVariable("groupname") @NotEmpty final String _groupName,
+	                                                                 @PathVariable("rolename") @NotEmpty final String _roleName) {
+		final var roleName = sanitize(_roleName);
+		final var groupName = sanitize(_groupName);
 		authenticationService.removeGroupInRole(groupName, roleName);
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForRoles(roleName, result);
@@ -352,7 +370,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "removeRole", changeSecurity = true)
 	@DeleteMapping(value = "roles/{rolename}")
-	public ResponseEntity<BaseRepresentationModel> removeRole(@PathVariable("rolename") @NotEmpty final String roleName) {
+	public ResponseEntity<BaseRepresentationModel> removeRole(@PathVariable("rolename") @NotEmpty final String _roleName) {
+		final var roleName = sanitize(_roleName);
 		authenticationService.removeRole(roleName);
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForRoles(roleName, result);
@@ -371,7 +390,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "listRolesForGroup", changeSecurity = false)
 	@GetMapping(value = "groups/{groupname}/roles")
-	public ResponseEntity<ItemListDto<GroupOrRoleDto>> listRolesForGroup(@PathVariable("groupname") @NotEmpty final String groupName) {
+	public ResponseEntity<ItemListDto<GroupOrRoleDto>> listRolesForGroup(@PathVariable("groupname") @NotEmpty final String _groupName) {
+		final var groupName = sanitize(_groupName);
 		final var result = new ItemListDto<>(authenticationService.listRolesForGroup(groupName));
 		createHateoasLinksForGroup(groupName, result);
 		return new ResponseEntity<>(result, OK);
@@ -382,8 +402,9 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "addRightInRole", changeSecurity = true)
 	@PostMapping(value = "roles/{rolename}/rights/{rightname}")
-	public ResponseEntity<BaseRepresentationModel> addRightInRole(@PathVariable("rolename") @NotEmpty final String roleName,
+	public ResponseEntity<BaseRepresentationModel> addRightInRole(@PathVariable("rolename") @NotEmpty final String _roleName,
 	                                                              @PathVariable("rightname") @NotEmpty final String rightName) {
+		final var roleName = sanitize(_roleName);
 		authenticationService.addRightInRole(roleName, rightName);
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForRights(roleName, rightName, result);
@@ -393,8 +414,9 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "removeRightInRole", changeSecurity = true)
 	@DeleteMapping(value = "roles/{rolename}/rights/{rightname}")
-	public ResponseEntity<BaseRepresentationModel> removeRightInRole(@PathVariable("rolename") @NotEmpty final String roleName,
+	public ResponseEntity<BaseRepresentationModel> removeRightInRole(@PathVariable("rolename") @NotEmpty final String _roleName,
 	                                                                 @PathVariable("rightname") @NotEmpty final String rightName) {
+		final var roleName = sanitize(_roleName);
 		authenticationService.removeRightInRole(roleName, rightName);
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForRights(roleName, rightName, result);
@@ -413,7 +435,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "listRightsForRole", changeSecurity = false)
 	@GetMapping(value = "roles/{rolename}/rights")
-	public ResponseEntity<ItemListDto<String>> listRightsForRole(@PathVariable("rolename") @NotEmpty final String roleName) {
+	public ResponseEntity<ItemListDto<String>> listRightsForRole(@PathVariable("rolename") @NotEmpty final String _roleName) {
+		final var roleName = sanitize(_roleName);
 		final var result = new ItemListDto<>(authenticationService.listRightsForRole(roleName));
 		createHateoasLinksForRights(roleName, "right-name", result);
 		return new ResponseEntity<>(result, OK);
@@ -424,9 +447,10 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "addContextInRight", changeSecurity = true)
 	@PostMapping(value = "roles/{rolename}/rights/{rightname}/contexts/{context}")
-	public ResponseEntity<BaseRepresentationModel> addContextInRight(@PathVariable("rolename") @NotEmpty final String roleName,
+	public ResponseEntity<BaseRepresentationModel> addContextInRight(@PathVariable("rolename") @NotEmpty final String _roleName,
 	                                                                 @PathVariable("rightname") @NotEmpty final String rightName,
 	                                                                 @PathVariable("context") @NotEmpty final String context) {
+		final var roleName = sanitize(_roleName);
 		authenticationService.addContextInRight(roleName, rightName, context);
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForContextsRights(roleName, rightName, context, result);
@@ -436,9 +460,10 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "removeContextInRight", changeSecurity = true)
 	@DeleteMapping(value = "roles/{rolename}/rights/{rightname}/contexts/{context}")
-	public ResponseEntity<BaseRepresentationModel> removeContextInRight(@PathVariable("rolename") @NotEmpty final String roleName,
+	public ResponseEntity<BaseRepresentationModel> removeContextInRight(@PathVariable("rolename") @NotEmpty final String _roleName,
 	                                                                    @PathVariable("rightname") @NotEmpty final String rightName,
 	                                                                    @PathVariable("context") @NotEmpty final String context) {
+		final var roleName = sanitize(_roleName);
 		authenticationService.removeContextInRight(roleName, rightName, context);
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForContextsRights(roleName, rightName, context, result);
@@ -448,8 +473,9 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "listContextsForRight", changeSecurity = false)
 	@GetMapping(value = "roles/{rolename}/rights/{rightname}/contexts")
-	public ResponseEntity<ItemListDto<String>> listContextsForRight(@PathVariable("rolename") @NotEmpty final String roleName,
+	public ResponseEntity<ItemListDto<String>> listContextsForRight(@PathVariable("rolename") @NotEmpty final String _roleName,
 	                                                                @PathVariable("rightname") @NotEmpty final String rightName) {
+		final var roleName = sanitize(_roleName);
 		final var result = new ItemListDto<>(authenticationService.listContextsForRight(roleName, rightName));
 		createHateoasLinksForContextsRights(roleName, rightName, "context-name", result);
 		return new ResponseEntity<>(result, OK);
@@ -460,7 +486,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "listLinkedUsersForGroup", changeSecurity = false)
 	@GetMapping(value = "groups/{name}/users")
-	public ResponseEntity<ItemListDto<UserDto>> listLinkedUsersForGroup(@PathVariable("name") @NotEmpty final String groupName) {
+	public ResponseEntity<ItemListDto<UserDto>> listLinkedUsersForGroup(@PathVariable("name") @NotEmpty final String _groupName) {
+		final var groupName = sanitize(_groupName);
 		final var result = new ItemListDto<>(authenticationService.listLinkedUsersForGroup(groupName));
 		createHateoasLinksForGroup(groupName, result);
 		return new ResponseEntity<>(result, OK);
@@ -469,7 +496,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = false)
 	@AuditAfter(value = "listLinkedGroupsForRole", changeSecurity = false)
 	@GetMapping(value = "roles/{name}/groups")
-	public ResponseEntity<ItemListDto<GroupOrRoleDto>> listLinkedGroupsForRole(@PathVariable("name") @NotEmpty final String roleName) {
+	public ResponseEntity<ItemListDto<GroupOrRoleDto>> listLinkedGroupsForRole(@PathVariable("name") @NotEmpty final String _roleName) {
+		final var roleName = sanitize(_roleName);
 		final var result = new ItemListDto<>(authenticationService.listLinkedGroupsForRole(roleName));
 		createHateoasLinksForRoles(roleName, result);
 		return new ResponseEntity<>(result, OK);
@@ -480,7 +508,8 @@ public class RestControllerUser {
 	@Transactional(readOnly = true)
 	@GetMapping(value = "users/{uuid}/privacy")
 	@AuditAfter(value = "getUserPrivacy", changeSecurity = false)
-	public ResponseEntity<UserPrivacyDto> getUserPrivacy(@PathVariable("uuid") @NotEmpty final String uuid) {
+	public ResponseEntity<UserPrivacyDto> getUserPrivacy(@PathVariable("uuid") @NotEmpty final String _uuid) {
+		final var uuid = sanitize(_uuid);
 		final var list = authenticationService.getUserPrivacyList(List.of(uuid));
 		UserPrivacyDto result;
 		if (list.isEmpty()) {
@@ -506,7 +535,8 @@ public class RestControllerUser {
 	@PutMapping(value = "users/{uuid}/privacy")
 	@AuditAfter(value = "setUserPrivacy", changeSecurity = true)
 	public ResponseEntity<BaseRepresentationModel> setUserPrivacy(@RequestBody @Validated final UserPrivacyDto userPrivacyDto,
-	                                                              @PathVariable("uuid") @NotEmpty final String userUUID) {
+	                                                              @PathVariable("uuid") @NotEmpty final String _userUUID) {
+		final var userUUID = sanitize(_userUUID);
 		authenticationService.setUserPrivacy(userUUID, userPrivacyDto);
 		final var result = new BaseRepresentationModel();
 		createHateoasLinksForUser(userUUID, result);

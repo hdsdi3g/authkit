@@ -16,6 +16,8 @@
  */
 package tv.hd3g.authkit.mod.dto.validated;
 
+import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
+
 import java.util.Optional;
 
 import javax.validation.constraints.NotBlank;
@@ -41,7 +43,7 @@ public class LoginFormDto {
 	}
 
 	public void setUserlogin(final String userlogin) {
-		this.userlogin = userlogin;
+		this.userlogin = sanitize(userlogin);
 	}
 
 	public Password getUserpassword() {

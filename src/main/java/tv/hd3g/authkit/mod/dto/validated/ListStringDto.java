@@ -16,10 +16,17 @@
  */
 package tv.hd3g.authkit.mod.dto.validated;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import tv.hd3g.authkit.mod.LogSanitizer;
+
+/**
+ * Trim and remove new lines/tabs via LogSanitizer
+ */
 public class ListStringDto {
 
 	@NotNull
@@ -30,7 +37,9 @@ public class ListStringDto {
 	}
 
 	public void setList(final List<String> list) {
-		this.list = list;
+		this.list = list.stream()
+		        .map(LogSanitizer::sanitize)
+		        .collect(toUnmodifiableList());
 	}
 
 }
