@@ -19,7 +19,9 @@ package tv.hd3g.authkit.mod.dto.ressource;
 import java.util.Collection;
 import java.util.Objects;
 
-public class ItemListDto<T> extends BaseRepresentationModel {
+import org.springframework.hateoas.RepresentationModel;
+
+public class ItemListDto<T> extends RepresentationModel<ItemListDto<T>> {
 
 	private final Collection<T> items;
 

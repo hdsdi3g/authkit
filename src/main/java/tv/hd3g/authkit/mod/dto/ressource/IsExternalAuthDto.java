@@ -18,9 +18,11 @@ package tv.hd3g.authkit.mod.dto.ressource;
 
 import java.util.Objects;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import tv.hd3g.authkit.mod.entity.Credential;
 
-public class IsExternalAuthDto extends BaseRepresentationModel {
+public class IsExternalAuthDto extends RepresentationModel<IsExternalAuthDto> {
 
 	private final boolean externalAuthEnabled;
 	private final String domain;

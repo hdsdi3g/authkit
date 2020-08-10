@@ -31,7 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static tv.hd3g.authkit.mod.service.TOTPServiceImpl.base32;
 import static tv.hd3g.authkit.mod.service.TOTPServiceImpl.makeCodeAtTime;
-import static tv.hd3g.authkit.tool.CheckHateoas.checkHateoasPresence;
 import static tv.hd3g.authkit.tool.DataGenerator.makeRandomThing;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUserLogin;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUserPassword;
@@ -83,8 +82,7 @@ class RestControllerMeTest {
 	private static final ResultMatcher statusOk = status().isOk();
 	private static final ResultMatcher statusBadRequest = status().isBadRequest();
 	private static final ResultMatcher contentTypeJsonUtf8 = content().contentType(APPLICATION_JSON_VALUE);
-	private static final ResultMatcher statusOkUtf8Hateoas = ResultMatcher.matchAll(
-	        statusOk, contentTypeJsonUtf8, checkHateoasPresence());
+	private static final ResultMatcher statusOkUtf8 = ResultMatcher.matchAll(statusOk, contentTypeJsonUtf8);
 
 	@Autowired
 	private MockMvc mvc;
@@ -139,7 +137,7 @@ class RestControllerMeTest {
 		        .headers(baseHeaders)
 		        .contentType(APPLICATION_JSON_VALUE)
 		        .content(objectMapper.writeValueAsString(chPasswordDto)))
-		        .andExpect(statusOkUtf8Hateoas);
+		        .andExpect(statusOk);
 
 		final var loginForm = new LoginFormDto();
 		loginForm.setUserlogin(userLogin);
@@ -153,7 +151,7 @@ class RestControllerMeTest {
 	void prepareTOTP() throws Exception {
 		mvc.perform(get(baseMapping + "/" + "set2auth")
 		        .headers(baseHeaders))
-		        .andExpect(statusOkUtf8Hateoas)
+		        .andExpect(statusOkUtf8)
 		        .andExpect(jsonPath("$.secret").isString())
 		        .andExpect(jsonPath("$.totpURI").isString())
 		        .andExpect(jsonPath("$.qrcode").isString())
@@ -189,7 +187,7 @@ class RestControllerMeTest {
 		        .headers(baseHeaders)
 		        .contentType(APPLICATION_JSON_VALUE)
 		        .content(objectMapper.writeValueAsString(setupDto)))
-		        .andExpect(statusOkUtf8Hateoas);
+		        .andExpect(statusOk);
 	}
 
 	@Test
@@ -221,7 +219,7 @@ class RestControllerMeTest {
 
 		mvc.perform(get(baseMapping + "/" + "has2auth")
 		        .headers(baseHeaders))
-		        .andExpect(statusOkUtf8Hateoas)
+		        .andExpect(statusOkUtf8)
 		        .andExpect(jsonPath("$.twoAuthEnabled").isBoolean())
 		        .andExpect(jsonPath("$.twoAuthEnabled").value(true));
 	}
@@ -230,7 +228,7 @@ class RestControllerMeTest {
 	void hasATOTP_no() throws Exception {
 		mvc.perform(get(baseMapping + "/" + "has2auth")
 		        .headers(baseHeaders))
-		        .andExpect(statusOkUtf8Hateoas)
+		        .andExpect(statusOkUtf8)
 		        .andExpect(jsonPath("$.twoAuthEnabled").isBoolean())
 		        .andExpect(jsonPath("$.twoAuthEnabled").value(false));
 	}
@@ -250,14 +248,14 @@ class RestControllerMeTest {
 		        .headers(baseHeaders)
 		        .contentType(APPLICATION_JSON_VALUE)
 		        .content(objectMapper.writeValueAsString(setupDto)))
-		        .andExpect(statusOkUtf8Hateoas);
+		        .andExpect(statusOk);
 	}
 
 	@Test
 	void isExternalAuth_no() throws Exception {
 		mvc.perform(get(baseMapping + "/" + "is-external-auth")
 		        .headers(baseHeaders))
-		        .andExpect(statusOkUtf8Hateoas)
+		        .andExpect(statusOkUtf8)
 		        .andExpect(jsonPath("$.externalAuthEnabled").isBoolean())
 		        .andExpect(jsonPath("$.externalAuthEnabled").value(false));
 	}
@@ -271,7 +269,7 @@ class RestControllerMeTest {
 
 		mvc.perform(get(baseMapping + "/" + "is-external-auth")
 		        .headers(baseHeaders))
-		        .andExpect(statusOkUtf8Hateoas)
+		        .andExpect(statusOkUtf8)
 		        .andExpect(jsonPath("$.externalAuthEnabled").isBoolean())
 		        .andExpect(jsonPath("$.externalAuthEnabled").value(true))
 		        .andExpect(jsonPath("$.domain").isString())
@@ -312,7 +310,7 @@ class RestControllerMeTest {
 			        .andExpect(jsonPath("$.phone").value(expected.getPhone()))
 			        .andExpect(jsonPath("$.postalcode").value(expected.getPostalcode()))
 			        .andExpect(jsonPath("$.userUUID").value(expected.getUserUUID()))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOkUtf8);
 		}
 
 		@Test
@@ -331,7 +329,7 @@ class RestControllerMeTest {
 			        .headers(baseHeaders)
 			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(expected)))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 
 			final var afterUpdate = authenticationService.getUserPrivacyList(List.of(userUUID)).get(0);
 			assertEquals(expected, afterUpdate);

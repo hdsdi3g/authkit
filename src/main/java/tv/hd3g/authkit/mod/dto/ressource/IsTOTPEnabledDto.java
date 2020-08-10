@@ -18,9 +18,11 @@ package tv.hd3g.authkit.mod.dto.ressource;
 
 import java.util.Objects;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import tv.hd3g.authkit.mod.entity.Credential;
 
-public class IsTOTPEnabledDto extends BaseRepresentationModel {
+public class IsTOTPEnabledDto extends RepresentationModel<IsTOTPEnabledDto> {
 
 	private final boolean twoAuthEnabled;
 

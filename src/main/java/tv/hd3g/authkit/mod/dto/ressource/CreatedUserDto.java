@@ -18,7 +18,9 @@ package tv.hd3g.authkit.mod.dto.ressource;
 
 import java.util.Objects;
 
-public class CreatedUserDto extends BaseRepresentationModel {
+import org.springframework.hateoas.RepresentationModel;
+
+public class CreatedUserDto extends RepresentationModel<CreatedUserDto> {
 
 	private final String userName;
 	private final String userUUID;

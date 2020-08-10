@@ -20,7 +20,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
-public class SetupTOTPDto extends BaseRepresentationModel {
+import org.springframework.hateoas.RepresentationModel;
+
+public class SetupTOTPDto extends RepresentationModel<SetupTOTPDto> {
 
 	private final String secret;
 	private final URI totpURI;

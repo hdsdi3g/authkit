@@ -22,6 +22,7 @@ import java.util.function.Function;
 
 import javax.validation.constraints.Size;
 
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.lang.Nullable;
 
 import tv.hd3g.authkit.mod.dto.ExternalAuthUserDto;
@@ -30,7 +31,7 @@ import tv.hd3g.authkit.mod.entity.Userprivacy;
 /**
  * In and Out DTO
  */
-public class UserPrivacyDto extends BaseRepresentationModel {
+public class UserPrivacyDto extends RepresentationModel<UserPrivacyDto> {
 
 	/**
 	 * Ignored during creation/update

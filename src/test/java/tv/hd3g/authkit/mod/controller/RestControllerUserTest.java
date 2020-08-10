@@ -32,7 +32,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static tv.hd3g.authkit.tool.CheckHateoas.checkHateoasPresence;
 import static tv.hd3g.authkit.tool.DataGenerator.makeRandomThing;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUUID;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUserLogin;
@@ -116,8 +115,7 @@ class RestControllerUserTest {
 	private static final ResultMatcher statusOk = status().isOk();
 	private static final ResultMatcher statusPartial = status().isPartialContent();
 	private static final ResultMatcher contentTypeJsonUtf8 = content().contentType(APPLICATION_JSON_VALUE);
-	private static final ResultMatcher statusOkUtf8Hateoas = ResultMatcher.matchAll(
-	        statusOk, contentTypeJsonUtf8, checkHateoasPresence());
+	private static final ResultMatcher statusOkUtf8 = ResultMatcher.matchAll(statusOk, contentTypeJsonUtf8);
 
 	@BeforeEach
 	private void init() {
@@ -142,8 +140,7 @@ class RestControllerUserTest {
 			        .andExpect(contentTypeJsonUtf8)
 			        .andExpect(jsonPath("$.userName", is(addUser.getUserLogin())))
 			        .andExpect(jsonPath("$.uuid").isString())
-			        .andExpect(jsonPath("$.realm", is(realm)))
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(jsonPath("$.realm", is(realm)));
 		}
 
 		@Test
@@ -161,8 +158,7 @@ class RestControllerUserTest {
 			        .andExpect(jsonPath("$.realm", is(realm)))
 			        .andExpect(jsonPath("$.enabled", is(true)))
 			        .andExpect(jsonPath("$.totpEnabled", is(false)))
-			        .andExpect(jsonPath("$.mustChangePassword", is(false)))
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(jsonPath("$.mustChangePassword", is(false)));
 		}
 
 		@Test
@@ -174,7 +170,6 @@ class RestControllerUserTest {
 			        .andExpect(contentTypeJsonUtf8)
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(dbMaxFetchSize)))
-			        .andExpect(checkHateoasPresence())
 			        .andReturn().getResponse();
 
 			final var finalCount = (int) userRepository.count();
@@ -191,7 +186,6 @@ class RestControllerUserTest {
 			        .andExpect(contentTypeJsonUtf8)
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(5)))
-			        .andExpect(checkHateoasPresence())
 			        .andReturn().getResponse();
 
 			final var finalCount = (int) userRepository.count();
@@ -205,9 +199,7 @@ class RestControllerUserTest {
 
 			mvc.perform(put(baseMapping + "/users/" + userUUID + "/disable")
 			        .headers(baseHeaders))
-			        .andExpect(statusOk)
-			        .andExpect(contentTypeJsonUtf8)
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(statusOk);
 
 			final var user = userDao.getUserByUUID(UUID.fromString(userUUID)).get();
 			assertFalse(user.isEnabled());
@@ -220,7 +212,7 @@ class RestControllerUserTest {
 
 			mvc.perform(put(baseMapping + "/users/" + userUUID + "/enable")
 			        .headers(baseHeaders))
-			        .andExpect(ResultMatcher.matchAll(statusOk, contentTypeJsonUtf8, checkHateoasPresence()));
+			        .andExpect(statusOk);
 
 			final var user = userDao.getUserByUUID(UUID.fromString(userUUID)).get();
 			assertTrue(user.isEnabled());
@@ -232,9 +224,7 @@ class RestControllerUserTest {
 
 			mvc.perform(put(baseMapping + "/users/" + userUUID + "/switchresetpassword")
 			        .headers(baseHeaders))
-			        .andExpect(statusOk)
-			        .andExpect(contentTypeJsonUtf8)
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(statusOk);
 
 			final var user = userDao.getUserByUUID(UUID.fromString(userUUID)).get();
 			assertTrue(user.isMustChangePassword());
@@ -257,9 +247,7 @@ class RestControllerUserTest {
 
 			mvc.perform(put(baseMapping + "/users/" + userUUID + "/resetlogontrials")
 			        .headers(baseHeaders))
-			        .andExpect(statusOk)
-			        .andExpect(contentTypeJsonUtf8)
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(statusOk);
 
 			assertEquals(0, credentialRepository.getByUserUUID(userUUID).getLogontrial());
 		}
@@ -270,9 +258,7 @@ class RestControllerUserTest {
 
 			mvc.perform(delete(baseMapping + "/users/" + userUUID)
 			        .headers(baseHeaders))
-			        .andExpect(statusOk)
-			        .andExpect(contentTypeJsonUtf8)
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(statusOk);
 
 			final var userPresence = userDao.getUserByUUID(UUID.fromString(userUUID)).isPresent();
 			assertFalse(userPresence);
@@ -300,9 +286,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders)
 			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(addGroup)))
-			        .andExpect(statusCreated)
-			        .andExpect(contentTypeJsonUtf8)
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(statusCreated);
 		}
 
 		@Test
@@ -319,7 +303,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders)
 			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(rename)))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 		}
 
 		@Test
@@ -337,7 +321,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders)
 			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(change)))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 		}
 
 		@Test
@@ -353,9 +337,7 @@ class RestControllerUserTest {
 
 			mvc.perform(post(baseMapping + "/" + "users/" + uuid + "/ingroup/" + g.getName())
 			        .headers(baseHeaders))
-			        .andExpect(statusCreated)
-			        .andExpect(contentTypeJsonUtf8)
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(statusCreated);
 		}
 
 		@Test
@@ -372,7 +354,7 @@ class RestControllerUserTest {
 
 			mvc.perform(delete(baseMapping + "/" + "users/" + uuid + "/ingroup/" + g.getName())
 			        .headers(baseHeaders))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 		}
 
 		@Test
@@ -383,7 +365,7 @@ class RestControllerUserTest {
 
 			mvc.perform(delete(baseMapping + "/" + "groups/" + g.getName())
 			        .headers(baseHeaders))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 		}
 
 		@Test
@@ -395,7 +377,7 @@ class RestControllerUserTest {
 			mvc.perform(get(baseMapping + "/" + "groups")
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOkUtf8);
 		}
 
 		@Test
@@ -413,7 +395,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(1)))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOkUtf8);
 		}
 
 	}
@@ -430,9 +412,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders)
 			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(addRole)))
-			        .andExpect(statusCreated)
-			        .andExpect(contentTypeJsonUtf8)
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(statusCreated);
 		}
 
 		@Test
@@ -449,7 +429,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders)
 			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(rename)))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 		}
 
 		@Test
@@ -467,7 +447,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders)
 			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(change)))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 		}
 
 		@Test
@@ -484,7 +464,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders)
 			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(change)))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 		}
 
 		@Test
@@ -498,9 +478,7 @@ class RestControllerUserTest {
 
 			mvc.perform(post(baseMapping + "/" + "groups/" + g.getName() + "/inrole/" + r.getName())
 			        .headers(baseHeaders))
-			        .andExpect(statusCreated)
-			        .andExpect(contentTypeJsonUtf8)
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(statusCreated);
 		}
 
 		@Test
@@ -516,7 +494,7 @@ class RestControllerUserTest {
 
 			mvc.perform(delete(baseMapping + "/" + "groups/" + g.getName() + "/inrole/" + r.getName())
 			        .headers(baseHeaders))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 		}
 
 		@Test
@@ -527,7 +505,7 @@ class RestControllerUserTest {
 
 			mvc.perform(delete(baseMapping + "/" + "roles/" + r.getName())
 			        .headers(baseHeaders))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 		}
 
 		@Test
@@ -539,7 +517,7 @@ class RestControllerUserTest {
 			mvc.perform(get(baseMapping + "/" + "roles")
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOkUtf8);
 		}
 
 		@Test
@@ -556,7 +534,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(1)))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOkUtf8);
 		}
 
 	}
@@ -573,9 +551,7 @@ class RestControllerUserTest {
 
 			mvc.perform(post(baseMapping + "/" + "roles/" + r.getName() + "/rights/" + rightName)
 			        .headers(baseHeaders))
-			        .andExpect(statusCreated)
-			        .andExpect(contentTypeJsonUtf8)
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(statusCreated);
 		}
 
 		@Test
@@ -588,7 +564,7 @@ class RestControllerUserTest {
 
 			mvc.perform(delete(baseMapping + "/" + "roles/" + r.getName() + "/rights/" + rightName)
 			        .headers(baseHeaders))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 		}
 
 		@Test
@@ -596,7 +572,7 @@ class RestControllerUserTest {
 			mvc.perform(get(baseMapping + "/" + "rights")
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOkUtf8);
 		}
 
 		@Test
@@ -611,7 +587,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(1)))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOkUtf8);
 		}
 
 		@Test
@@ -628,7 +604,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(1)))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOkUtf8);
 		}
 
 		@Test
@@ -643,9 +619,7 @@ class RestControllerUserTest {
 			mvc.perform(post(baseMapping + "/" + "roles/" + r.getName() + "/rights/" + rightName + "/contexts/"
 			                 + context)
 			                         .headers(baseHeaders))
-			        .andExpect(statusCreated)
-			        .andExpect(contentTypeJsonUtf8)
-			        .andExpect(checkHateoasPresence());
+			        .andExpect(statusCreated);
 		}
 
 		@Test
@@ -659,9 +633,8 @@ class RestControllerUserTest {
 			authenticationService.addContextInRight(r.getName(), rightName, context);
 
 			mvc.perform(delete(baseMapping + "/" + "roles/" + r.getName() + "/rights/" + rightName + "/contexts/"
-			                   + context)
-			                           .headers(baseHeaders))
-			        .andExpect(statusOkUtf8Hateoas);
+			                   + context).headers(baseHeaders))
+			        .andExpect(statusOk);
 		}
 	}
 
@@ -680,7 +653,7 @@ class RestControllerUserTest {
 		        .headers(baseHeaders))
 		        .andExpect(jsonPath("$.items").isArray())
 		        .andExpect(jsonPath("$.items.length()", is(1)))
-		        .andExpect(statusOkUtf8Hateoas);
+		        .andExpect(statusOkUtf8);
 	}
 
 	@Test
@@ -697,7 +670,7 @@ class RestControllerUserTest {
 		        .headers(baseHeaders))
 		        .andExpect(jsonPath("$.items").isArray())
 		        .andExpect(jsonPath("$.items.length()", is(1)))
-		        .andExpect(statusOkUtf8Hateoas);
+		        .andExpect(statusOkUtf8);
 	}
 
 	@Nested
@@ -742,7 +715,7 @@ class RestControllerUserTest {
 			        .andExpect(jsonPath("$.phone").value(expected.getPhone()))
 			        .andExpect(jsonPath("$.postalcode").value(expected.getPostalcode()))
 			        .andExpect(jsonPath("$.userUUID").value(expected.getUserUUID()))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOkUtf8);
 		}
 
 		@Test
@@ -756,7 +729,7 @@ class RestControllerUserTest {
 			        .content(objectMapper.writeValueAsString(userUUIDList)))
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(uuidList.size())))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOkUtf8);
 		}
 
 		@Test
@@ -776,7 +749,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders)
 			        .contentType(APPLICATION_JSON_VALUE)
 			        .content(objectMapper.writeValueAsString(expected)))
-			        .andExpect(statusOkUtf8Hateoas);
+			        .andExpect(statusOk);
 
 			final var afterUpdate = authenticationService.getUserPrivacyList(List.of(uuid)).get(0);
 			assertEquals(expected, afterUpdate);

@@ -18,10 +18,12 @@ package tv.hd3g.authkit.mod.dto.ressource;
 
 import java.util.Objects;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import tv.hd3g.authkit.mod.entity.Group;
 import tv.hd3g.authkit.mod.entity.Role;
 
-public class GroupOrRoleDto extends BaseRepresentationModel {
+public class GroupOrRoleDto extends RepresentationModel<GroupOrRoleDto> {
 
 	private final String name;
 	private final String description;
