@@ -194,8 +194,8 @@ class TOTPServiceTest {
 		final var binSecret = base32.decode(secret);
 		final var now = System.currentTimeMillis();
 		final var code = makeCodeAtTime(binSecret, now, timeStepSeconds);
-		final var code2 = makeCodeAtTime(binSecret, now + timeStepSeconds * 1000 * 2, timeStepSeconds);
-		final var code3 = makeCodeAtTime(binSecret, now - timeStepSeconds * 1000 * 2, timeStepSeconds);
+		final var code2 = makeCodeAtTime(binSecret, now + timeStepSeconds * 1000l * 2l, timeStepSeconds);
+		final var code3 = makeCodeAtTime(binSecret, now - timeStepSeconds * 1000l * 2l, timeStepSeconds);
 		assertNotEquals(code, code2);
 		assertNotEquals(code, code3);
 	}
