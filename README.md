@@ -8,6 +8,8 @@ It's still in alpha.
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=hdsdi3g_authkit&metric=alert_status)](https://sonarcloud.io/dashboard?id=hdsdi3g_authkit)
 
+![CodeQL](https://github.com/hdsdi3g/authkit/workflows/CodeQL/badge.svg)
+
 ---
 
 AuthKit provide a **backend API-only** with:
