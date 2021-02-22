@@ -38,8 +38,8 @@ class LoggedUserTagsTokenDtoTest {
 	private String onlyForHost;
 
 	@BeforeEach
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		userUUID = makeUUID();
 		date = new Date();
 		onlyForHost = makeRandomString();

@@ -37,8 +37,8 @@ class AddUserDtoTest {
 	private Password userPassword;
 
 	@BeforeEach
-	void init() {
-		MockitoAnnotations.initMocks(this);
+	void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		userLogin = makeUserLogin();
 
 		addUserDto = new AddUserDto();

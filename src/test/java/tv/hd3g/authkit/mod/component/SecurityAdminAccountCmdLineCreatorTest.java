@@ -56,8 +56,8 @@ class SecurityAdminAccountCmdLineCreatorTest {
 	private HttpServletRequest request;
 
 	@BeforeEach
-	void init() {
-		MockitoAnnotations.initMocks(this);
+	void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		DataGenerator.setupMock(request);
 	}
 
@@ -85,7 +85,7 @@ class SecurityAdminAccountCmdLineCreatorTest {
 	void testRun_update() throws Exception {
 		final var login = makeUserLogin();
 		final var password = makeUserPassword();
-		final AddUserDto addUser = new AddUserDto();
+		final var addUser = new AddUserDto();
 		addUser.setUserLogin(login);
 		addUser.setUserPassword(new Password(password));
 		authenticationService.addUser(addUser);

@@ -85,8 +85,8 @@ class ControllerInterceptorTest {
 	private String uuid;
 
 	@BeforeEach
-	void init() {
-		MockitoAnnotations.initMocks(this);
+	void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		DataGenerator.setupMock(request);
 		authKitEndpointsListener = new AuthKitEndpointsListener();
 		controlerInterceptor = new ControllerInterceptor(
@@ -442,8 +442,8 @@ class ControllerInterceptorTest {
 		private ResourceHttpRequestHandler resourceHttpRequest;
 
 		@BeforeEach
-		void initMocks() {
-			MockitoAnnotations.initMocks(this);
+		void initMocks() throws Exception {
+			MockitoAnnotations.openMocks(this).close();
 		}
 
 		private void afterEach() {

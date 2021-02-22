@@ -35,8 +35,8 @@ class ItemListDtoTest extends HashCodeEqualsTest {
 	private List<UserDto> list;
 
 	@BeforeEach
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 	}
 
 	@Test

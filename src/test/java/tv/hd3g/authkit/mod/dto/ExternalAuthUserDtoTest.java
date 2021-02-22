@@ -38,8 +38,8 @@ class ExternalAuthUserDtoTest {
 	private ExternalAuthUserDto ldapUserDto;
 
 	@BeforeEach
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		login = makeRandomString();
 		domain = makeRandomString();
 		userLongName = makeRandomString();

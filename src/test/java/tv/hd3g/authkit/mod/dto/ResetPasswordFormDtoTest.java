@@ -37,8 +37,8 @@ class ResetPasswordFormDtoTest {
 	private ResetPasswordFormDto resetPasswordFormDto;
 
 	@BeforeEach
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		resetPasswordFormDto = new ResetPasswordFormDto();
 	}
 

@@ -47,8 +47,8 @@ class CmdLineServiceTest {
 	private HttpServletRequest request;
 
 	@BeforeEach
-	void init() {
-		MockitoAnnotations.initMocks(this);
+	void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		DataGenerator.setupMock(request);
 	}
 

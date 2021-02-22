@@ -40,8 +40,8 @@ class IsExternalAuthDtoTest extends HashCodeEqualsTest {
 	private Credential credential;
 
 	@BeforeEach
-	void init() {
-		MockitoAnnotations.initMocks(this);
+	void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		domain = makeRandomThing();
 		Mockito.when(credential.getLdapdomain()).thenReturn(domain);
 		isExternalAuthDto = new IsExternalAuthDto(credential);

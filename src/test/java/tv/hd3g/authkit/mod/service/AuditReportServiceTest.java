@@ -77,8 +77,8 @@ class AuditReportServiceTest {
 	private String userUUID;
 
 	@BeforeEach
-	void init() {
-		MockitoAnnotations.initMocks(this);
+	void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		userUUID = makeUUID();
 		clientsourcehost = DataGenerator.setupMock(request, true, userUUID);
 	}

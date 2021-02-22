@@ -37,8 +37,8 @@ class ListStringDtoTest {
 	private List<String> list;
 
 	@BeforeEach
-	public void init() {
-		MockitoAnnotations.initMocks(this);
+	public void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		listStringDto = new ListStringDto();
 		listStringDto.setList(list);
 	}

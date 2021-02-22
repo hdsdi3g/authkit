@@ -131,8 +131,8 @@ class AuthenticationServiceTest {
 	private HttpServletRequest request;
 
 	@BeforeEach
-	void init() {
-		MockitoAnnotations.initMocks(this);
+	void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		DataGenerator.setupMock(request);
 		addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
@@ -184,14 +184,14 @@ class AuthenticationServiceTest {
 			assertNotNull(list1);
 			assertTrue(list1.isEmpty());
 
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
 			final var list2 = authenticationService.getRightsForUser(uuid, randomIp);
 			assertTrue(list2.isEmpty());
 
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			authenticationService.addGroupInRole(g.getName(), r.getName());
@@ -209,12 +209,12 @@ class AuthenticationServiceTest {
 		void getRightsForUser_multipleGroups() {
 			final var uuid = authenticationService.addUser(addUser);
 
-			final AddGroupOrRoleDto g1 = new AddGroupOrRoleDto();
+			final var g1 = new AddGroupOrRoleDto();
 			g1.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g1);
 			authenticationService.addUserInGroup(uuid, g1.getName());
 
-			final AddGroupOrRoleDto r1 = new AddGroupOrRoleDto();
+			final var r1 = new AddGroupOrRoleDto();
 			r1.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r1);
 			authenticationService.addGroupInRole(g1.getName(), r1.getName());
@@ -222,12 +222,12 @@ class AuthenticationServiceTest {
 			final var rightName1 = makeUserLogin();
 			authenticationService.addRightInRole(r1.getName(), rightName1);
 
-			final AddGroupOrRoleDto g2 = new AddGroupOrRoleDto();
+			final var g2 = new AddGroupOrRoleDto();
 			g2.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g2);
 			authenticationService.addUserInGroup(uuid, g2.getName());
 
-			final AddGroupOrRoleDto r2 = new AddGroupOrRoleDto();
+			final var r2 = new AddGroupOrRoleDto();
 			r2.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r2);
 			authenticationService.addGroupInRole(g2.getName(), r2.getName());
@@ -244,17 +244,17 @@ class AuthenticationServiceTest {
 		void getRightsForUser_duplicateRole_inGroup() {
 			final var uuid = authenticationService.addUser(addUser);
 
-			final AddGroupOrRoleDto g1 = new AddGroupOrRoleDto();
+			final var g1 = new AddGroupOrRoleDto();
 			g1.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g1);
 			authenticationService.addUserInGroup(uuid, g1.getName());
 
-			final AddGroupOrRoleDto g2 = new AddGroupOrRoleDto();
+			final var g2 = new AddGroupOrRoleDto();
 			g2.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g2);
 			authenticationService.addUserInGroup(uuid, g2.getName());
 
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			authenticationService.addGroupInRole(g1.getName(), r.getName());
@@ -272,22 +272,22 @@ class AuthenticationServiceTest {
 		void getRightsForUser_duplicateRoleRight_inRole() {
 			final var uuid = authenticationService.addUser(addUser);
 
-			final AddGroupOrRoleDto g1 = new AddGroupOrRoleDto();
+			final var g1 = new AddGroupOrRoleDto();
 			g1.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g1);
 			authenticationService.addUserInGroup(uuid, g1.getName());
 
-			final AddGroupOrRoleDto r1 = new AddGroupOrRoleDto();
+			final var r1 = new AddGroupOrRoleDto();
 			r1.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r1);
 			authenticationService.addGroupInRole(g1.getName(), r1.getName());
 
-			final AddGroupOrRoleDto g2 = new AddGroupOrRoleDto();
+			final var g2 = new AddGroupOrRoleDto();
 			g2.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g2);
 			authenticationService.addUserInGroup(uuid, g2.getName());
 
-			final AddGroupOrRoleDto r2 = new AddGroupOrRoleDto();
+			final var r2 = new AddGroupOrRoleDto();
 			r2.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r2);
 			authenticationService.addGroupInRole(g2.getName(), r2.getName());
@@ -311,14 +311,14 @@ class AuthenticationServiceTest {
 			assertNotNull(list1);
 			assertTrue(list1.isEmpty());
 
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
 			final var list2 = authenticationService.getContextRightsForUser(uuid, randomIp, rightNameYep);
 			assertTrue(list2.isEmpty());
 
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			authenticationService.addGroupInRole(g.getName(), r.getName());
@@ -345,12 +345,12 @@ class AuthenticationServiceTest {
 		@Test
 		void getRightsForUser_clientOnly() {
 			final var uuid = authenticationService.addUser(addUser);
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
 
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			authenticationService.addGroupInRole(g.getName(), r.getName());
@@ -370,12 +370,12 @@ class AuthenticationServiceTest {
 			final var rightName = makeUserLogin();
 			final var uuid = authenticationService.addUser(addUser);
 
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
 
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			authenticationService.addGroupInRole(g.getName(), r.getName());
@@ -569,7 +569,7 @@ class AuthenticationServiceTest {
 
 				final var tokenAuth = securedTokenService.userFormGenerateToken(TOKEN_FORMNAME_ENTER_TOTP, uuid,
 				        thirtyDays);
-				final TOTPLogonCodeFormDto formTOTPDto = new TOTPLogonCodeFormDto();
+				final var formTOTPDto = new TOTPLogonCodeFormDto();
 				formTOTPDto.setCode(checkCode);
 				formTOTPDto.setSecuretoken(tokenAuth);
 				formTOTPDto.setShorttime(false);
@@ -599,7 +599,7 @@ class AuthenticationServiceTest {
 			final var loginFormFail = new LoginFormDto();
 			loginFormFail.setUserlogin(addUser.getUserLogin());
 
-			for (int pos = 0; pos < maxLogonTrial - 1; pos++) {
+			for (var pos = 0; pos < maxLogonTrial - 1; pos++) {
 				loginFormFail.setUserpassword(new Password(makeUserPassword()));
 				assertThrows(BadPasswordUserCantLoginException.class, () -> {
 					authenticationService.userLoginRequest(request, loginFormFail);
@@ -618,7 +618,7 @@ class AuthenticationServiceTest {
 			final var loginFormFail = new LoginFormDto();
 			loginFormFail.setUserlogin(addUser.getUserLogin());
 
-			for (int pos = 0; pos < maxLogonTrial; pos++) {
+			for (var pos = 0; pos < maxLogonTrial; pos++) {
 				loginFormFail.setUserpassword(new Password(makeUserPassword()));
 				assertThrows(BadPasswordUserCantLoginException.class, () -> {
 					authenticationService.userLoginRequest(request, loginFormFail);
@@ -759,7 +759,7 @@ class AuthenticationServiceTest {
 
 			final var tokenAuth = securedTokenService.userFormGenerateToken(TOKEN_FORMNAME_ENTER_TOTP, uuid,
 			        thirtyDays);
-			final TOTPLogonCodeFormDto formTOTPDto = new TOTPLogonCodeFormDto();
+			final var formTOTPDto = new TOTPLogonCodeFormDto();
 			formTOTPDto.setCode(checkCode);
 			formTOTPDto.setSecuretoken(tokenAuth);
 			formTOTPDto.setShorttime(false);
@@ -787,11 +787,11 @@ class AuthenticationServiceTest {
 		void userLoginRequestRoleWithIPRestriction_differentAddr() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			authenticationService.addGroupInRole(g.getName(), r.getName());
@@ -814,11 +814,11 @@ class AuthenticationServiceTest {
 		void userLoginRequestRoleWithIPRestriction_sameAddr() throws Exception {
 			final var uuid = authenticationService.addUser(addUser);
 
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			authenticationService.addGroupInRole(g.getName(), r.getName());
@@ -926,7 +926,7 @@ class AuthenticationServiceTest {
 			final var loginFormFail = new LoginFormDto();
 			loginFormFail.setUserlogin(addUser.getUserLogin());
 
-			for (int pos = 0; pos < maxLogonTrial; pos++) {
+			for (var pos = 0; pos < maxLogonTrial; pos++) {
 				loginFormFail.setUserpassword(new Password(makeUserPassword()));
 				assertThrows(BadPasswordUserCantLoginException.class, () -> {
 					authenticationService.userLoginRequest(request, loginFormFail);
@@ -948,7 +948,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void addGroup() {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			g.setDescription(makeRandomThing());
 			authenticationService.addGroup(g);
@@ -960,7 +960,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void renameGroup() {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			final var gg = groupRepository.getByName(g.getName());
@@ -979,7 +979,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void setGroupDescription() {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			g.setDescription(makeRandomThing());
 			authenticationService.addGroup(g);
@@ -1000,7 +1000,7 @@ class AuthenticationServiceTest {
 		@Test
 		void addUserInGroup() {
 			final var uuid = authenticationService.addUser(addUser);
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
@@ -1013,7 +1013,7 @@ class AuthenticationServiceTest {
 		@Test
 		void removeUserInGroup() {
 			final var uuid = authenticationService.addUser(addUser);
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
@@ -1025,7 +1025,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void removeGroup() {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.removeGroup(g.getName());
@@ -1034,7 +1034,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void listAllGroups() {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 
@@ -1048,7 +1048,7 @@ class AuthenticationServiceTest {
 		@Test
 		void listGroupsForUser() {
 			final var uuid = authenticationService.addUser(addUser);
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
@@ -1065,7 +1065,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void addRole() {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			r.setDescription(makeRandomThing());
 			authenticationService.addRole(r);
@@ -1077,7 +1077,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void renameRole() {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rr = roleRepository.getByName(r.getName());
@@ -1096,7 +1096,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void setRoleDescription() {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			r.setDescription(makeRandomThing());
 			authenticationService.addRole(r);
@@ -1116,7 +1116,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void setRoleOnlyForClients_ipv4() throws UnknownHostException {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var addr = DataGenerator.makeRandomIPv4().getHostAddress();
@@ -1128,7 +1128,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void setRoleOnlyForClients_ipv6() throws UnknownHostException {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var addr = DataGenerator.makeRandomIPv6().getHostAddress();
@@ -1140,7 +1140,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void setRoleOnlyForClients_invalidIp() throws UnknownHostException {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 
@@ -1152,10 +1152,10 @@ class AuthenticationServiceTest {
 
 		@Test
 		void addGroupInRole() {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 
@@ -1168,10 +1168,10 @@ class AuthenticationServiceTest {
 
 		@Test
 		void removeGroupInRole() {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 
@@ -1184,7 +1184,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void removeRole() {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			authenticationService.removeRole(r.getName());
@@ -1193,7 +1193,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void listAllRoles() {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 
@@ -1206,10 +1206,10 @@ class AuthenticationServiceTest {
 
 		@Test
 		void listRolesForGroup() {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 
@@ -1227,7 +1227,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void addRightInRole() {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -1239,7 +1239,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void removeRightInRole() {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -1258,7 +1258,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void listRightsForRole() {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -1272,7 +1272,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void addContextInRight() {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -1286,7 +1286,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void removeContextInRight() {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -1301,7 +1301,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void listContextsForRight() {
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			final var rightName = makeUserLogin();
@@ -1316,7 +1316,7 @@ class AuthenticationServiceTest {
 		@Test
 		void listLinkedUsersForGroup() {
 			final var uuid = authenticationService.addUser(addUser);
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
 			authenticationService.addUserInGroup(uuid, g.getName());
@@ -1329,10 +1329,10 @@ class AuthenticationServiceTest {
 
 		@Test
 		void listLinkedGroupsForRole() {
-			final AddGroupOrRoleDto g = new AddGroupOrRoleDto();
+			final var g = new AddGroupOrRoleDto();
 			g.setName("test:" + makeUserLogin());
 			authenticationService.addGroup(g);
-			final AddGroupOrRoleDto r = new AddGroupOrRoleDto();
+			final var r = new AddGroupOrRoleDto();
 			r.setName("test:" + makeUserLogin());
 			authenticationService.addRole(r);
 			authenticationService.addGroupInRole(g.getName(), r.getName());

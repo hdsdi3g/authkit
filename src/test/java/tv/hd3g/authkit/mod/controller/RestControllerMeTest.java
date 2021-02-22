@@ -109,8 +109,8 @@ class RestControllerMeTest {
 	private String userPassword;
 
 	@BeforeEach
-	private void init() {
-		MockitoAnnotations.initMocks(this);
+	private void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		DataGenerator.setupMock(request);
 
 		final var addUser = new AddUserDto();

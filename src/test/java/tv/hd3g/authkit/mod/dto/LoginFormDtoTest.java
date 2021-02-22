@@ -44,8 +44,8 @@ class LoginFormDtoTest {
 	private LoginFormDto loginFormDto;
 
 	@BeforeEach
-	void init() {
-		MockitoAnnotations.initMocks(this);
+	void init() throws Exception {
+		MockitoAnnotations.openMocks(this).close();
 		loginFormDto = new LoginFormDto();
 		securetoken = makeUserPassword();
 	}
@@ -53,7 +53,7 @@ class LoginFormDtoTest {
 	@Test
 	void setUserlogin() {
 		assertNull(loginFormDto.getUserlogin());
-		final String name = Faker.instance().address().firstName();
+		final var name = Faker.instance().address().firstName();
 		loginFormDto.setUserlogin(name);
 		assertEquals(name, loginFormDto.getUserlogin());
 	}
