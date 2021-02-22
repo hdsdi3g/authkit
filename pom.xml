@@ -18,6 +18,10 @@
 		<relativePath />
 	</parent>
 
+	<properties>
+		<codepolicyvalidation.version>0.4.1</codepolicyvalidation.version>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>

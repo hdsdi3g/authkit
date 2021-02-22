@@ -155,9 +155,9 @@ public class ExternalAuthClientLDAPServiceImpl implements ExternalAuthClientServ
 		try {
 			final var value = item.get();
 			if (value instanceof String == false) {
-				return Optional.of(String.valueOf(value));
+				return Optional.ofNullable(String.valueOf(value));
 			} else {
-				return Optional.of((String) value);
+				return Optional.ofNullable((String) value);
 			}
 		} catch (final NamingException e) {
 			log.debug("Can't found {} in LDAP datas", key, e);
@@ -216,7 +216,7 @@ public class ExternalAuthClientLDAPServiceImpl implements ExternalAuthClientServ
 		if (isAvailable() == false) {
 			return Optional.empty();
 		}
-		return Optional.of(externalLDAP.getServers().get(0).getDomain());
+		return Optional.ofNullable(externalLDAP.getServers().get(0).getDomain());
 	}
 
 	@Override

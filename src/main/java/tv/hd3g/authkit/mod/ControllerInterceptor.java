@@ -127,7 +127,7 @@ public class ControllerInterceptor implements HandlerInterceptor {
 				        loggedDto.getOnlyForHost());
 			}
 		}
-		return Optional.of(loggedDto);
+		return Optional.ofNullable(loggedDto);
 	}
 
 	/**

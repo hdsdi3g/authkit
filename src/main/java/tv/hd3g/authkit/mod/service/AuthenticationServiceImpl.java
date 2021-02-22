@@ -180,20 +180,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public Optional<RejectLoginCause> checkPassword(final Password userEnterPassword, final Credential credential) {
 		if (userEnterPassword == null) {
-			return Optional.of(MISSING_PASSWORD);
+			return Optional.ofNullable(MISSING_PASSWORD);
 		} else if (userEnterPassword.length() == 0) {
-			return Optional.of(EMPTY_PASSWORD);
+			return Optional.ofNullable(EMPTY_PASSWORD);
 		} else if (credential.getLdapdomain() != null) {
 			try {
 				externalAuthClientService.logonUser(credential.getLogin(), userEnterPassword, credential
 				        .getLdapdomain());
 			} catch (final UserCantLoginException e) {
-				return Optional.of(INVALID_PASSWORD);
+				return Optional.ofNullable(INVALID_PASSWORD);
 			}
 		} else {
 			final var passwordHash = cipherService.unCipherToString(credential.getPasswordhash());
 			if (userEnterPassword.verify(ARGON2, passwordHash) == false) {
-				return Optional.of(INVALID_PASSWORD);
+				return Optional.ofNullable(INVALID_PASSWORD);
 			}
 		}
 		return Optional.empty();
