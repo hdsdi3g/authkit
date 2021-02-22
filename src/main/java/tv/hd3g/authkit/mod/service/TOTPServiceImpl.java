@@ -242,8 +242,8 @@ public class TOTPServiceImpl implements TOTPService {
 			value >>= 8;
 		}
 
-		final SecretKeySpec signKey = new SecretKeySpec(secret, "HmacSHA1");
-		final Mac mac = Mac.getInstance("HmacSHA1");
+		final var signKey = new SecretKeySpec(secret, "HmacSHA256");
+		final var mac = Mac.getInstance("HmacSHA256");
 		mac.init(signKey);
 		final byte[] hash = mac.doFinal(data);
 
