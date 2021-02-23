@@ -39,6 +39,7 @@ import org.hibernate.annotations.Type;
 public class Credential extends BaseEntity {
 
 	@NotBlank
+	@Column(length = 80)
 	private String login;
 
 	@NotNull
@@ -47,6 +48,7 @@ public class Credential extends BaseEntity {
 	private byte[] passwordhash;
 
 	@NotBlank
+	@Column(length = 80)
 	private String realm;
 
 	@NotNull
@@ -58,6 +60,7 @@ public class Credential extends BaseEntity {
 	@Column(nullable = true, columnDefinition = "blob")
 	private byte[] totpkey;
 
+	@Column(length = 80)
 	private String ldapdomain;
 
 	@OneToMany(mappedBy = "credential", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)

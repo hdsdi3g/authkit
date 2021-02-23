@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
@@ -32,8 +33,10 @@ import javax.validation.constraints.NotEmpty;
 public class Role extends BaseEntity {
 
 	@NotEmpty
+	@Column(length = 80)
 	private String name;
 
+	@Column(length = 255)
 	private String description;
 
 	@ManyToMany(mappedBy = "roles")
@@ -42,6 +45,7 @@ public class Role extends BaseEntity {
 	@OneToMany(mappedBy = "role", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
 	private final Set<RoleRight> roleRights = new HashSet<>();
 
+	@Column(length = 140)
 	private String onlyforclient;
 
 	/**

@@ -16,6 +16,7 @@
  */
 package tv.hd3g.authkit.mod.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
@@ -26,12 +27,15 @@ import javax.validation.constraints.NotNull;
 public class Audit extends BaseEntity {
 
 	@NotEmpty
+	@Column(length = 60)
 	private String appname;
 
 	@NotEmpty
+	@Column(length = 38)
 	private String eventref;
 
 	@NotNull
+	@Column(length = 128)
 	private String clientsourcehost;
 
 	@NotNull
@@ -41,30 +45,38 @@ public class Audit extends BaseEntity {
 	private String eventname;
 
 	@NotEmpty
+	@Column(length = 10)
 	private String requestprotocol;
 
 	@NotEmpty
+	@Column(length = 10)
 	private String requestmethod;
 
 	@NotNull
+	@Column(length = 128)
 	private String requestserverhost;
 
 	@NotNull
 	private Integer requestserverport;
 
 	@NotEmpty
+	@Column(length = 255)
 	private String requestpath;
 
 	@NotEmpty
+	@Column(length = 255)
 	private String requestcontenttype;
 
 	@NotNull
 	private Long requestlength;
 
+	@Column(length = 1024)
 	private String context;
 
+	@Column(length = 255)
 	private String triggeredexception;
 
+	@Column(length = 38)
 	private String useruuid;
 
 	/**

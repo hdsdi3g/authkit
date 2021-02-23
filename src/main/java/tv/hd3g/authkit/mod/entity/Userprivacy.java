@@ -27,7 +27,7 @@ import javax.validation.constraints.NotBlank;
 public class Userprivacy extends BaseEntity {
 
 	@NotBlank
-	@Column(name = "user_uuid")
+	@Column(name = "user_uuid", length = 38)
 	private String userUUID;
 
 	@Lob
@@ -38,14 +38,17 @@ public class Userprivacy extends BaseEntity {
 	@Column(nullable = true, columnDefinition = "blob")
 	private byte[] address;
 
+	@Column(length = 16)
 	private String postalcode;
 	/**
 	 * 3char country (ISO 3166-1)
 	 */
+	@Column(length = 3)
 	private String country;
 	/**
 	 * 3char lang (ISO 639-2)
 	 */
+	@Column(length = 3)
 	private String lang;
 
 	@Lob
@@ -55,8 +58,9 @@ public class Userprivacy extends BaseEntity {
 	/**
 	 * 128 char hash
 	 */
-	@Column(name = "hashed_email")
+	@Column(name = "hashed_email", length = 128)
 	private String hashedEmail;
+	@Column(length = 128)
 	private String company;
 
 	@Lob

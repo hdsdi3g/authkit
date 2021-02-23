@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
@@ -32,6 +33,7 @@ import javax.validation.constraints.NotEmpty;
 public class RoleRight extends BaseEntity {
 
 	@NotEmpty
+	@Column(length = 80)
 	private String name;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)

@@ -17,6 +17,7 @@
 package tv.hd3g.authkit.mod.entity;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
@@ -28,6 +29,7 @@ import javax.validation.constraints.NotEmpty;
 public class RoleRightContext extends BaseEntity {
 
 	@NotEmpty
+	@Column(length = 80)
 	private String name;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)

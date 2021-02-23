@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -32,8 +33,10 @@ import javax.validation.constraints.NotEmpty;
 public class Group extends BaseEntity {
 
 	@NotEmpty
+	@Column(length = 80)
 	private String name;
 
+	@Column(length = 255)
 	private String description;
 
 	@ManyToMany(cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST })
