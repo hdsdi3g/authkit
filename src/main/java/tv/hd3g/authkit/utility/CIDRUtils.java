@@ -21,7 +21,7 @@
  * Edited by hdsdi3g for Authkit
  *
  */
-package tv.hd3g.authkit.mod;
+package tv.hd3g.authkit.utility;
 
 import java.math.BigInteger;
 import java.net.InetAddress;

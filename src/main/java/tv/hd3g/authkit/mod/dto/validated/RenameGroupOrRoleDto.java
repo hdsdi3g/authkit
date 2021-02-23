@@ -16,7 +16,7 @@
  */
 package tv.hd3g.authkit.mod.dto.validated;
 
-import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
+import static tv.hd3g.authkit.utility.LogSanitizer.sanitize;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;

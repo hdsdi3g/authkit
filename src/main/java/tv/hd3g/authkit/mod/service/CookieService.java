@@ -1,5 +1,5 @@
 /*
- * This file is part of AuthKit.
+ * This file is part of authkit.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -11,27 +11,24 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
- * Copyright (C) hdsdi3g for hd3g.tv 2019
+ * Copyright (C) hdsdi3g for hd3g.tv 2021
  *
  */
-package tv.hd3g.authkit.mod.dto.validated;
+package tv.hd3g.authkit.mod.service;
 
-import static tv.hd3g.authkit.utility.LogSanitizer.sanitize;
+import java.time.Duration;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
-public class ChangeIPDto {
+public interface CookieService {
 
-	@NotBlank
-	@Size(min = 7, max = 160)
-	private String ip;
+	String AUTH_COOKIE_NAME = "SESSIONBEARER";
 
-	public String getIp() {
-		return sanitize(ip);
-	}
+	Cookie createLogonCookie(String userSessionToken, Duration ttl);
 
-	public void setIp(final String ip) {
-		this.ip = ip;
-	}
+	Cookie deleteLogonCookie();
+
+	String getLogonCookiePayload(HttpServletRequest request);
+
 }

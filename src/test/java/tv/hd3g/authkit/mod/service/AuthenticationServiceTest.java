@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static tv.hd3g.authkit.mod.controller.ControllerLogin.TOKEN_FORMNAME_ENTER_TOTP;
 import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.INVALID_PASSWORD;
+import static tv.hd3g.authkit.mod.service.CookieService.AUTH_COOKIE_NAME;
 import static tv.hd3g.authkit.mod.service.TOTPServiceImpl.base32;
 import static tv.hd3g.authkit.mod.service.TOTPServiceImpl.makeCodeAtTime;
 import static tv.hd3g.authkit.tool.DataGenerator.makeRandomIPv4;
@@ -55,6 +56,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import tv.hd3g.authkit.mod.dto.LoggedUserTagsTokenDto;
+import tv.hd3g.authkit.mod.dto.LoginRequestContentDto;
 import tv.hd3g.authkit.mod.dto.Password;
 import tv.hd3g.authkit.mod.dto.ressource.UserPrivacyDto;
 import tv.hd3g.authkit.mod.dto.validated.AddGroupOrRoleDto;
@@ -64,6 +67,7 @@ import tv.hd3g.authkit.mod.dto.validated.RenameGroupOrRoleDto;
 import tv.hd3g.authkit.mod.dto.validated.TOTPLogonCodeFormDto;
 import tv.hd3g.authkit.mod.exception.AuthKitException;
 import tv.hd3g.authkit.mod.exception.BlockedUserException;
+import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException;
 import tv.hd3g.authkit.mod.exception.ResetWithSamePasswordException;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException.BadPasswordUserCantLoginException;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException.BlockedUserCantLoginException;
@@ -420,8 +424,10 @@ class AuthenticationServiceTest {
 		final var loginForm = new LoginFormDto();
 		loginForm.setUserlogin(ldapSimpleUserName);
 		loginForm.setUserpassword(new Password(ldapSimpleUserPassword));
-		authenticationService.userLoginRequest(request, loginForm);
 		final var credential = credentialRepository.getFromRealmLogin(realm, ldapSimpleUserName);
+		final var uuid = credential.getUser().getUuid();
+
+		checkLoginRequestContent(authenticationService.userLoginRequest(request, loginForm), uuid);
 
 		final var resultOk = authenticationService.checkPassword(new Password(ldapSimpleUserPassword), credential);
 		assertNotNull(resultOk);
@@ -431,6 +437,25 @@ class AuthenticationServiceTest {
 		assertNotNull(resultErr);
 		assertTrue(resultErr.isPresent());
 		assertEquals(INVALID_PASSWORD, resultErr.get());
+	}
+
+	private LoggedUserTagsTokenDto checkLoginRequestContent(final LoginRequestContentDto loginRequest,
+	                                                        final String userUUID) {
+		assertNotNull(loginRequest);
+		final var token = loginRequest.getUserSessionToken();
+		final var cookie = loginRequest.getUserSessionCookie();
+		assertNotNull(token);
+		assertNotNull(cookie);
+		assertEquals(token, cookie.getValue());
+		assertEquals(AUTH_COOKIE_NAME, cookie.getName());
+
+		try {
+			final var loggedUserTagsTokenDto = securedTokenService.loggedUserRightsExtractToken(token, false);
+			assertEquals(userUUID, loggedUserTagsTokenDto.getUserUUID());
+			return loggedUserTagsTokenDto;
+		} catch (final NotAcceptableSecuredTokenException e) {
+			throw new AssertionError("Can't extract token", e);
+		}
 	}
 
 	@Nested
@@ -443,9 +468,7 @@ class AuthenticationServiceTest {
 			loginForm.setUserlogin(addUser.getUserLogin());
 			loginForm.setUserpassword(new Password(userPassword));
 
-			final var sessionToken = authenticationService.userLoginRequest(request, loginForm);
-			assertNotNull(sessionToken);
-			assertFalse(sessionToken.isEmpty());
+			checkLoginRequestContent(authenticationService.userLoginRequest(request, loginForm), uuid);
 
 			final var lastLogin = getLastLogin(uuid);
 			assertNotNull(lastLogin);
@@ -481,9 +504,8 @@ class AuthenticationServiceTest {
 				final var c1 = credentialRepository.getFromRealmLogin(realm, ldapSimpleUserName);
 				assertNull(c1);
 
-				final var sessionToken = authenticationService.userLoginRequest(request, loginForm);
-				assertNotNull(sessionToken);
-				assertFalse(sessionToken.isEmpty());
+				final var uuid = c1.getUser().getUuid();
+				checkLoginRequestContent(authenticationService.userLoginRequest(request, loginForm), uuid);
 
 				final var c2 = credentialRepository.getFromRealmLogin(realm, ldapSimpleUserName);
 				assertNotNull(c2);
@@ -502,19 +524,19 @@ class AuthenticationServiceTest {
 				final var u0 = credentialRepository.getUUIDFromRealmLogin(realm, ldapSimpleUserName);
 				assertNull(c0);
 				assertNull(u0);
+				final var uuid = c0.getUser().getUuid();
 
 				final var loginForm = new LoginFormDto();
 				loginForm.setUserlogin(ldapSimpleUserName);
 				loginForm.setUserpassword(new Password(ldapSimpleUserPassword));
 
-				authenticationService.userLoginRequest(request, loginForm);
+				checkLoginRequestContent(authenticationService.userLoginRequest(request, loginForm), uuid);
+
 				final var c1 = credentialRepository.getFromRealmLogin(realm, ldapSimpleUserName);
 				final var u1 = credentialRepository.getUUIDFromRealmLogin(realm, ldapSimpleUserName);
 
 				loginForm.setUserpassword(new Password(ldapSimpleUserPassword));
-				final var sessionToken = authenticationService.userLoginRequest(request, loginForm);
-				assertNotNull(sessionToken);
-				assertFalse(sessionToken.isEmpty());
+				checkLoginRequestContent(authenticationService.userLoginRequest(request, loginForm), uuid);
 
 				final var c2 = credentialRepository.getFromRealmLogin(realm, ldapSimpleUserName);
 				final var u2 = credentialRepository.getUUIDFromRealmLogin(realm, ldapSimpleUserName);
@@ -558,9 +580,10 @@ class AuthenticationServiceTest {
 				final var loginForm = new LoginFormDto();
 				loginForm.setUserlogin(ldapSimpleUserName);
 				loginForm.setUserpassword(new Password(ldapSimpleUserPassword));
-				authenticationService.userLoginRequest(request, loginForm);
-
 				final var uuid = credentialRepository.getUUIDFromRealmLogin(realm, ldapSimpleUserName);
+
+				checkLoginRequestContent(authenticationService.userLoginRequest(request, loginForm), uuid);
+
 				final var secret = totpService.makeSecret();
 				final var checkCode = makeCodeAtTime(base32.decode(secret), System.currentTimeMillis(),
 				        timeStepSeconds);
@@ -574,9 +597,9 @@ class AuthenticationServiceTest {
 				formTOTPDto.setSecuretoken(tokenAuth);
 				formTOTPDto.setShorttime(false);
 
-				final var sessionToken = authenticationService.userLoginRequest(request, formTOTPDto);
-				assertNotNull(sessionToken);
-				assertFalse(sessionToken.isEmpty());
+				final var loginRequest = authenticationService.userLoginRequest(request, formTOTPDto);
+				assertNotNull(loginRequest);
+				assertFalse(loginRequest.getUserSessionToken().isEmpty());
 
 				final var lastLogin = getLastLogin(uuid);
 				assertNotNull(lastLogin);
@@ -595,7 +618,7 @@ class AuthenticationServiceTest {
 
 		@Test
 		void userLoginRequest_maxLogonTrial_UnderLimit() throws Exception {
-			authenticationService.addUser(addUser);
+			final var uuid = authenticationService.addUser(addUser);
 			final var loginFormFail = new LoginFormDto();
 			loginFormFail.setUserlogin(addUser.getUserLogin());
 
@@ -609,7 +632,7 @@ class AuthenticationServiceTest {
 			final var loginFormOk = new LoginFormDto();
 			loginFormOk.setUserlogin(addUser.getUserLogin());
 			loginFormOk.setUserpassword(new Password(userPassword));
-			assertNotNull(authenticationService.userLoginRequest(request, loginFormOk));
+			checkLoginRequestContent(authenticationService.userLoginRequest(request, loginFormOk), uuid);
 		}
 
 		@Test
@@ -640,33 +663,33 @@ class AuthenticationServiceTest {
 
 		@Test
 		void userLoginRequestLongDuration() throws Exception {
-			authenticationService.addUser(addUser);
+			final var uuid = authenticationService.addUser(addUser);
 			final var loginForm = new LoginFormDto();
 			loginForm.setUserlogin(addUser.getUserLogin());
 			loginForm.setUserpassword(new Password(userPassword));
-			final var sessionToken = authenticationService.userLoginRequest(request, loginForm);
+			final var loginRequest = authenticationService.userLoginRequest(request, loginForm);
+			final var loggedUser = checkLoginRequestContent(loginRequest, uuid);
 
 			/**
 			 * Test if login still ok after short duration time
 			 */
-			final var loggedUser = securedTokenService.loggedUserRightsExtractToken(sessionToken);
 			assertTrue(loggedUser.getTimeout().after(
 			        new Date(System.currentTimeMillis() + shortSessionDuration.getSeconds() * 1000)));
 		}
 
 		@Test
 		void userLoginRequestShortDuration() throws Exception {
-			authenticationService.addUser(addUser);
+			final var uuid = authenticationService.addUser(addUser);
 			final var loginForm = new LoginFormDto();
 			loginForm.setUserlogin(addUser.getUserLogin());
 			loginForm.setUserpassword(new Password(userPassword));
 			loginForm.setShorttime(true);
-			final var sessionToken = authenticationService.userLoginRequest(request, loginForm);
+			final var loggedUser = checkLoginRequestContent(authenticationService
+			        .userLoginRequest(request, loginForm), uuid);
 
 			/**
 			 * Test if not logged before long duration time
 			 */
-			final var loggedUser = securedTokenService.loggedUserRightsExtractToken(sessionToken);
 			assertTrue(loggedUser.getTimeout().before(
 			        new Date(System.currentTimeMillis() + longSessionDuration.getSeconds() * 1000)));
 		}
@@ -742,7 +765,7 @@ class AuthenticationServiceTest {
 			final var loginForm = new LoginFormDto();
 			loginForm.setUserlogin(addUser.getUserLogin());
 			loginForm.setUserpassword(new Password(userPassword));
-			assertNotNull(authenticationService.userLoginRequest(request, loginForm));
+			checkLoginRequestContent(authenticationService.userLoginRequest(request, loginForm), uuid);
 
 			final var lastLogin = getLastLogin(uuid);
 			assertNotNull(lastLogin);
@@ -764,9 +787,9 @@ class AuthenticationServiceTest {
 			formTOTPDto.setSecuretoken(tokenAuth);
 			formTOTPDto.setShorttime(false);
 
-			final var sessionToken = authenticationService.userLoginRequest(request, formTOTPDto);
-			assertNotNull(sessionToken);
-			assertFalse(sessionToken.isEmpty());
+			final var loginRequest = authenticationService.userLoginRequest(request, formTOTPDto);
+			assertNotNull(loginRequest);
+			assertFalse(loginRequest.getUserSessionToken().isEmpty());
 
 			final var lastLogin = getLastLogin(uuid);
 			assertNotNull(lastLogin);
@@ -804,8 +827,8 @@ class AuthenticationServiceTest {
 			loginForm.setUserlogin(addUser.getUserLogin());
 			loginForm.setUserpassword(new Password(userPassword));
 
-			final var authBearer = authenticationService.userLoginRequest(request, loginForm);
-			final var loggedDto = securedTokenService.loggedUserRightsExtractToken(authBearer);
+			final var loggedDto = checkLoginRequestContent(authenticationService
+			        .userLoginRequest(request, loginForm), uuid);
 			assertNull(loggedDto.getOnlyForHost());
 			assertTrue(loggedDto.getTags().isEmpty());
 		}
@@ -831,8 +854,8 @@ class AuthenticationServiceTest {
 			loginForm.setUserlogin(addUser.getUserLogin());
 			loginForm.setUserpassword(new Password(userPassword));
 
-			final var authBearer = authenticationService.userLoginRequest(request, loginForm);
-			final var loggedDto = securedTokenService.loggedUserRightsExtractToken(authBearer);
+			final var loggedDto = checkLoginRequestContent(authenticationService
+			        .userLoginRequest(request, loginForm), uuid);
 			assertEquals(addr, loggedDto.getOnlyForHost());
 			assertTrue(loggedDto.getTags().contains(rightName));
 		}
@@ -905,7 +928,7 @@ class AuthenticationServiceTest {
 			loginForm.setUserlogin(addUser.getUserLogin());
 			loginForm.setUserpassword(new Password(newPassword));
 
-			assertNotNull(authenticationService.userLoginRequest(request, loginForm));
+			checkLoginRequestContent(authenticationService.userLoginRequest(request, loginForm), uuid);
 
 			final var lastLogin = getLastLogin(uuid);
 			assertNotNull(lastLogin);

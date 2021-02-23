@@ -11,19 +11,25 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
- * Copyright (C) hdsdi3g for hd3g.tv 2019
+ * Copyright (C) hdsdi3g for hd3g.tv 2020
  *
  */
-package tv.hd3g.authkit.dummy;
+package tv.hd3g.authkit.utility;
 
-import tv.hd3g.commons.authkit.CheckBefore;
-import tv.hd3g.commons.authkit.RenforceCheckBefore;
+/**
+ * Used for replace new lines/tabs in a String + trim: see Sonar S5145
+ */
+public class LogSanitizer {
 
-public class ControllerMethodRequireRenforceCheck {
-
-	@RenforceCheckBefore
-	@CheckBefore("secured")
-	public void verb() {
+	private LogSanitizer() {
 	}
 
+	public static final String sanitize(final String value) {
+		if (value == null) {
+			return null;
+		} else if (value.isEmpty()) {
+			return "";
+		}
+		return value.replaceAll("[\n|\r|\t]", " ").trim();
+	}
 }

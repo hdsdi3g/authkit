@@ -34,7 +34,7 @@
 		<logger name="org.springframework.boot.web.embedded.tomcat.TomcatWebServer" level="info" />
 		<logger name="org.apache.catalina.valves.AccessLogValve" level="trace" />
 
-		<logger name="org.hibernate.SQL" level="debug" />
+		<logger name="org.hibernate.SQL" level="info" />
 		<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="error" />
 
 		<Logger name="tv.hd3g" level="error" />

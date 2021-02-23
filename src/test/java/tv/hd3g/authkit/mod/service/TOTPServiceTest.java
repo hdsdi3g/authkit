@@ -18,11 +18,11 @@ package tv.hd3g.authkit.mod.service;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static tv.hd3g.authkit.mod.service.CookieService.AUTH_COOKIE_NAME;
 import static tv.hd3g.authkit.mod.service.TOTPServiceImpl.base32;
 import static tv.hd3g.authkit.mod.service.TOTPServiceImpl.makeCodeAtTime;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUserLogin;
@@ -50,16 +50,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.NotFoundException;
-import com.google.zxing.Result;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 
+import tv.hd3g.authkit.mod.dto.LoggedUserTagsTokenDto;
+import tv.hd3g.authkit.mod.dto.LoginRequestContentDto;
 import tv.hd3g.authkit.mod.dto.Password;
 import tv.hd3g.authkit.mod.dto.validated.AddUserDto;
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
 import tv.hd3g.authkit.mod.dto.validated.ValidationSetupTOTPDto;
 import tv.hd3g.authkit.mod.entity.Credential;
 import tv.hd3g.authkit.mod.entity.User;
+import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException.BadTOTPCodeCantLoginException;
 import tv.hd3g.authkit.mod.repository.CredentialRepository;
@@ -113,11 +115,11 @@ class TOTPServiceTest {
 	void makeQRCode() throws NotFoundException, IOException, URISyntaxException {
 		final var uri = new URI(
 		        "otpauth://totp/" + makeUserLogin() + "@" + makeUserLogin() + "?secret=" + makeUserLogin());
-		final String qr = totpService.makeQRCode(uri);
-		final ByteArrayInputStream source = new ByteArrayInputStream(Base64.getDecoder().decode(qr));
+		final var qr = totpService.makeQRCode(uri);
+		final var source = new ByteArrayInputStream(Base64.getDecoder().decode(qr));
 		final var binaryBitmap = new BinaryBitmap(new HybridBinarizer(
 		        new BufferedImageLuminanceSource(ImageIO.read(source))));
-		final Result qrCodeResult = new MultiFormatReader().decode(binaryBitmap);
+		final var qrCodeResult = new MultiFormatReader().decode(binaryBitmap);
 		final var decoded = qrCodeResult.getText();
 
 		assertEquals(uri.toString(), decoded);
@@ -233,7 +235,7 @@ class TOTPServiceTest {
 		totpService.setupTOTP(secret, backupCodes, uuid);
 		final var credential = credentialRepository.getByUserUUID(uuid);
 
-		final Random r = new Random();
+		final var r = new Random();
 		final var someRandoms = r.ints(500, 0, 1_000_000).mapToObj(i -> i).collect(toUnmodifiableList());
 		for (final int code : someRandoms) {
 			Assertions.assertThrows(BadTOTPCodeCantLoginException.class,
@@ -243,9 +245,9 @@ class TOTPServiceTest {
 
 	@Test
 	void setupTOTPWithChecks() throws GeneralSecurityException {
-		final AddUserDto addUser = new AddUserDto();
+		final var addUser = new AddUserDto();
 		addUser.setUserLogin(makeUserLogin());
-		final String userPassword = makeUserPassword();
+		final var userPassword = makeUserPassword();
 		addUser.setUserPassword(new Password(userPassword));
 		final var uuid = authenticationService.addUser(addUser);
 		final var secret = totpService.makeSecret();
@@ -287,9 +289,26 @@ class TOTPServiceTest {
 		final var request = mock(HttpServletRequest.class);
 		DataGenerator.setupMock(request);
 
-		final var sessionToken = authenticationService.userLoginRequest(request, loginForm);
-		assertNotNull(sessionToken);
-		assertFalse(sessionToken.isEmpty());
+		checkLoginRequestContent(authenticationService.userLoginRequest(request, loginForm), uuid);
+	}
+
+	private LoggedUserTagsTokenDto checkLoginRequestContent(final LoginRequestContentDto loginRequest,
+	                                                        final String userUUID) {
+		assertNotNull(loginRequest);
+		final var token = loginRequest.getUserSessionToken();
+		final var cookie = loginRequest.getUserSessionCookie();
+		assertNotNull(token);
+		assertNotNull(cookie);
+		assertEquals(token, cookie.getValue());
+		assertEquals(AUTH_COOKIE_NAME, cookie.getName());
+
+		try {
+			final var loggedUserTagsTokenDto = securedTokenService.loggedUserRightsExtractToken(token, false);
+			assertEquals(userUUID, loggedUserTagsTokenDto.getUserUUID());
+			return loggedUserTagsTokenDto;
+		} catch (final NotAcceptableSecuredTokenException e) {
+			throw new AssertionError("Can't extract token", e);
+		}
 	}
 
 }

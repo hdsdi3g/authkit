@@ -14,7 +14,7 @@
  * Copyright (C) hdsdi3g for hd3g.tv 2019
  *
  */
-package tv.hd3g.authkit.mod;
+package tv.hd3g.authkit.mod.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -22,10 +22,13 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import tv.hd3g.authkit.mod.ControllerInterceptor;
 import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener;
 import tv.hd3g.authkit.mod.service.AuditReportService;
 import tv.hd3g.authkit.mod.service.AuthenticationService;
+import tv.hd3g.authkit.mod.service.CookieService;
 import tv.hd3g.authkit.mod.service.SecuredTokenService;
+import tv.hd3g.authkit.utility.StringToPasswordConvertor;
 
 @Configuration
 public class AuthKitSetupWebConfig implements WebMvcConfigurer {
@@ -34,16 +37,19 @@ public class AuthKitSetupWebConfig implements WebMvcConfigurer {
 	private final SecuredTokenService securedTokenService;
 	private final AuthKitEndpointsListener authKitEndpointsListener;
 	private final AuthenticationService authenticationService;
+	private final CookieService cookieService;
 
 	@Autowired
 	public AuthKitSetupWebConfig(final AuditReportService auditService,
 	                             final SecuredTokenService securedTokenService,
 	                             final AuthKitEndpointsListener authKitEndpointsListener,
-	                             final AuthenticationService authenticationService) {
+	                             final AuthenticationService authenticationService,
+	                             final CookieService cookieService) {
 		this.auditService = auditService;
 		this.securedTokenService = securedTokenService;
 		this.authKitEndpointsListener = authKitEndpointsListener;
 		this.authenticationService = authenticationService;
+		this.cookieService = cookieService;
 	}
 
 	@Override
@@ -54,6 +60,6 @@ public class AuthKitSetupWebConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(final InterceptorRegistry registry) {
 		registry.addInterceptor(new ControllerInterceptor(
-		        auditService, securedTokenService, authKitEndpointsListener, authenticationService));
+		        auditService, securedTokenService, authKitEndpointsListener, authenticationService, cookieService));
 	}
 }

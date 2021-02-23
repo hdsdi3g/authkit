@@ -44,9 +44,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import tv.hd3g.authkit.mod.ExternalLDAP;
-import tv.hd3g.authkit.mod.ExternalLDAP.LDAPEntry;
-import tv.hd3g.authkit.mod.ExternalLDAP.LDAPType;
+import tv.hd3g.authkit.mod.config.ExternalLDAP;
+import tv.hd3g.authkit.mod.config.ExternalLDAP.LDAPEntry;
+import tv.hd3g.authkit.mod.config.ExternalLDAP.LDAPType;
 import tv.hd3g.authkit.mod.dto.ExternalAuthUserDto;
 import tv.hd3g.authkit.mod.dto.Password;
 import tv.hd3g.authkit.mod.exception.AuthKitException;

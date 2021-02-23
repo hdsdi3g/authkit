@@ -22,7 +22,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
+import static tv.hd3g.authkit.utility.LogSanitizer.sanitize;
 
 import java.util.List;
 import java.util.UUID;

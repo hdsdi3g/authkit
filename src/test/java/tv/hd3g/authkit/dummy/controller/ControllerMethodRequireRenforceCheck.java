@@ -14,32 +14,19 @@
  * Copyright (C) hdsdi3g for hd3g.tv 2019
  *
  */
-package tv.hd3g.authkit.mod.dto.validated;
+package tv.hd3g.authkit.dummy.controller;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
+import org.springframework.stereotype.Controller;
 
-import java.util.List;
+import tv.hd3g.commons.authkit.CheckBefore;
+import tv.hd3g.commons.authkit.RenforceCheckBefore;
 
-import javax.validation.constraints.NotNull;
+@Controller
+public class ControllerMethodRequireRenforceCheck {
 
-import tv.hd3g.authkit.utility.LogSanitizer;
-
-/**
- * Trim and remove new lines/tabs via LogSanitizer
- */
-public class ListStringDto {
-
-	@NotNull
-	private List<String> list;
-
-	public List<String> getList() {
-		return list.stream()
-		        .map(LogSanitizer::sanitize)
-		        .collect(toUnmodifiableList());
-	}
-
-	public void setList(final List<String> list) {
-		this.list = list;
+	@RenforceCheckBefore
+	@CheckBefore("secured")
+	public void verb() {
 	}
 
 }

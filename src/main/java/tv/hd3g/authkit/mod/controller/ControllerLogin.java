@@ -48,8 +48,10 @@ import tv.hd3g.authkit.mod.exception.UserCantLoginException;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException.TOTPUserCantLoginException;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException.UserMustChangePasswordException;
 import tv.hd3g.authkit.mod.service.AuthenticationService;
+import tv.hd3g.authkit.mod.service.CookieService;
 import tv.hd3g.authkit.mod.service.SecuredTokenService;
 import tv.hd3g.commons.authkit.AuditAfter;
+import tv.hd3g.commons.authkit.CheckBefore;
 
 @Controller
 public class ControllerLogin {
@@ -71,6 +73,8 @@ public class ControllerLogin {
 	private MessageSource messageSource;
 	@Autowired
 	private AuthenticationService authenticationService;
+	@Autowired
+	private CookieService cookieService;
 
 	@Value("${authkit.maxLoginTime:5m}")
 	private Duration expirationDuration;
@@ -103,8 +107,11 @@ public class ControllerLogin {
 
 		try {
 			tokenService.simpleFormCheckToken(TOKEN_FORMNAME_LOGIN, form.getSecuretoken());
-			final var userSessionToken = authenticationService.userLoginRequest(request, form);
-			model.addAttribute("jwtsession", userSessionToken);
+			final var userSession = authenticationService.userLoginRequest(request, form);
+			model.addAttribute("jwtsession", userSession.getUserSessionToken());
+			final var cookie = userSession.getUserSessionCookie();
+			cookie.setSecure(true);
+			response.addCookie(cookie);
 			return "bounce-session";
 		} catch (final NotAcceptableSecuredTokenException e) {
 			/**
@@ -145,7 +152,11 @@ public class ControllerLogin {
 	}
 
 	@GetMapping("/logout")
-	public String logout() {
+	@CheckBefore
+	public String logout(final HttpServletResponse response) {
+		final var cookie = cookieService.deleteLogonCookie();
+		cookie.setSecure(true);
+		response.addCookie(cookie);
 		return "bounce-logout";
 	}
 
@@ -242,8 +253,12 @@ public class ControllerLogin {
 		}
 
 		try {
-			final String userSessionToken = authenticationService.userLoginRequest(request, form);
-			model.addAttribute("jwtsession", userSessionToken);
+			final var userSession = authenticationService.userLoginRequest(request, form);
+			model.addAttribute("jwtsession", userSession.getUserSessionToken());
+
+			final var cookie = userSession.getUserSessionCookie();
+			cookie.setSecure(true);
+			response.addCookie(cookie);
 		} catch (final NotAcceptableSecuredTokenException e) {
 			/**
 			 * Invalid/expired form token

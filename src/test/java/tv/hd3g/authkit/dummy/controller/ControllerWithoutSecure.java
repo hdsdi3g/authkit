@@ -11,25 +11,32 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
- * Copyright (C) hdsdi3g for hd3g.tv 2020
+ * Copyright (C) hdsdi3g for hd3g.tv 2019
  *
  */
-package tv.hd3g.authkit.mod;
+package tv.hd3g.authkit.dummy.controller;
 
-/**
- * Used for replace new lines/tabs in a String + trim: see Sonar S5145
- */
-public class LogSanitizer {
+import org.springframework.stereotype.Controller;
 
-	private LogSanitizer() {
+import tv.hd3g.commons.authkit.CheckBefore;
+
+@Controller
+public class ControllerWithoutSecure {
+
+	@CheckBefore("secureOnMethod")
+	public void verbWithSecure() {
 	}
 
-	public static final String sanitize(final String value) {
-		if (value == null) {
-			return null;
-		} else if (value.isEmpty()) {
-			return "";
-		}
-		return value.replaceAll("[\n|\r|\t]", " ").trim();
+	public void verbWithoutSecure() {
 	}
+
+	@CheckBefore("secureOnMethodOr1")
+	@CheckBefore("secureOnMethodOr2")
+	public void verbWithOrTypeSecure() {
+	}
+
+	@CheckBefore({ "secureOnMethodAnd1", "secureOnMethodAnd2" })
+	public void verbWithAndTypeSecure() {
+	}
+
 }

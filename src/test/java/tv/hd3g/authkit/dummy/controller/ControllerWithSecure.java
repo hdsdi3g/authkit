@@ -14,16 +14,21 @@
  * Copyright (C) hdsdi3g for hd3g.tv 2019
  *
  */
-package tv.hd3g.authkit.mod;
+package tv.hd3g.authkit.dummy.controller;
 
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Controller;
 
-import tv.hd3g.authkit.mod.dto.Password;
+import tv.hd3g.commons.authkit.CheckBefore;
 
-public class StringToPasswordConvertor implements Converter<String, Password> {
+@Controller
+@CheckBefore("secureOnClass")
+public class ControllerWithSecure {
 
-	@Override
-	public Password convert(final String from) {
-		return new Password(from);
+	@CheckBefore("secureOnMethod")
+	public void verbWithSecure() {
 	}
+
+	public void verbWithoutSecure() {
+	}
+
 }

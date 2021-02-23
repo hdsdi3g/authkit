@@ -14,16 +14,16 @@
  * Copyright (C) hdsdi3g for hd3g.tv 2019
  *
  */
-package tv.hd3g.authkit.dummy;
+package tv.hd3g.authkit.utility;
 
-import tv.hd3g.commons.authkit.CheckBefore;
-import tv.hd3g.commons.authkit.RenforceCheckBefore;
+import org.springframework.core.convert.converter.Converter;
 
-@RenforceCheckBefore
-public class ControllerClassRequireRenforceCheck {
+import tv.hd3g.authkit.mod.dto.Password;
 
-	@CheckBefore("secured")
-	public void verb() {
+public class StringToPasswordConvertor implements Converter<String, Password> {
+
+	@Override
+	public Password convert(final String from) {
+		return new Password(from);
 	}
-
 }

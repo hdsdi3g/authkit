@@ -1,5 +1,5 @@
 /*
- * This file is part of AuthKit.
+ * This file is part of authkit.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -11,27 +11,24 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
- * Copyright (C) hdsdi3g for hd3g.tv 2019
+ * Copyright (C) hdsdi3g for hd3g.tv 2021
  *
  */
-package tv.hd3g.authkit.mod.dto.validated;
+package tv.hd3g.authkit.dummy.controller;
 
-import static tv.hd3g.authkit.utility.LogSanitizer.sanitize;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import tv.hd3g.commons.authkit.CheckBefore;
 
-public class ChangeIPDto {
+@RestController
+public class CheckWORightsRestCtrl {
 
-	@NotBlank
-	@Size(min = 7, max = 160)
-	private String ip;
-
-	public String getIp() {
-		return sanitize(ip);
+	@GetMapping("CheckWORightsRestCtrl/0")
+	@CheckBefore
+	public ResponseEntity<Void> verb() {
+		return null;
 	}
 
-	public void setIp(final String ip) {
-		this.ip = ip;
-	}
 }

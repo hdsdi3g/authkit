@@ -23,6 +23,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import tv.hd3g.authkit.mod.dto.LoginRequestContentDto;
 import tv.hd3g.authkit.mod.dto.Password;
 import tv.hd3g.authkit.mod.dto.ressource.GroupOrRoleDto;
 import tv.hd3g.authkit.mod.dto.ressource.UserDto;
@@ -47,14 +48,15 @@ public interface AuthenticationService {
 	 * @param request (used by Audit)
 	 * @return sessionToken String
 	 */
-	String userLoginRequest(HttpServletRequest request, LoginFormDto form) throws UserCantLoginException;
+	LoginRequestContentDto userLoginRequest(HttpServletRequest request,
+	                                        LoginFormDto form) throws UserCantLoginException;
 
 	/**
 	 * @param request (used by Audit)
 	 * @return sessionToken String
 	 */
-	String userLoginRequest(HttpServletRequest request,
-	                        TOTPLogonCodeFormDto form) throws UserCantLoginException, NotAcceptableSecuredTokenException;
+	LoginRequestContentDto userLoginRequest(HttpServletRequest request,
+	                                        TOTPLogonCodeFormDto form) throws UserCantLoginException, NotAcceptableSecuredTokenException;
 
 	Optional<RejectLoginCause> checkPassword(Password userEnterPassword, Credential credential);
 

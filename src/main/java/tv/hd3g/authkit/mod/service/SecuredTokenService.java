@@ -49,7 +49,8 @@ public interface SecuredTokenService {
 	/**
 	 * Checked user tags
 	 */
-	LoggedUserTagsTokenDto loggedUserRightsExtractToken(final String token) throws NotAcceptableSecuredTokenException;
+	LoggedUserTagsTokenDto loggedUserRightsExtractToken(final String token,
+	                                                    boolean fromCookie) throws NotAcceptableSecuredTokenException;
 
 	/**
 	 * Generate a secured token for user connection-less operations.

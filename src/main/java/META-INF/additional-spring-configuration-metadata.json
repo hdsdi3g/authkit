@@ -21,7 +21,7 @@
   },
   {
     "name": "authkit.ldap",
-    "type": "tv.hd3g.authkit.mod.ExternalLDAP",
+    "type": "tv.hd3g.authkit.mod.config.ExternalLDAP",
     "description": "Authkit internal LDAP client"
   },
   {
@@ -58,5 +58,20 @@
     "name": "authkit.ldaptest.simpleUserDistrGroup",
     "type": "java.lang.String",
     "description": "Expected LDAP distribution group, with simpleUser in it. Only for testing purpose in ExternalAuthClientServiceTest"
+  },
+  {
+    "name": "authkit.cookie.https",
+    "type": "java.lang.Boolean",
+    "description": "Create cookies for https only"
+  },
+  {
+    "name": "authkit.cookie.path",
+    "type": "java.lang.String",
+    "description": "Full context path for cookies"
+  },
+  {
+    "name": "authkit.cookie.domain",
+    "type": "java.lang.String",
+    "description": "Domain/hostname for cookies"
   }
 ]}

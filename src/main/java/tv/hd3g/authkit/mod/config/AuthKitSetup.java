@@ -14,18 +14,18 @@
  * Copyright (C) hdsdi3g for hd3g.tv 2019
  *
  */
-package tv.hd3g.authkit.dummy;
+package tv.hd3g.authkit.mod.config;
 
-import tv.hd3g.commons.authkit.CheckBefore;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ResourceBundleMessageSource;
 
-@CheckBefore("secureOnClass")
-public class ControllerWithSecure {
+@Configuration
+public class AuthKitSetup {
 
-	@CheckBefore("secureOnMethod")
-	public void verbWithSecure() {
-	}
-
-	public void verbWithoutSecure() {
+	@Autowired
+	public AuthKitSetup(final ResourceBundleMessageSource rbms) {
+		rbms.addBasenames("authkit-messages");
 	}
 
 }

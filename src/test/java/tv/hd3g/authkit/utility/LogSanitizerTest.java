@@ -14,7 +14,7 @@
  * Copyright (C) hdsdi3g for hd3g.tv 2020
  *
  */
-package tv.hd3g.authkit.mod;
+package tv.hd3g.authkit.utility;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

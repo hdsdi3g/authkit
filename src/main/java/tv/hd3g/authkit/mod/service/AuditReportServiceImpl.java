@@ -17,7 +17,7 @@
 package tv.hd3g.authkit.mod.service;
 
 import static tv.hd3g.authkit.mod.ControllerInterceptor.getRequestUserUUID;
-import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
+import static tv.hd3g.authkit.utility.LogSanitizer.sanitize;
 
 import java.time.Duration;
 import java.util.Arrays;

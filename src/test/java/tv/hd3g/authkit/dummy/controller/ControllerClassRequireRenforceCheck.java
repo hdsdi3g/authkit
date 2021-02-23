@@ -14,26 +14,19 @@
  * Copyright (C) hdsdi3g for hd3g.tv 2019
  *
  */
-package tv.hd3g.authkit.dummy;
+package tv.hd3g.authkit.dummy.controller;
+
+import org.springframework.stereotype.Controller;
 
 import tv.hd3g.commons.authkit.CheckBefore;
+import tv.hd3g.commons.authkit.RenforceCheckBefore;
 
-public class ControllerWithoutSecure {
+@Controller
+@RenforceCheckBefore
+public class ControllerClassRequireRenforceCheck {
 
-	@CheckBefore("secureOnMethod")
-	public void verbWithSecure() {
-	}
-
-	public void verbWithoutSecure() {
-	}
-
-	@CheckBefore("secureOnMethodOr1")
-	@CheckBefore("secureOnMethodOr2")
-	public void verbWithOrTypeSecure() {
-	}
-
-	@CheckBefore({ "secureOnMethodAnd1", "secureOnMethodAnd2" })
-	public void verbWithAndTypeSecure() {
+	@CheckBefore("secured")
+	public void verb() {
 	}
 
 }

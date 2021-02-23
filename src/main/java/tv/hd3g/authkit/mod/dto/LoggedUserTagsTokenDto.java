@@ -24,6 +24,7 @@ public class LoggedUserTagsTokenDto {
 	private final Set<String> tags;
 	private final String userUUID;
 	private final Date expiration;
+	private final boolean fromCookie;
 	private final String onlyForHost;
 
 	/**
@@ -32,17 +33,20 @@ public class LoggedUserTagsTokenDto {
 	public LoggedUserTagsTokenDto(final String userUUID,
 	                              final Set<String> tags,
 	                              final Date expiration,
+	                              final boolean fromCookie,
 	                              final String onlyForHost) {
 		this.tags = tags;
 		this.userUUID = userUUID;
 		this.expiration = expiration;
+		this.fromCookie = fromCookie;
 		this.onlyForHost = onlyForHost;
 	}
 
 	public LoggedUserTagsTokenDto(final String userUUID,
 	                              final Set<String> tags,
-	                              final Date expiration) {
-		this(userUUID, tags, expiration, null);
+	                              final Date expiration,
+	                              final boolean fromCookie) {
+		this(userUUID, tags, expiration, fromCookie, null);
 	}
 
 	public String getUserUUID() {
@@ -62,5 +66,9 @@ public class LoggedUserTagsTokenDto {
 	 */
 	public String getOnlyForHost() {
 		return onlyForHost;
+	}
+
+	public boolean isFromCookie() {
+		return fromCookie;
 	}
 }

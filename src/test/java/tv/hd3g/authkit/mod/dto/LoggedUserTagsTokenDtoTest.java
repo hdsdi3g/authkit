@@ -17,6 +17,8 @@
 package tv.hd3g.authkit.mod.dto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static tv.hd3g.authkit.tool.DataGenerator.makeRandomString;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUUID;
 
@@ -43,7 +45,7 @@ class LoggedUserTagsTokenDtoTest {
 		userUUID = makeUUID();
 		date = new Date();
 		onlyForHost = makeRandomString();
-		lutd = new LoggedUserTagsTokenDto(userUUID, tags, date, onlyForHost);
+		lutd = new LoggedUserTagsTokenDto(userUUID, tags, date, false, onlyForHost);
 	}
 
 	@Test
@@ -64,6 +66,19 @@ class LoggedUserTagsTokenDtoTest {
 	@Test
 	void getGetOnlyForHost() {
 		assertEquals(onlyForHost, lutd.getOnlyForHost());
+	}
+
+	@Test
+	void isFromCookie() {
+		assertFalse(lutd.isFromCookie());
+		lutd = new LoggedUserTagsTokenDto(userUUID, tags, date, true, onlyForHost);
+		assertTrue(lutd.isFromCookie());
+
+		lutd = new LoggedUserTagsTokenDto(userUUID, tags, date, true);
+		assertTrue(lutd.isFromCookie());
+
+		lutd = new LoggedUserTagsTokenDto(userUUID, tags, date, false);
+		assertFalse(lutd.isFromCookie());
 	}
 
 }

@@ -17,7 +17,6 @@
 package tv.hd3g.authkit.mod.service;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
-import static tv.hd3g.authkit.mod.LogSanitizer.sanitize;
 import static tv.hd3g.authkit.mod.controller.ControllerLogin.TOKEN_FORMNAME_ENTER_TOTP;
 import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.DISABLED_LOGIN;
 import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.EMPTY_PASSWORD;
@@ -26,6 +25,7 @@ import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.MI
 import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.USER_NOT_FOUND;
 import static tv.hd3g.authkit.mod.service.AuditReportServiceImpl.getOriginalRemoteAddr;
 import static tv.hd3g.authkit.mod.service.ValidPasswordPolicyService.PasswordValidationLevel.DEFAULT;
+import static tv.hd3g.authkit.utility.LogSanitizer.sanitize;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -52,6 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener;
+import tv.hd3g.authkit.mod.dto.LoginRequestContentDto;
 import tv.hd3g.authkit.mod.dto.Password;
 import tv.hd3g.authkit.mod.dto.ressource.GroupOrRoleDto;
 import tv.hd3g.authkit.mod.dto.ressource.UserDto;
@@ -130,6 +131,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private ValidPasswordPolicyService validPasswordPolicy;
 	@Autowired
 	private ExternalAuthClientService externalAuthClientService;
+	@Autowired
+	private CookieService cookieService;
 
 	@Value("${authkit.realm:default}")
 	private String realm;
@@ -298,8 +301,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public String userLoginRequest(final HttpServletRequest request,
-	                               final LoginFormDto form) throws UserCantLoginException {
+	public LoginRequestContentDto userLoginRequest(final HttpServletRequest request,
+	                                               final LoginFormDto form) throws UserCantLoginException {
 		var credential = credentialRepository.getFromRealmLogin(realm, form.getUserlogin());
 		if (credential == null && externalAuthClientService.isAvailable()) {
 			credential = importLDAPUserFirstTime(request, form);
@@ -325,10 +328,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		return prepareSessionToken(request, form.isShortSessionTime(), credential, userUUID);
 	}
 
-	private String prepareSessionToken(final HttpServletRequest request,
-	                                   final boolean shortSessionTime,
-	                                   final Credential credential,
-	                                   final String userUUID) {
+	private LoginRequestContentDto prepareSessionToken(final HttpServletRequest request,
+	                                                   final boolean shortSessionTime,
+	                                                   final Credential credential,
+	                                                   final String userUUID) {
 		final var clientAddr = getOriginalRemoteAddr(request);
 		final var tags = Set.copyOf(userDao.getRightsForUser(userUUID, clientAddr));
 
@@ -351,13 +354,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 		final var userSessionToken = tokenService.loggedUserRightsGenerateToken(
 		        userUUID, sessionDuration, tags, host);
+		final var cookie = cookieService.createLogonCookie(userSessionToken, sessionDuration);
 		auditReportService.onLogin(request, longSessionDuration, tags);
-		return userSessionToken;
+
+		return new LoginRequestContentDto(userSessionToken, cookie);
 	}
 
 	@Override
-	public String userLoginRequest(final HttpServletRequest request,
-	                               final TOTPLogonCodeFormDto form) throws UserCantLoginException, NotAcceptableSecuredTokenException {
+	public LoginRequestContentDto userLoginRequest(final HttpServletRequest request,
+	                                               final TOTPLogonCodeFormDto form) throws UserCantLoginException, NotAcceptableSecuredTokenException {
 		final var userUUID = tokenService.userFormExtractTokenUUID(TOKEN_FORMNAME_ENTER_TOTP, form.getSecuretoken());
 		final var credential = credentialRepository.getByUserUUID(userUUID);
 		checkLoginUserNoCredential(request, credential, userUUID);

@@ -14,32 +14,22 @@
  * Copyright (C) hdsdi3g for hd3g.tv 2019
  *
  */
-package tv.hd3g.authkit.mod.dto.validated;
+package tv.hd3g.authkit.utility;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
+import org.junit.jupiter.api.Test;
 
-import javax.validation.constraints.NotNull;
+import tv.hd3g.authkit.tool.DataGenerator;
 
-import tv.hd3g.authkit.utility.LogSanitizer;
+class StringToPasswordConvertorTest {
 
-/**
- * Trim and remove new lines/tabs via LogSanitizer
- */
-public class ListStringDto {
-
-	@NotNull
-	private List<String> list;
-
-	public List<String> getList() {
-		return list.stream()
-		        .map(LogSanitizer::sanitize)
-		        .collect(toUnmodifiableList());
+	@Test
+	void convert() {
+		final var password = DataGenerator.makeUserPassword();
+		final var stst = new StringToPasswordConvertor();
+		assertNotNull(stst.convert(password));
+		assertTrue(password.contentEquals(stst.convert(password).subSequence(0, password.length())));
 	}
-
-	public void setList(final List<String> list) {
-		this.list = list;
-	}
-
 }

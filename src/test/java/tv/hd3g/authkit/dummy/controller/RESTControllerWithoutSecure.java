@@ -14,22 +14,20 @@
  * Copyright (C) hdsdi3g for hd3g.tv 2019
  *
  */
-package tv.hd3g.authkit.mod;
+package tv.hd3g.authkit.dummy.controller;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import org.junit.jupiter.api.Test;
+import tv.hd3g.commons.authkit.CheckBefore;
 
-import tv.hd3g.authkit.tool.DataGenerator;
+@RestController
+public class RESTControllerWithoutSecure {
 
-class StringToPasswordConvertorTest {
-
-	@Test
-	void convert() {
-		final String password = DataGenerator.makeUserPassword();
-		final StringToPasswordConvertor stst = new StringToPasswordConvertor();
-		assertNotNull(stst.convert(password));
-		assertTrue(password.contentEquals(stst.convert(password).subSequence(0, password.length())));
+	@GetMapping("RESTControllerWithoutSecure/0")
+	@CheckBefore("secureOnMethod")
+	public ResponseEntity<Void> verbWithSecure() {
+		return null;
 	}
 }

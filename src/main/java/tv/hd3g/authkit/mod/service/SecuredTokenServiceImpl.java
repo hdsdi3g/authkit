@@ -17,6 +17,7 @@
 package tv.hd3g.authkit.mod.service;
 
 import static io.jsonwebtoken.SignatureAlgorithm.HS512;
+import static java.util.stream.Collectors.toUnmodifiableSet;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -160,7 +160,8 @@ public class SecuredTokenServiceImpl implements SecuredTokenService {
 	}
 
 	@Override
-	public LoggedUserTagsTokenDto loggedUserRightsExtractToken(final String token) throws NotAcceptableSecuredTokenException {
+	public LoggedUserTagsTokenDto loggedUserRightsExtractToken(final String token,
+	                                                           final boolean fromCookie) throws NotAcceptableSecuredTokenException {
 		final var claims = extractToken(token, TOKEN_ISSUER_LOGIN).getBody();
 		final ArrayList<?> rawTags = claims.get("tags", ArrayList.class);
 		final String host;
@@ -169,8 +170,8 @@ public class SecuredTokenServiceImpl implements SecuredTokenService {
 		} else {
 			host = null;
 		}
-		final var stringTags = rawTags.stream().map(d2 -> (String) d2).collect(Collectors.toSet());
-		return new LoggedUserTagsTokenDto(claims.getSubject(), stringTags, claims.getExpiration(), host);
+		final var stringTags = rawTags.stream().map(d2 -> (String) d2).collect(toUnmodifiableSet());// NOSONAR S1612
+		return new LoggedUserTagsTokenDto(claims.getSubject(), stringTags, claims.getExpiration(), fromCookie, host);
 	}
 
 	@Override
@@ -246,7 +247,7 @@ public class SecuredTokenServiceImpl implements SecuredTokenService {
 	public SetupTOTPTokenDto setupTOTPExtractToken(final String token) throws NotAcceptableSecuredTokenException {
 		final var claims = extractToken(token, TOKEN_ISSUER_SETUPTOTP).getBody();
 		final ArrayList<?> rawBackupCodes = claims.get("backupCodes", ArrayList.class);
-		final var backupCodes = rawBackupCodes.stream().map(d2 -> (String) d2).collect(Collectors.toUnmodifiableSet());
+		final var backupCodes = rawBackupCodes.stream().map(d2 -> (String) d2).collect(toUnmodifiableSet()); // NOSONAR S1612
 		return new SetupTOTPTokenDto(claims.getSubject(), claims.get("secret", String.class), backupCodes);
 	}
 

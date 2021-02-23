@@ -65,6 +65,7 @@ import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException.BadUseSe
 import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException.BrokenSecuredToken;
 import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException.ExpiredSecuredToken;
 import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException.InvalidFormatSecuredToken;
+import tv.hd3g.authkit.tool.DataGenerator;
 
 @SpringBootTest
 class SecuredTokenServiceTest {
@@ -216,44 +217,48 @@ class SecuredTokenServiceTest {
 
 		private String userUUID;
 		private Set<String> tags;
+		private boolean fromCookie;
 
 		@BeforeEach
 		void init() {
 			userUUID = makeUUID();
 			tags = makeRandomThings().collect(toUnmodifiableSet());
+			fromCookie = DataGenerator.random.nextBoolean();
 		}
 
 		@Test
 		void ok() throws NotAcceptableSecuredTokenException {
 			final String token = securedTokenService.loggedUserRightsGenerateToken(userUUID, thirtyDays, tags, null);
-			final var result = securedTokenService.loggedUserRightsExtractToken(token);
+			final var result = securedTokenService.loggedUserRightsExtractToken(token, fromCookie);
 			assertEquals(userUUID, result.getUserUUID());
 			assertEquals(tags, result.getTags());
 			assertNull(result.getOnlyForHost());
+			assertEquals(fromCookie, result.isFromCookie());
 		}
 
 		@Test
 		void checkHost() throws NotAcceptableSecuredTokenException {
 			final var host = makeRandomIPv4().getHostAddress();
 			final String token = securedTokenService.loggedUserRightsGenerateToken(userUUID, thirtyDays, tags, host);
-			final var result = securedTokenService.loggedUserRightsExtractToken(token);
+			final var result = securedTokenService.loggedUserRightsExtractToken(token, fromCookie);
 			assertEquals(userUUID, result.getUserUUID());
 			assertEquals(tags, result.getTags());
 			assertEquals(host, result.getOnlyForHost());
+			assertEquals(fromCookie, result.isFromCookie());
 		}
 
 		@Test
 		void invalidEmpty() {
 			final String token = "";
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
-				securedTokenService.loggedUserRightsExtractToken(token);
+				securedTokenService.loggedUserRightsExtractToken(token, fromCookie);
 			});
 		}
 
 		@Test
 		void invalidNull() {
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
-				securedTokenService.loggedUserRightsExtractToken(null);
+				securedTokenService.loggedUserRightsExtractToken(null, fromCookie);
 			});
 		}
 
@@ -261,7 +266,7 @@ class SecuredTokenServiceTest {
 		void invalidNotAJwt() {
 			final var text = makeUserLogin();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
-				securedTokenService.loggedUserRightsExtractToken(text + "," + "text" + "," + text);
+				securedTokenService.loggedUserRightsExtractToken(text + "," + "text" + "," + text, fromCookie);
 			});
 		}
 
@@ -269,7 +274,7 @@ class SecuredTokenServiceTest {
 		void expired() {
 			final String token = securedTokenService.loggedUserRightsGenerateToken(userUUID, ZERO, tags, null);
 			assertThrows(ExpiredSecuredToken.class, () -> {
-				securedTokenService.loggedUserRightsExtractToken(token);
+				securedTokenService.loggedUserRightsExtractToken(token, fromCookie);
 			});
 		}
 
@@ -293,7 +298,7 @@ class SecuredTokenServiceTest {
 		void invalidUnsupported() {
 			final String token = generateJwtsWithoutSign().compact();
 			assertThrows(InvalidFormatSecuredToken.class, () -> {
-				securedTokenService.loggedUserRightsExtractToken(token);
+				securedTokenService.loggedUserRightsExtractToken(token, fromCookie);
 			});
 		}
 
@@ -302,7 +307,7 @@ class SecuredTokenServiceTest {
 			final byte[] secret = makeRandomBytes(256);
 			final String token = generateJwtsWithoutSign().signWith(Keys.hmacShaKeyFor(secret), HS512).compact();
 			assertThrows(BrokenSecuredToken.class, () -> {
-				securedTokenService.loggedUserRightsExtractToken(token);
+				securedTokenService.loggedUserRightsExtractToken(token, fromCookie);
 			});
 		}
 
@@ -312,7 +317,7 @@ class SecuredTokenServiceTest {
 				jwt.setIssuer(makeRandomThing());
 			});
 			assertThrows(BadUseSecuredTokenInvalidIssuer.class, () -> {
-				securedTokenService.loggedUserRightsExtractToken(token);
+				securedTokenService.loggedUserRightsExtractToken(token, fromCookie);
 			});
 		}
 
@@ -322,7 +327,7 @@ class SecuredTokenServiceTest {
 				jwt.setAudience(makeRandomThing());
 			});
 			assertThrows(BadUseSecuredTokenInvalidAudience.class, () -> {
-				securedTokenService.loggedUserRightsExtractToken(token);
+				securedTokenService.loggedUserRightsExtractToken(token, fromCookie);
 			});
 		}
 
@@ -332,7 +337,7 @@ class SecuredTokenServiceTest {
 				jwt.setHeaderParam("typ", makeRandomThing());
 			});
 			assertThrows(BadUseSecuredTokenInvalidType.class, () -> {
-				securedTokenService.loggedUserRightsExtractToken(token);
+				securedTokenService.loggedUserRightsExtractToken(token, fromCookie);
 			});
 		}
 
@@ -342,7 +347,7 @@ class SecuredTokenServiceTest {
 				jwt.claim("tags", makeRandomThing());
 			});
 			assertThrows(RequiredTypeException.class, () -> {
-				securedTokenService.loggedUserRightsExtractToken(token);
+				securedTokenService.loggedUserRightsExtractToken(token, fromCookie);
 			});
 		}
 	}

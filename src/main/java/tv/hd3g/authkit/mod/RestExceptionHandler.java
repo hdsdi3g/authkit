@@ -16,7 +16,10 @@
  */
 package tv.hd3g.authkit.mod;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +33,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import tv.hd3g.authkit.mod.exception.AuthKitException;
+import tv.hd3g.authkit.utility.LogSanitizer;
 
 /**
  * See https://www.toptal.com/java/spring-boot-rest-api-error-handling
@@ -42,6 +46,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(AuthKitException.class)
 	protected ResponseEntity<Object> handleRESTException(final AuthKitException e, final WebRequest request) {
 		log.warn(() -> "REST Error for " + LogSanitizer.sanitize(request.getDescription(true)), e);
-		return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.resolve(e.getReturnCode()));
+		return new ResponseEntity<>(Map.of("message",
+		        Optional.ofNullable(e.getMessage()).orElse("(No message)")),
+		        Optional.ofNullable(HttpStatus.resolve(e.getReturnCode())).orElse(INTERNAL_SERVER_ERROR));
 	}
 }
