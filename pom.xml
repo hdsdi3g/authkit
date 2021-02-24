@@ -13,16 +13,20 @@
 
 	<parent>
 		<groupId>tv.hd3g.commons</groupId>
-		<artifactId>parent-web-mysql</artifactId>
-		<version>3.1.1</version>
+		<artifactId>parent-web</artifactId>
+		<version>4.0.0</version>
 		<relativePath />
 	</parent>
 
-	<properties>
-		<codepolicyvalidation.version>0.4.1</codepolicyvalidation.version>
-	</properties>
-
 	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -73,7 +77,7 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-            <scope>test</scope>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

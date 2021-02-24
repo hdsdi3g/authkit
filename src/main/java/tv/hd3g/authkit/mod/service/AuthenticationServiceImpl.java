@@ -91,7 +91,6 @@ import tv.hd3g.authkit.mod.repository.UserDao;
 import tv.hd3g.authkit.mod.repository.UserPrivacyRepository;
 import tv.hd3g.authkit.mod.repository.UserRepository;
 import tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause;
-import tv.hd3g.commons.authkit.CipherService;
 
 @Service
 @Transactional(readOnly = false)

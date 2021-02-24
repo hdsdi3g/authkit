@@ -60,7 +60,6 @@ import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException.BadTOTPCodeCantLoginException;
 import tv.hd3g.authkit.mod.repository.CredentialRepository;
 import tv.hd3g.authkit.mod.repository.TotpbackupcodeRepository;
-import tv.hd3g.commons.authkit.CipherService;
 
 @Service
 public class TOTPServiceImpl implements TOTPService {
