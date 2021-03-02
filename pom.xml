@@ -9,7 +9,7 @@
 
 	<name>AuthKit</name>
 	<url>https://github.com/hdsdi3g/authkit</url>
-	<description>Authentification and RBAC module for Spring Boot</description>
+	<description>Authentication and RBAC module for Spring Boot</description>
 
 	<parent>
 		<groupId>tv.hd3g.commons</groupId>
