@@ -92,7 +92,7 @@ public class RestControllerMe {
 		final var userUUID = getCurrentUserUUID(request);
 		final var credential = getCurrentUserCredential(userUUID);
 		if (credential.getLdapdomain() != null) {
-			throw new AuthKitException("You can't change the password here for an external authentification");
+			throw new AuthKitException("You can't change the password here for an external authentication");
 		}
 		final var checkResultFail = authenticationService.checkPassword(chPasswordDto.getCurrentpassword(), credential);
 		if (checkResultFail.isPresent()) {
