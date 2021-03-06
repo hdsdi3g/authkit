@@ -18,9 +18,6 @@ package tv.hd3g.authkit.mod;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toUnmodifiableSet;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static tv.hd3g.authkit.mod.service.AuditReportServiceImpl.getOriginalRemoteAddr;
 import static tv.hd3g.authkit.utility.LogSanitizer.sanitize;
@@ -45,7 +42,10 @@ import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener;
 import tv.hd3g.authkit.mod.dto.LoggedUserTagsTokenDto;
+import tv.hd3g.authkit.mod.exception.BadRequestException;
+import tv.hd3g.authkit.mod.exception.ForbiddenRequestException;
 import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException;
+import tv.hd3g.authkit.mod.exception.UnauthorizedRequestException;
 import tv.hd3g.authkit.mod.service.AuditReportService;
 import tv.hd3g.authkit.mod.service.AuthenticationService;
 import tv.hd3g.authkit.mod.service.CookieService;
@@ -55,8 +55,9 @@ import tv.hd3g.authkit.utility.ControllerType;
 import tv.hd3g.commons.authkit.AuditAfter;
 
 public class ControllerInterceptor implements HandlerInterceptor {
-	private static Logger log = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger();
 	public static final String USER_UUID_ATTRIBUTE_NAME = ControllerInterceptor.class.getPackageName() + ".userUUID";
+	public static final String CONTROLLER_TYPE_ATTRIBUTE_NAME = "controllerType";
 
 	private final AuditReportService auditService;
 	private final SecuredTokenService securedTokenService;
@@ -90,7 +91,7 @@ public class ControllerInterceptor implements HandlerInterceptor {
 		return true;
 	}
 
-	private Optional<LoggedUserTagsTokenDto> extractAndCheckAuthToken(final HttpServletRequest request) throws Unauthorized {
+	private Optional<LoggedUserTagsTokenDto> extractAndCheckAuthToken(final HttpServletRequest request) {
 		/**
 		 * Extract potential JWT
 		 */
@@ -116,7 +117,7 @@ public class ControllerInterceptor implements HandlerInterceptor {
 			loggedDto = Objects.requireNonNull(securedTokenService
 			        .loggedUserRightsExtractToken(oBearer.get(), fromCookie));
 		} catch (final NotAcceptableSecuredTokenException e) {
-			throw new Unauthorized("Invalid JWT in auth request from {}", getOriginalRemoteAddr(request));
+			throw new UnauthorizedRequestException("Invalid JWT in auth request");
 		}
 
 		/**
@@ -133,11 +134,10 @@ public class ControllerInterceptor implements HandlerInterceptor {
 				addr2 = null;
 			}
 			if (addr1 == null || addr1.equals(addr2) == false) {
-				throw new Unauthorized(
-				        "Reject request for {} from {} because the actual token contain a IP restriction on {} only",
-				        loggedDto.getUserUUID(),
-				        getOriginalRemoteAddr(request),
-				        loggedDto.getOnlyForHost());
+				throw new UnauthorizedRequestException(
+				        "Reject request for from " + loggedDto.getOnlyForHost()
+				                                       + " because the actual token contain a IP restriction on {} only",
+				        loggedDto.getUserUUID());
 			}
 		}
 		return Optional.ofNullable(loggedDto);
@@ -149,7 +149,7 @@ public class ControllerInterceptor implements HandlerInterceptor {
 	private void compareUserRightsAndRequestMandatories(final HttpServletRequest request,
 	                                                    final LoggedUserTagsTokenDto loggedUserTagsTokenDto,
 	                                                    final Method classMethod,
-	                                                    final AnnotatedControllerClass annotatedControllerClass) throws BaseInternalException {
+	                                                    final AnnotatedControllerClass annotatedControllerClass) {
 		final var requireAuthList = annotatedControllerClass.getRequireAuthList(classMethod);
 		if (requireAuthList.isEmpty()
 		    && annotatedControllerClass.isRequireValidAuth(classMethod) == false) {
@@ -161,38 +161,35 @@ public class ControllerInterceptor implements HandlerInterceptor {
 
 		if (loggedUserTagsTokenDto.isFromCookie()) {
 			if (annotatedControllerClass.getControllerType().equals(ControllerType.REST)) {
-				throw new Unauthorized("An auth cookie can't authorized a REST request, from {}",
-				        getOriginalRemoteAddr(request));
+				throw new UnauthorizedRequestException("An auth cookie can't authorized a REST request");
 			}
 			final var requestVerb = request.getMethod();
 			if (requestVerb.equalsIgnoreCase("GET") == false && requestVerb.equalsIgnoreCase("POST") == false) {
-				throw new BadRequest("Unacceptable method {} from {} to go to {}",
-				        requestVerb, getOriginalRemoteAddr(request), request.getRequestURI());
+				throw new BadRequestException("Unacceptable method " + requestVerb);
 			}
 		}
 
 		final var userUUID = loggedUserTagsTokenDto.getUserUUID();
 		if (userUUID == null) {
-			throw new Unauthorized("Unauthorized user from {}", getOriginalRemoteAddr(request));
+			throw new UnauthorizedRequestException("Unauthorized");
 		}
 
 		if (requireAuthList.stream().noneMatch(
 		        annotation -> stream(annotation.value()).allMatch(loggedUserTagsTokenDto.getTags()::contains))) {
-			throw new Forbidden("Forbidden user {} from {} to go to {}",
-			        userUUID, getOriginalRemoteAddr(request), request.getRequestURI());
+			throw new ForbiddenRequestException("Forbidden user", userUUID);
 		}
 	}
 
 	private void checkRenforcedRightsChecks(final HttpServletRequest request,
 	                                        final AnnotatedControllerClass annotatedControllerClass,
 	                                        final Method classMethod,
-	                                        final LoggedUserTagsTokenDto tokenPayload) throws BaseInternalException {
+	                                        final LoggedUserTagsTokenDto tokenPayload) {
 		if (annotatedControllerClass.isRequireRenforceCheckBefore(classMethod) == false) {
 			return;
 		}
 		final var userUUID = tokenPayload.getUserUUID();
 		if (authenticationService.isUserEnabledAndNonBlocked(userUUID) == false) {
-			throw new Unauthorized("User {} is now disabled/blocked before last login", userUUID);
+			throw new UnauthorizedRequestException("User {} is now disabled/blocked before last login", userUUID);
 		}
 
 		final var clientAddr = getOriginalRemoteAddr(request);
@@ -200,128 +197,49 @@ public class ControllerInterceptor implements HandlerInterceptor {
 		        .stream().distinct().collect(toUnmodifiableSet());
 		for (final var tag : tokenPayload.getTags()) {
 			if (actualTags.contains(tag) == false) {
-				throw new Forbidden("User {} has lost some rights (like {}) before last login from {}",
-				        userUUID, tag, getOriginalRemoteAddr(request));
+				throw new ForbiddenRequestException("User has lost some rights (like " + tag + ") before last login",
+				        userUUID);
 			}
 		}
 	}
 
 	@Override
-	public boolean preHandle(final HttpServletRequest request,
+	public boolean preHandle(final HttpServletRequest request, // NOSONAR S3516
 	                         final HttpServletResponse response,
 	                         final Object handler) throws IOException {
 		if (isRequestIsHandle(request, handler) == false) {
 			return true;
 		}
 
-		try {
-			final var tokenPayload = extractAndCheckAuthToken(request)
-			        .orElse(new LoggedUserTagsTokenDto(null, Set.of(), null, false));
+		final var handlerMethod = (HandlerMethod) handler;
+		final var controllerClass = handlerMethod.getBeanType();
+		final var annotatedClass = authKitEndpointsListener.getAnnotatedClass(controllerClass);
+		final var classMethod = handlerMethod.getMethod();
+		request.setAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME, annotatedClass.getControllerType());
 
-			final var handlerMethod = (HandlerMethod) handler;
-			final var controllerClass = handlerMethod.getBeanType();
-			final var annotatedClass = authKitEndpointsListener.getAnnotatedClass(controllerClass);
-			final var classMethod = handlerMethod.getMethod();
+		final var tokenPayload = extractAndCheckAuthToken(request)
+		        .orElse(new LoggedUserTagsTokenDto(null, Set.of(), null, false));
 
-			checkRenforcedRightsChecks(request, annotatedClass, classMethod, tokenPayload);
-			compareUserRightsAndRequestMandatories(request, tokenPayload, classMethod, annotatedClass);
+		checkRenforcedRightsChecks(request, annotatedClass, classMethod, tokenPayload);
+		compareUserRightsAndRequestMandatories(request, tokenPayload, classMethod, annotatedClass);
 
-			final var userUUID = tokenPayload.getUserUUID();
-			request.setAttribute(USER_UUID_ATTRIBUTE_NAME, userUUID);
+		final var userUUID = tokenPayload.getUserUUID();
+		request.setAttribute(USER_UUID_ATTRIBUTE_NAME, userUUID);
 
-			if (userUUID == null) {
-				log.info("Request {} {}:{}()",
-				        controllerClass.getSimpleName(),
-				        request.getMethod(),
-				        handlerMethod.getMethod().getName());
-			} else {
-				log.info("Request {} {}:{}() {}",
-				        controllerClass.getSimpleName(),
-				        request.getMethod(),
-				        handlerMethod.getMethod().getName(),
-				        userUUID);
-			}
-
-			return true;
-		} catch (final BaseInternalException e) {
-			e.pushAudit(request);
-			response.reset();
-
-			/**
-			 * If request contain logon Cookie, destroy it.
-			 */
-			final var cookieRequest = cookieService.getLogonCookiePayload(request);
-			if (cookieRequest != null) {
-				final var cookie = cookieService.deleteLogonCookie();
-				cookie.setSecure(true);
-				response.addCookie(cookie);
-			}
-			response.sendError(e.statusCode);
-			log.error(e.logMessage, e.logContent);
-		}
-		return false;
-	}
-
-	private abstract class BaseInternalException extends Exception {
-
-		private final int statusCode;
-		private final String logMessage;
-		private final Object[] logContent;
-
-		protected BaseInternalException(final int statusCode, final String logMessage, final Object[] logContent) {
-			this.statusCode = statusCode;
-			this.logMessage = logMessage;
-			this.logContent = logContent;
+		if (userUUID == null) {
+			log.info("Request {} {}:{}()",
+			        controllerClass.getSimpleName(),
+			        request.getMethod(),
+			        handlerMethod.getMethod().getName());
+		} else {
+			log.info("Request {} {}:{}() {}",
+			        controllerClass.getSimpleName(),
+			        request.getMethod(),
+			        handlerMethod.getMethod().getName(),
+			        userUUID);
 		}
 
-		protected abstract void pushAudit(HttpServletRequest request);
-
-		/**
-		 * For Sonar needs (squid:S1948)
-		 */
-		private void writeObject(final java.io.ObjectOutputStream out) throws IOException {
-		}
-
-		/**
-		 * For Sonar needs (squid:S1948)
-		 */
-		private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-		}
-	}
-
-	private class Unauthorized extends BaseInternalException {
-		protected Unauthorized(final String logMessage, final Object... logContent) {
-			super(SC_UNAUTHORIZED, logMessage, logContent);
-		}
-
-		@Override
-		protected void pushAudit(final HttpServletRequest request) {
-			auditService.interceptUnauthorizedRequest(request);
-		}
-	}
-
-	private class Forbidden extends BaseInternalException {
-		protected Forbidden(final String logMessage, final Object... logContent) {
-			super(SC_FORBIDDEN, logMessage, logContent);
-		}
-
-		@Override
-		protected void pushAudit(final HttpServletRequest request) {
-			auditService.interceptForbiddenRequest(request);
-		}
-	}
-
-	private class BadRequest extends BaseInternalException {
-		protected BadRequest(final String logMessage, final Object... logContent) {
-			super(SC_BAD_REQUEST, logMessage, logContent);
-		}
-
-		@Override
-		protected void pushAudit(final HttpServletRequest request) {
-			/**
-			 * Don't audit bad requests.
-			 */
-		}
+		return true;
 	}
 
 	public static final Optional<String> getRequestUserUUID(final HttpServletRequest request) {

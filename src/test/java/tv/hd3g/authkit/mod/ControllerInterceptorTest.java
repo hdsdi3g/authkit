@@ -17,7 +17,7 @@
 package tv.hd3g.authkit.mod;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
@@ -27,13 +27,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static tv.hd3g.authkit.mod.ControllerInterceptor.CONTROLLER_TYPE_ATTRIBUTE_NAME;
 import static tv.hd3g.authkit.mod.ControllerInterceptor.USER_UUID_ATTRIBUTE_NAME;
 import static tv.hd3g.authkit.tool.DataGenerator.makeRandomIPv4;
 import static tv.hd3g.authkit.tool.DataGenerator.makeRandomString;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUUID;
+import static tv.hd3g.authkit.utility.ControllerType.CLASSIC;
+import static tv.hd3g.authkit.utility.ControllerType.REST;
 
 import java.util.Date;
 import java.util.List;
@@ -64,7 +64,10 @@ import tv.hd3g.authkit.dummy.controller.ControllerWithoutSecure;
 import tv.hd3g.authkit.dummy.controller.RESTControllerWithoutSecure;
 import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener;
 import tv.hd3g.authkit.mod.dto.LoggedUserTagsTokenDto;
+import tv.hd3g.authkit.mod.exception.BadRequestException;
+import tv.hd3g.authkit.mod.exception.ForbiddenRequestException;
 import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException.BadUseSecuredTokenInvalidType;
+import tv.hd3g.authkit.mod.exception.UnauthorizedRequestException;
 import tv.hd3g.authkit.mod.repository.UserRepository;
 import tv.hd3g.authkit.mod.service.AuditReportService;
 import tv.hd3g.authkit.mod.service.AuthenticationService;
@@ -136,6 +139,7 @@ class ControllerInterceptorTest {
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
 		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 	}
 
 	@Test
@@ -144,16 +148,12 @@ class ControllerInterceptorTest {
 		when(handlerMethod.getMethod()).thenReturn(ControllerWithoutSecure.class.getMethod("verbWithSecure"));
 		when(request.getMethod()).thenReturn("GET");
 
-		assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-		verify(response, atLeastOnce()).reset();
-		verify(response, atLeastOnce()).sendError(UNAUTHORIZED.value());
-
-		verify(auditService, atLeastOnce()).interceptUnauthorizedRequest(request);
+		assertThrows(UnauthorizedRequestException.class,
+		        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
-		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
-		verify(request, atLeastOnce()).getRemoteAddr();
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
+
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
 		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
@@ -165,17 +165,12 @@ class ControllerInterceptorTest {
 		when(handlerMethod.getMethod()).thenReturn(ControllerWithSecure.class.getMethod("verbWithoutSecure"));
 		when(request.getMethod()).thenReturn("GET");
 
-		assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-		verify(response, atLeastOnce()).reset();
-		verify(response, atLeastOnce()).sendError(UNAUTHORIZED.value());
-
-		verify(auditService, atLeastOnce()).interceptUnauthorizedRequest(request);
+		assertThrows(UnauthorizedRequestException.class,
+		        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
-		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 		// verify(request, atLeastOnce()).getMethod();
-		verify(request, atLeastOnce()).getRemoteAddr();
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
 		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
@@ -285,22 +280,16 @@ class ControllerInterceptorTest {
 		final var loggedUserTagsDto = new LoggedUserTagsTokenDto(uuid, Set.of(), new Date(), false);
 		when(securedTokenService.loggedUserRightsExtractToken(eq(token), eq(false))).thenReturn(loggedUserTagsDto);
 
-		assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-		verify(response, atLeastOnce()).reset();
-		verify(response, atLeastOnce()).sendError(FORBIDDEN.value());
-
-		verify(auditService, atLeastOnce()).interceptForbiddenRequest(request);
+		assertThrows(ForbiddenRequestException.class,
+		        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 		verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
-		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 		// verify(request, atLeastOnce()).getMethod();
-		verify(request, atLeastOnce()).getRemoteAddr();
-		verify(request, atLeastOnce()).getRequestURI();
+
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
-		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
 	}
 
 	@Test
@@ -317,20 +306,15 @@ class ControllerInterceptorTest {
 		/**
 		 * Have some trouble with unit tests (flaky).
 		 */
-		assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-		verify(response, atLeastOnce()).reset();
-		verify(response, atLeastOnce()).sendError(FORBIDDEN.value());
-		verify(auditService, atLeastOnce()).interceptForbiddenRequest(request);
+		assertThrows(ForbiddenRequestException.class,
+		        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 		verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
-		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
-		verify(request, atLeastOnce()).getRequestURI();
-		verify(request, atLeastOnce()).getRemoteAddr();
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
+
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
-		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
 	}
 
 	@Test
@@ -348,6 +332,7 @@ class ControllerInterceptorTest {
 
 		verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 		verify(request, atLeastOnce()).setAttribute(eq(USER_UUID_ATTRIBUTE_NAME), eq(uuid));
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
 		verify(request, atLeastOnce()).getMethod();
 		verify(handlerMethod, atLeastOnce()).getBeanType();
@@ -369,22 +354,17 @@ class ControllerInterceptorTest {
 		final var deleteCookie = Mockito.mock(Cookie.class);
 		when(cookieService.deleteLogonCookie()).thenReturn(deleteCookie);
 
-		assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-		verify(response, atLeastOnce()).reset();
-		verify(response, atLeastOnce()).sendError(UNAUTHORIZED.value());
-		verify(response, atLeastOnce()).addCookie(eq(deleteCookie));
-
-		verify(auditService, atLeastOnce()).interceptUnauthorizedRequest(request);
+		assertThrows(UnauthorizedRequestException.class,
+		        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 		verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
-		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
-		verify(request, atLeastOnce()).getRemoteAddr();
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(REST));
+
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
 		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
-		verify(cookieService, atLeastOnce()).deleteLogonCookie();
+
 	}
 
 	@Test
@@ -403,6 +383,7 @@ class ControllerInterceptorTest {
 
 		verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 		verify(request, atLeastOnce()).setAttribute(eq(USER_UUID_ATTRIBUTE_NAME), eq(uuid));
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
 		verify(request, atLeastOnce()).getMethod();
 		verify(handlerMethod, atLeastOnce()).getBeanType();
@@ -425,6 +406,7 @@ class ControllerInterceptorTest {
 
 		verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 		verify(request, atLeastOnce()).setAttribute(eq(USER_UUID_ATTRIBUTE_NAME), eq(uuid));
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(REST));
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
 		verify(request, atLeastOnce()).getMethod();
 		verify(handlerMethod, atLeastOnce()).getBeanType();
@@ -439,16 +421,12 @@ class ControllerInterceptorTest {
 
 		when(request.getHeader(eq(AUTHORIZATION))).thenReturn(null);
 
-		assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-		verify(response, atLeastOnce()).reset();
-		verify(response, atLeastOnce()).sendError(UNAUTHORIZED.value());
-
-		verify(auditService, atLeastOnce()).interceptUnauthorizedRequest(request);
+		assertThrows(UnauthorizedRequestException.class,
+		        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
-		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
-		verify(request, atLeastOnce()).getRemoteAddr();
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(REST));
+
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
 		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
@@ -476,6 +454,7 @@ class ControllerInterceptorTest {
 			void end() throws Exception {
 				verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 				verify(request, atLeastOnce()).setAttribute(eq(USER_UUID_ATTRIBUTE_NAME), eq(uuid));
+				verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 				verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
 				verify(request, atLeastOnce()).getMethod();
 				verify(handlerMethod, atLeastOnce()).getBeanType();
@@ -518,7 +497,8 @@ class ControllerInterceptorTest {
 				when(handlerMethod.getMethod()).thenReturn(CheckClosedCtrl.class.getMethod("verbPUT"));
 				when(request.getMethod()).thenReturn("PUT");
 
-				assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
+				assertThrows(BadRequestException.class,
+				        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 			}
 
 			@Test
@@ -526,7 +506,8 @@ class ControllerInterceptorTest {
 				when(handlerMethod.getMethod()).thenReturn(CheckClosedCtrl.class.getMethod("verbDELETE"));
 				when(request.getMethod()).thenReturn("DELETE");
 
-				assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
+				assertThrows(BadRequestException.class,
+				        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 			}
 
 			@Test
@@ -534,27 +515,21 @@ class ControllerInterceptorTest {
 				when(handlerMethod.getMethod()).thenReturn(CheckClosedCtrl.class.getMethod("verbPATCH"));
 				when(request.getMethod()).thenReturn("PATCH");
 
-				assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
+				assertThrows(BadRequestException.class,
+				        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 			}
 
 			@AfterEach
 			void end() throws Exception {
-				verify(response, atLeastOnce()).reset();
-				verify(response, atLeastOnce()).sendError(BAD_REQUEST.value());
-				verify(response, atLeastOnce()).addCookie(eq(deleteCookie));
-
 				verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 				verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
-				verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
-				verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
+				verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 				verify(request, atLeastOnce()).getMethod();
-				verify(request, atLeastOnce()).getRemoteAddr();
-				verify(request, atLeastOnce()).getRequestURI();
+
 				verify(handlerMethod, atLeastOnce()).getBeanType();
 				verify(handlerMethod, atLeastOnce()).getMethod();
 				verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
-				verify(cookieService, atLeastOnce()).deleteLogonCookie();
-				verify(deleteCookie, atLeastOnce()).setSecure(eq(true));
+
 				Mockito.verifyNoMoreInteractions(deleteCookie);
 			}
 		}
@@ -577,6 +552,7 @@ class ControllerInterceptorTest {
 
 		verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 		verify(request, atLeastOnce()).setAttribute(eq(USER_UUID_ATTRIBUTE_NAME), eq(uuid));
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
 		verify(request, atLeastOnce()).getMethod();
 		verify(handlerMethod, atLeastOnce()).getBeanType();
@@ -596,18 +572,16 @@ class ControllerInterceptorTest {
 		                .getHostAddress());
 		when(securedTokenService.loggedUserRightsExtractToken(eq(token), eq(false))).thenReturn(loggedUserTagsDto);
 
-		assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-		verify(response, atLeastOnce()).reset();
-		verify(response, atLeastOnce()).sendError(UNAUTHORIZED.value());
-
-		verify(auditService, atLeastOnce()).interceptUnauthorizedRequest(request);
+		assertThrows(UnauthorizedRequestException.class,
+		        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 		verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
 		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
 		verify(request, atLeastOnce()).getRemoteAddr();
-		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
+		verify(handlerMethod, atLeastOnce()).getBeanType();
+		verify(handlerMethod, atLeastOnce()).getMethod();
 	}
 
 	@Test
@@ -630,20 +604,14 @@ class ControllerInterceptorTest {
 		final var deleteCookie = Mockito.mock(Cookie.class);
 		when(cookieService.deleteLogonCookie()).thenReturn(deleteCookie);
 
-		assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-		verify(response, atLeastOnce()).reset();
-		verify(response, atLeastOnce()).sendError(UNAUTHORIZED.value());
-		verify(response, atLeastOnce()).addCookie(eq(deleteCookie));
-
-		verify(auditService, atLeastOnce()).interceptUnauthorizedRequest(request);
+		assertThrows(UnauthorizedRequestException.class,
+		        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 		verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token0), anyBoolean());
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
-		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
-		verify(request, atLeastOnce()).getRemoteAddr();
-		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
-		verify(cookieService, atLeastOnce()).deleteLogonCookie();
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
+		verify(handlerMethod, atLeastOnce()).getBeanType();
+		verify(handlerMethod, atLeastOnce()).getMethod();
 	}
 
 	@Test
@@ -655,17 +623,19 @@ class ControllerInterceptorTest {
 		final var token = makeRandomString().replace(' ', '_');
 		when(request.getHeader(eq(AUTHORIZATION))).thenReturn("bearer " + token);
 		final var loggedUserTagsDto = new LoggedUserTagsTokenDto(
-		        uuid, Set.of("secureOnClass", "secureOnMethod"), new Date(), false, request.getRemoteAddr());
+		        uuid, Set.of("secureOnClass", "secureOnMethod"), new Date(), false, clientAddr);
 		when(securedTokenService.loggedUserRightsExtractToken(eq(token), eq(false))).thenReturn(loggedUserTagsDto);
 
 		assertTrue(controlerInterceptor.preHandle(request, response, handlerMethod));
 
 		verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 		verify(request, atLeastOnce()).setAttribute(eq(USER_UUID_ATTRIBUTE_NAME), eq(uuid));
+		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 		verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
 		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
 		verify(request, atLeastOnce()).getMethod();
 		verify(request, atLeastOnce()).getRemoteAddr();
+
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
 	}
@@ -728,21 +698,18 @@ class ControllerInterceptorTest {
 			when(authenticationService.getRightsForUser(eq(uuid), eq(clientAddr))).thenReturn(List.of("another"));
 			when(authenticationService.isUserEnabledAndNonBlocked(eq(uuid))).thenReturn(true);
 
-			assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-			verify(response, atLeastOnce()).reset();
-			verify(response, atLeastOnce()).sendError(FORBIDDEN.value());
-			verify(auditService, atLeastOnce()).interceptForbiddenRequest(request);
+			assertThrows(ForbiddenRequestException.class,
+			        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 			verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 			verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
+			verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 			verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
 			verify(request, atLeastOnce()).getRemoteAddr();
 			verify(handlerMethod, atLeastOnce()).getBeanType();
 			verify(handlerMethod, atLeastOnce()).getMethod();
 			verify(authenticationService, atLeastOnce()).isUserEnabledAndNonBlocked(eq(uuid));
 			verify(authenticationService, atLeastOnce()).getRightsForUser(eq(uuid), eq(clientAddr));
-			verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
 		}
 
 		@Test
@@ -761,19 +728,15 @@ class ControllerInterceptorTest {
 			when(authenticationService.getRightsForUser(eq(uuid), eq(clientAddr))).thenReturn(List.of("secured"));
 			when(authenticationService.isUserEnabledAndNonBlocked(eq(uuid))).thenReturn(false);
 
-			assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-			verify(response, atLeastOnce()).reset();
-			verify(response, atLeastOnce()).sendError(UNAUTHORIZED.value());
-
-			verify(auditService, atLeastOnce()).interceptUnauthorizedRequest(request);
+			assertThrows(UnauthorizedRequestException.class,
+			        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 			verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 			verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
+			verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 			verify(handlerMethod, atLeastOnce()).getBeanType();
 			verify(handlerMethod, atLeastOnce()).getMethod();
 			verify(authenticationService, atLeastOnce()).isUserEnabledAndNonBlocked(eq(uuid));
-			verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
 		}
 
 		@Test
@@ -791,22 +754,19 @@ class ControllerInterceptorTest {
 			when(authenticationService.getRightsForUser(eq(uuid), eq(clientAddr))).thenReturn(List.of("another"));
 			when(authenticationService.isUserEnabledAndNonBlocked(eq(uuid))).thenReturn(true);
 
-			assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-			verify(response, atLeastOnce()).reset();
-			verify(response, atLeastOnce()).sendError(FORBIDDEN.value());
-
-			verify(auditService, atLeastOnce()).interceptForbiddenRequest(request);
+			assertThrows(ForbiddenRequestException.class,
+			        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 			verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 			verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
 			verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
+			verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 			verify(request, atLeastOnce()).getRemoteAddr();
+
 			verify(handlerMethod, atLeastOnce()).getBeanType();
 			verify(handlerMethod, atLeastOnce()).getMethod();
 			verify(authenticationService, atLeastOnce()).isUserEnabledAndNonBlocked(eq(uuid));
 			verify(authenticationService, atLeastOnce()).getRightsForUser(eq(uuid), eq(clientAddr));
-			verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
 		}
 
 		@Test
@@ -824,19 +784,15 @@ class ControllerInterceptorTest {
 			when(authenticationService.getRightsForUser(eq(uuid), eq(clientAddr))).thenReturn(List.of("secured"));
 			when(authenticationService.isUserEnabledAndNonBlocked(eq(uuid))).thenReturn(false);
 
-			assertFalse(controlerInterceptor.preHandle(request, response, handlerMethod));
-
-			verify(response, atLeastOnce()).reset();
-			verify(response, atLeastOnce()).sendError(UNAUTHORIZED.value());
-
-			verify(auditService, atLeastOnce()).interceptUnauthorizedRequest(request);
+			assertThrows(UnauthorizedRequestException.class,
+			        () -> controlerInterceptor.preHandle(request, response, handlerMethod));
 
 			verify(securedTokenService, atLeastOnce()).loggedUserRightsExtractToken(eq(token), anyBoolean());
 			verify(request, atLeastOnce()).getHeader(eq(AUTHORIZATION));
+			verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 			verify(handlerMethod, atLeastOnce()).getBeanType();
 			verify(handlerMethod, atLeastOnce()).getMethod();
 			verify(authenticationService, atLeastOnce()).isUserEnabledAndNonBlocked(eq(uuid));
-			verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
 		}
 
 	}

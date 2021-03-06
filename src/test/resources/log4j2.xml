@@ -36,6 +36,7 @@
 
 		<logger name="org.hibernate.SQL" level="info" />
 		<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="error" />
+		<logger name="tv.hd3g.authkit.mod.SecurityRejectedRequestMappingExceptionResolver" level="trace" />
 
 		<Logger name="tv.hd3g" level="error" />
 

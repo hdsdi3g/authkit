@@ -17,6 +17,7 @@
 package tv.hd3g.authkit.dummy.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import tv.hd3g.commons.authkit.CheckBefore;
 
@@ -25,6 +26,7 @@ import tv.hd3g.commons.authkit.CheckBefore;
 public class ControllerWithSecure {
 
 	@CheckBefore("secureOnMethod")
+	@GetMapping("/test/ControllerWithSecure/verbWithSecure")
 	public void verbWithSecure() {
 	}
 

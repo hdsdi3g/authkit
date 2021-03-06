@@ -17,12 +17,15 @@
 package tv.hd3g.authkit.mod.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
 import tv.hd3g.authkit.mod.ControllerInterceptor;
+import tv.hd3g.authkit.mod.SecurityRejectedRequestMappingExceptionResolver;
 import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener;
 import tv.hd3g.authkit.mod.service.AuditReportService;
 import tv.hd3g.authkit.mod.service.AuthenticationService;
@@ -31,7 +34,7 @@ import tv.hd3g.authkit.mod.service.SecuredTokenService;
 import tv.hd3g.authkit.utility.StringToPasswordConvertor;
 
 @Configuration
-public class AuthKitSetupWebConfig implements WebMvcConfigurer {
+public class AuthKitWebMvcConfigurer implements WebMvcConfigurer {
 
 	private final AuditReportService auditService;
 	private final SecuredTokenService securedTokenService;
@@ -40,11 +43,11 @@ public class AuthKitSetupWebConfig implements WebMvcConfigurer {
 	private final CookieService cookieService;
 
 	@Autowired
-	public AuthKitSetupWebConfig(final AuditReportService auditService,
-	                             final SecuredTokenService securedTokenService,
-	                             final AuthKitEndpointsListener authKitEndpointsListener,
-	                             final AuthenticationService authenticationService,
-	                             final CookieService cookieService) {
+	public AuthKitWebMvcConfigurer(final AuditReportService auditService,
+	                               final SecuredTokenService securedTokenService,
+	                               final AuthKitEndpointsListener authKitEndpointsListener,
+	                               final AuthenticationService authenticationService,
+	                               final CookieService cookieService) {
 		this.auditService = auditService;
 		this.securedTokenService = securedTokenService;
 		this.authKitEndpointsListener = authKitEndpointsListener;
@@ -61,5 +64,10 @@ public class AuthKitSetupWebConfig implements WebMvcConfigurer {
 	public void addInterceptors(final InterceptorRegistry registry) {
 		registry.addInterceptor(new ControllerInterceptor(
 		        auditService, securedTokenService, authKitEndpointsListener, authenticationService, cookieService));
+	}
+
+	@Bean(name = "simpleMappingExceptionResolver")
+	public SimpleMappingExceptionResolver createSimpleMappingExceptionResolver() {
+		return new SecurityRejectedRequestMappingExceptionResolver(auditService, cookieService);
 	}
 }

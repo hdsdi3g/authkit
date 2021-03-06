@@ -25,7 +25,7 @@ import tv.hd3g.commons.authkit.CheckBefore;
 @RestController
 public class RESTControllerWithoutSecure {
 
-	@GetMapping("RESTControllerWithoutSecure/0")
+	@GetMapping("/test/RESTControllerWithoutSecure/verbWithSecure")
 	@CheckBefore("secureOnMethod")
 	public ResponseEntity<Void> verbWithSecure() {
 		return null;
