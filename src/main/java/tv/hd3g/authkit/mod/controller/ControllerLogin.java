@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import tv.hd3g.authkit.mod.dto.LoginRequestContentDto;
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
 import tv.hd3g.authkit.mod.dto.validated.ResetPasswordFormDto;
 import tv.hd3g.authkit.mod.dto.validated.TOTPLogonCodeFormDto;
@@ -104,35 +105,15 @@ public class ControllerLogin {
 	                      final HttpServletResponse response) {
 
 		if (bindingResult.hasErrors()) {
-			response.setStatus(SC_BAD_REQUEST);
-			final var errorMessage = messageSource.getMessage("authkit.login.form-error", null, getLocale());
-			model.addAttribute(TMPL_ATTR_ERROR, errorMessage);
-			model.addAttribute(TMPL_ATTR_FORMTOKEN, makeToken());
-			return TMPL_NAME_LOGIN;
+			return sendLoginBindingError(model, response);
 		}
 
 		try {
 			tokenService.simpleFormCheckToken(TOKEN_FORMNAME_LOGIN, form.getSecuretoken());
 			final var userSession = authenticationService.userLoginRequest(request, form);
-			model.addAttribute("jwtsession", userSession.getUserSessionToken());
-			final var cookie = userSession.getUserSessionCookie();
-			cookie.setSecure(true);
-			response.addCookie(cookie);
-
-			model.addAttribute(BOUNCETO, ServletUriComponentsBuilder
-			        .fromCurrentContextPath()
-			        .path(redirectToAfterLogin)
-			        .toUriString());
-			return "bounce-session";
+			return prepareResponseAfterLogon(model, response, userSession);
 		} catch (final NotAcceptableSecuredTokenException e) {
-			/**
-			 * Invalid/expired form token
-			 */
-			response.setStatus(SC_BAD_REQUEST);
-			final var errorMessage = messageSource.getMessage(e.getClass().getSimpleName(), null, getLocale());
-			model.addAttribute(TMPL_ATTR_ERROR, errorMessage);
-			model.addAttribute(TMPL_ATTR_FORMTOKEN, makeToken());
-			return TMPL_NAME_LOGIN;
+			return sendErrorExpiredFormTokenDuringLogin(model, response, e);
 		} catch (final TOTPUserCantLoginException e) {
 			/**
 			 * User is not yet logged: need to enter a TOTP code
@@ -151,14 +132,7 @@ public class ControllerLogin {
 			model.addAttribute(TMPL_ATTR_FORMTOKEN, token);
 			return TMPL_NAME_RESET_PSD;
 		} catch (final UserCantLoginException e) {
-			/**
-			 * Bad User login/password or disabled/blocked user.
-			 */
-			response.setStatus(e.getHttpReturnCode());
-			final var errorMessage = messageSource.getMessage(e.getClass().getSimpleName(), null, getLocale());
-			model.addAttribute(TMPL_ATTR_ERROR, errorMessage);
-			model.addAttribute(TMPL_ATTR_FORMTOKEN, makeToken());
-			return TMPL_NAME_LOGIN;
+			return sendErrorDisabledBlockedUserDuringLogin(model, response, e);
 		}
 	}
 
@@ -256,50 +230,72 @@ public class ControllerLogin {
 	@PostMapping("/login-2auth")
 	@AuditAfter(useSecurity = true, value = "TOTP Logon", changeSecurity = false)
 	public String doTOTPLogin(final Model model,
-	                          @ModelAttribute @Valid final TOTPLogonCodeFormDto form,
+	                          @ModelAttribute @Valid final TOTPLogonCodeFormDto totpForm,
 	                          final BindingResult bindingResult,
 	                          final HttpServletRequest request,
 	                          final HttpServletResponse response) {
 		if (bindingResult.hasErrors()) {
-			response.setStatus(SC_BAD_REQUEST);
-			final var errorMessage = messageSource.getMessage("authkit.login.form-error", null, getLocale());
-			model.addAttribute(TMPL_ATTR_ERROR, errorMessage);
-			model.addAttribute(TMPL_ATTR_FORMTOKEN, makeToken());
-			return TMPL_NAME_LOGIN;
+			return sendLoginBindingError(model, response);
 		}
 
 		try {
-			final var userSession = authenticationService.userLoginRequest(request, form);
-			model.addAttribute("jwtsession", userSession.getUserSessionToken());
-
-			final var cookie = userSession.getUserSessionCookie();
-			cookie.setSecure(true);
-			response.addCookie(cookie);
-
-			model.addAttribute(BOUNCETO, ServletUriComponentsBuilder
-			        .fromCurrentContextPath()
-			        .path(redirectToAfterLogin)
-			        .toUriString());
-			return "bounce-session";
+			final var userSession = authenticationService.userLoginRequest(request, totpForm);
+			return prepareResponseAfterLogon(model, response, userSession);
 		} catch (final NotAcceptableSecuredTokenException e) {
-			/**
-			 * Invalid/expired form token
-			 */
-			response.setStatus(SC_BAD_REQUEST);
-			final var errorMessage = messageSource.getMessage(e.getClass().getSimpleName(), null, getLocale());
-			model.addAttribute(TMPL_ATTR_ERROR, errorMessage);
-			model.addAttribute(TMPL_ATTR_FORMTOKEN, makeToken());
-			return TMPL_NAME_LOGIN;
+			return sendErrorExpiredFormTokenDuringLogin(model, response, e);
 		} catch (final UserCantLoginException e) {
-			/**
-			 * Bad Code, disabled/blocked user.
-			 */
-			response.setStatus(e.getHttpReturnCode());
-			final var errorMessage = messageSource.getMessage(e.getClass().getSimpleName(), null, getLocale());
-			model.addAttribute(TMPL_ATTR_ERROR, errorMessage);
-			model.addAttribute(TMPL_ATTR_FORMTOKEN, makeToken());
-			return TMPL_NAME_LOGIN;
+			return sendErrorDisabledBlockedUserDuringLogin(model, response, e);
 		}
+	}
+
+	private String sendLoginBindingError(final Model model, final HttpServletResponse response) {
+		response.setStatus(SC_BAD_REQUEST);
+		final var errorMessage = messageSource.getMessage("authkit.login.form-error", null, getLocale());
+		model.addAttribute(TMPL_ATTR_ERROR, errorMessage);
+		model.addAttribute(TMPL_ATTR_FORMTOKEN, makeToken());
+		return TMPL_NAME_LOGIN;
+	}
+
+	private String prepareResponseAfterLogon(final Model model,
+	                                         final HttpServletResponse response,
+	                                         final LoginRequestContentDto userSession) {
+		model.addAttribute("jwtsession", userSession.getUserSessionToken());
+		final var cookie = userSession.getUserSessionCookie();
+		cookie.setSecure(true);
+		response.addCookie(cookie);
+
+		model.addAttribute(BOUNCETO, ServletUriComponentsBuilder
+		        .fromCurrentContextPath()
+		        .path(redirectToAfterLogin)
+		        .toUriString());
+		return "bounce-session";
+	}
+
+	/**
+	 * Invalid/expired form token
+	 */
+	private String sendErrorExpiredFormTokenDuringLogin(final Model model,
+	                                                    final HttpServletResponse response,
+	                                                    final NotAcceptableSecuredTokenException e) {
+		response.setStatus(SC_BAD_REQUEST);
+		final var errorMessage = messageSource.getMessage(e.getClass().getSimpleName(), null, getLocale());
+		model.addAttribute(TMPL_ATTR_ERROR, errorMessage);
+		model.addAttribute(TMPL_ATTR_FORMTOKEN, makeToken());
+		return TMPL_NAME_LOGIN;
+	}
+
+	/**
+	 * Bad User login/password or disabled/blocked user.
+	 * Bad Code (TOTP), disabled/blocked user.
+	 */
+	private String sendErrorDisabledBlockedUserDuringLogin(final Model model,
+	                                                       final HttpServletResponse response,
+	                                                       final UserCantLoginException e) {
+		response.setStatus(e.getHttpReturnCode());
+		final var errorMessage = messageSource.getMessage(e.getClass().getSimpleName(), null, getLocale());
+		model.addAttribute(TMPL_ATTR_ERROR, errorMessage);
+		model.addAttribute(TMPL_ATTR_FORMTOKEN, makeToken());
+		return TMPL_NAME_LOGIN;
 	}
 
 }
