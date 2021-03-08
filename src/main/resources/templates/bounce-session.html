@@ -14,7 +14,7 @@
 	window.addEventListener("DOMContentLoaded", function(event) {
 		var sessionKey = /*[[${jwtsession}]]*/ '';
 		localStorage.setItem('sessionKey', sessionKey);
-		window.location.replace(/*[[@{/}]]*/ '');
+		window.location.replace("[(${bounceto})]");
 	});
 </script>
 </body>

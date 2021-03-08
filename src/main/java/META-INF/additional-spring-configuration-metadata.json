@@ -73,5 +73,15 @@
     "name": "authkit.cookie.domain",
     "type": "java.lang.String",
     "description": "Domain/hostname for cookies"
+  },
+  {
+    "name": "authkit.redirectToAfterLogin",
+    "type": "java.lang.String",
+    "description": "A local (web) path to redirect after login (a target to another controller)"
+  },
+  {
+    "name": "authkit.redirectToAfterLogout",
+    "type": "java.lang.String",
+    "description": "A local (web) path to redirect after logout (a target to another controller)"
   }
 ]}

@@ -22,6 +22,9 @@ authkit:
     # Set only for internal tests, NEVER reuse this values!
     jwt_secret: "35RNkvKcFpi4bGvbROjtVky+SLkffhHQ6YaeuKT4Kxb0Et5fNLOnuajRMmHvjUAjHatdmp8Z5KX/BNSBPadCkWqA52xS9gG8X5UHe19ypuwLRMwp5p2N4fWbeGdi6z1E9zIJxwz3LQHQictpGNQ3zKxlq0AtsVaqxrgxhbjRsik="
     cipher_secret: "Q7JiIzt+aWKE+gl+g1pPQuZAfXG8JJ04Tn6KJbC04DY="
+    redirectToAfterLogin: /after/login
+    redirectToAfterLogout: /after/logout
+
 #    ldap:
 #        servers:
 #            -

@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
 import tv.hd3g.authkit.mod.dto.validated.ResetPasswordFormDto;
@@ -61,6 +62,7 @@ public class ControllerLogin {
 	public static final String TOKEN_FORMNAME_ENTER_TOTP = "totp-code";
 	public static final String TOKEN_REDIRECT_RESET_PSD = "rpasswd";
 
+	private static final String BOUNCETO = "bounceto";
 	private static final String TMPL_NAME_LOGIN = "login";
 	private static final String TMPL_NAME_RESET_PSD = "reset-password";
 	private static final String TMPL_NAME_TOTP = "totp-challenge";
@@ -78,6 +80,10 @@ public class ControllerLogin {
 
 	@Value("${authkit.maxLoginTime:5m}")
 	private Duration expirationDuration;
+	@Value("${authkit.redirectToAfterLogin:/}")
+	private String redirectToAfterLogin;
+	@Value("${authkit.redirectToAfterLogout:/login}")
+	private String redirectToAfterLogout;
 
 	private String makeToken() {
 		return tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, expirationDuration);
@@ -112,6 +118,11 @@ public class ControllerLogin {
 			final var cookie = userSession.getUserSessionCookie();
 			cookie.setSecure(true);
 			response.addCookie(cookie);
+
+			model.addAttribute(BOUNCETO, ServletUriComponentsBuilder
+			        .fromCurrentContextPath()
+			        .path(redirectToAfterLogin)
+			        .toUriString());
 			return "bounce-session";
 		} catch (final NotAcceptableSecuredTokenException e) {
 			/**
@@ -153,10 +164,15 @@ public class ControllerLogin {
 
 	@GetMapping("/logout")
 	@CheckBefore
-	public String logout(final HttpServletResponse response) {
+	public String logout(final Model model, final HttpServletResponse response) {
 		final var cookie = cookieService.deleteLogonCookie();
 		cookie.setSecure(true);
 		response.addCookie(cookie);
+
+		model.addAttribute(BOUNCETO, ServletUriComponentsBuilder
+		        .fromCurrentContextPath()
+		        .path(redirectToAfterLogout)
+		        .toUriString());
 		return "bounce-logout";
 	}
 
@@ -259,6 +275,12 @@ public class ControllerLogin {
 			final var cookie = userSession.getUserSessionCookie();
 			cookie.setSecure(true);
 			response.addCookie(cookie);
+
+			model.addAttribute(BOUNCETO, ServletUriComponentsBuilder
+			        .fromCurrentContextPath()
+			        .path(redirectToAfterLogin)
+			        .toUriString());
+			return "bounce-session";
 		} catch (final NotAcceptableSecuredTokenException e) {
 			/**
 			 * Invalid/expired form token
@@ -278,7 +300,6 @@ public class ControllerLogin {
 			model.addAttribute(TMPL_ATTR_FORMTOKEN, makeToken());
 			return TMPL_NAME_LOGIN;
 		}
-		return "bounce-session";
 	}
 
 }

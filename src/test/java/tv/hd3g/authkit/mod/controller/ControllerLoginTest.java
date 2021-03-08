@@ -72,6 +72,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
 import io.jsonwebtoken.Jwts;
@@ -124,6 +125,10 @@ class ControllerLoginTest {
 	private short maxLogonTrial;
 	@Value("${authkit.totpTimeStepSeconds:30}")
 	private int timeStepSeconds;
+	@Value("${authkit.redirectToAfterLogin}")
+	private String redirectToAfterLogin;
+	@Value("${authkit.redirectToAfterLogout}")
+	private String redirectToAfterLogout;
 
 	String userUUID;
 
@@ -293,6 +298,11 @@ class ControllerLoginTest {
 	@Test
 	void doLogin_Ok() throws Exception {
 		final var validToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, thirtyDays);
+		final var urlRedirect = ServletUriComponentsBuilder
+		        .fromCurrentContextPath()
+		        .path(redirectToAfterLogin)
+		        .toUriString();
+
 		mvc.perform(post("/login").contentType(APPLICATION_FORM_URLENCODED)
 		        .content(createUser(validToken).makeForm())
 		        .accept(TEXT_HTML))
@@ -301,6 +311,8 @@ class ControllerLoginTest {
 		        .andExpect(contentTypeHtmlUtf8)
 		        .andExpect(modelHasSessionAttr)
 		        .andExpect(modelHasNoErrors)
+		        .andExpect(model().attribute("bounceto", urlRedirect))
+		        .andExpect(content().string(new TextContentPresenceMatcher(urlRedirect)))
 		        .andExpect(authCookie);
 	}
 
@@ -348,6 +360,10 @@ class ControllerLoginTest {
 		final var authToken = tokenService.loggedUserRightsGenerateToken(
 		        makeUUID(), Duration.ofDays(1), Set.of(), null);
 		final var cookie = cookieService.createLogonCookie(authToken, Duration.ofDays(1));
+		final var urlRedirect = ServletUriComponentsBuilder
+		        .fromCurrentContextPath()
+		        .path(redirectToAfterLogout)
+		        .toUriString();
 
 		mvc.perform(get("/logout")
 		        .cookie(cookie)
@@ -357,6 +373,7 @@ class ControllerLoginTest {
 		        .andExpect(contentTypeHtmlUtf8)
 		        .andExpect(modelHasNoSessionAttr)
 		        .andExpect(modelHasNoErrors)
+		        .andExpect(content().string(new TextContentPresenceMatcher(urlRedirect)))
 		        .andExpect(deletedCookie);
 	}
 
@@ -553,6 +570,10 @@ class ControllerLoginTest {
 		        "code", checkCode,
 		        "securetoken", tokenAuth,
 		        "shorttime", "false"));
+		final var urlRedirect = ServletUriComponentsBuilder
+		        .fromCurrentContextPath()
+		        .path(redirectToAfterLogin)
+		        .toUriString();
 
 		mvc.perform(post("/login-2auth").contentType(APPLICATION_FORM_URLENCODED)
 		        .content(form2auth)
@@ -562,6 +583,7 @@ class ControllerLoginTest {
 		        .andExpect(contentTypeHtmlUtf8)
 		        .andExpect(modelHasSessionAttr)
 		        .andExpect(modelHasNoErrors)
+		        .andExpect(content().string(new TextContentPresenceMatcher(urlRedirect)))
 		        .andExpect(authCookie);
 	}
 
@@ -699,6 +721,30 @@ class ControllerLoginTest {
 				throw new IllegalAccessError("Invalid token: " + e.getMessage());
 			}
 			return true;
+		}
+
+	}
+
+	private class TextContentPresenceMatcher extends BaseMatcher<String> {
+
+		final String matcher;
+
+		TextContentPresenceMatcher(final String matcher) {
+			this.matcher = matcher;
+		}
+
+		@Override
+		public void describeTo(final Description arg0) {
+			arg0.appendText("Check some text presence");
+		}
+
+		@Override
+		public boolean matches(final Object arg0) {
+			Objects.requireNonNull(arg0);
+			if (arg0 instanceof String == false) {
+				throw new IllegalArgumentException("Not a String, " + arg0.getClass() + ": " + arg0);
+			}
+			return ((String) arg0).contains(matcher);
 		}
 
 	}
