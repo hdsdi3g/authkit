@@ -17,6 +17,7 @@
 package tv.hd3g.authkit.mod;
 
 import static tv.hd3g.authkit.mod.ControllerInterceptor.CONTROLLER_TYPE_ATTRIBUTE_NAME;
+import static tv.hd3g.authkit.mod.ControllerInterceptor.getUserTokenFromRequestAttribute;
 import static tv.hd3g.authkit.mod.service.AuditReportServiceImpl.getOriginalRemoteAddr;
 import static tv.hd3g.authkit.utility.ControllerType.CLASSIC;
 import static tv.hd3g.authkit.utility.ControllerType.REST;
@@ -41,11 +42,14 @@ public class SecurityRejectedRequestMappingExceptionResolver extends SimpleMappi
 
 	private final AuditReportService auditService;
 	private final CookieService cookieService;
+	private final String authErrorViewName;
 
 	public SecurityRejectedRequestMappingExceptionResolver(final AuditReportService auditService,
-	                                                       final CookieService cookieService) {
+	                                                       final CookieService cookieService,
+	                                                       final String authErrorViewName) {
 		this.auditService = auditService;
 		this.cookieService = cookieService;
+		this.authErrorViewName = authErrorViewName;
 	}
 
 	@Override
@@ -93,8 +97,10 @@ public class SecurityRejectedRequestMappingExceptionResolver extends SimpleMappi
 		}
 
 		if (controllerType == CLASSIC) {
-			final var mav = new ModelAndView("error");
-			mav.addObject("url", request.getRequestURL().toString());
+			final var mav = new ModelAndView(authErrorViewName);
+			mav.addObject("cause", statusCode.value());
+			mav.addObject("requestURL", request.getRequestURL().toString());
+			mav.addObject("isnotlogged", getUserTokenFromRequestAttribute(request).isEmpty());
 			mav.setStatus(statusCode);
 			return mav;
 		} else if (controllerType == REST) {

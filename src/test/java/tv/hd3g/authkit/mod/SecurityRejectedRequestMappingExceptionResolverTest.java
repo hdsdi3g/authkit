@@ -19,6 +19,7 @@ package tv.hd3g.authkit.mod;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.atLeast;
 import static tv.hd3g.authkit.mod.ControllerInterceptor.CONTROLLER_TYPE_ATTRIBUTE_NAME;
+import static tv.hd3g.authkit.mod.ControllerInterceptor.USER_TOKEN_ATTRIBUTE_NAME;
 import static tv.hd3g.authkit.utility.ControllerType.CLASSIC;
 import static tv.hd3g.authkit.utility.ControllerType.REST;
 
@@ -42,6 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 
 import tv.hd3g.authkit.mod.exception.SecurityRejectedRequestException;
@@ -66,6 +69,9 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 	@Mock
 	Cookie cookieDelete;
 
+	@Value("${authkit.auth-error-view:auth-error}")
+	private String authErrorViewName;
+
 	HttpStatus statusCode;
 	UUID userUUID;
 	String cookieRequest;
@@ -81,7 +87,7 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		cookieRequest = DataGenerator.makeRandomString();
 		requestURL = DataGenerator.makeRandomThing();
 		statusCode = DataGenerator.getRandomEnum(HttpStatus.class);
-		s = new SecurityRejectedRequestMappingExceptionResolver(auditService, cookieService);
+		s = new SecurityRejectedRequestMappingExceptionResolver(auditService, cookieService, authErrorViewName);
 	}
 
 	@AfterEach
@@ -106,12 +112,14 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 
 		final var mav = s.doResolveException(request, response, handler, requestException);
 		assertNotNull(mav);
-		assertEquals("error", mav.getViewName());
+		assertEquals(authErrorViewName, mav.getViewName());
 		final var model = mav.getModel();
-		assertEquals(1, model.size());
-		assertEquals(requestURL, model.get("url"));
+		assertEquals(statusCode.value(), model.get("cause"));
+		assertEquals(requestURL, model.get("requestURL"));
+		assertTrue((boolean) model.get("isnotlogged"));
 
 		verify(request, atLeastOnce()).getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME));
+		verify(request, atLeastOnce()).getAttribute(eq(USER_TOKEN_ATTRIBUTE_NAME));
 		verify(request, atLeastOnce()).getRequestURL();
 		verify(request, atLeastOnce()).getRequestURI();
 		verify(request, atLeastOnce()).getRemoteAddr();
@@ -157,12 +165,14 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 
 		final var mav = s.doResolveException(request, response, handler, requestException);
 		assertNotNull(mav);
-		assertEquals("error", mav.getViewName());
+		assertEquals(authErrorViewName, mav.getViewName());
 		final var model = mav.getModel();
-		assertEquals(1, model.size());
-		assertEquals(requestURL, model.get("url"));
+		assertEquals(statusCode.value(), model.get("cause"));
+		assertEquals(requestURL, model.get("requestURL"));
+		assertTrue((boolean) model.get("isnotlogged"));
 
 		verify(request, atLeastOnce()).getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME));
+		verify(request, atLeastOnce()).getAttribute(eq(USER_TOKEN_ATTRIBUTE_NAME));
 		verify(request, atLeastOnce()).getRequestURL();
 		verify(request, atLeastOnce()).getRequestURI();
 		verify(request, atLeastOnce()).getRemoteAddr();

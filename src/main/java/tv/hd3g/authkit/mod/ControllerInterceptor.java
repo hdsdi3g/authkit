@@ -56,8 +56,10 @@ import tv.hd3g.commons.authkit.AuditAfter;
 
 public class ControllerInterceptor implements HandlerInterceptor {
 	private static final Logger log = LogManager.getLogger();
-	public static final String USER_UUID_ATTRIBUTE_NAME = ControllerInterceptor.class.getPackageName() + ".userUUID";
-	public static final String CONTROLLER_TYPE_ATTRIBUTE_NAME = "controllerType";
+	private static final String PACKAGE_NAME = ControllerInterceptor.class.getPackageName();
+	public static final String USER_UUID_ATTRIBUTE_NAME = PACKAGE_NAME + ".userUUID";
+	public static final String USER_TOKEN_ATTRIBUTE_NAME = PACKAGE_NAME + ".LoggedUserTagsToken";
+	public static final String CONTROLLER_TYPE_ATTRIBUTE_NAME = PACKAGE_NAME + ".controllerType";
 
 	private final AuditReportService auditService;
 	private final SecuredTokenService securedTokenService;
@@ -217,8 +219,12 @@ public class ControllerInterceptor implements HandlerInterceptor {
 		final var classMethod = handlerMethod.getMethod();
 		request.setAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME, annotatedClass.getControllerType());
 
-		final var tokenPayload = extractAndCheckAuthToken(request)
-		        .orElse(new LoggedUserTagsTokenDto(null, Set.of(), null, false));
+		final var oTokenPayload = extractAndCheckAuthToken(request);
+		if (oTokenPayload.isPresent()) {
+			request.setAttribute(USER_TOKEN_ATTRIBUTE_NAME, oTokenPayload.get());
+		}
+
+		final var tokenPayload = oTokenPayload.orElse(new LoggedUserTagsTokenDto(null, Set.of(), null, false));
 
 		checkRenforcedRightsChecks(request, annotatedClass, classMethod, tokenPayload);
 		compareUserRightsAndRequestMandatories(request, tokenPayload, classMethod, annotatedClass);
@@ -245,6 +251,11 @@ public class ControllerInterceptor implements HandlerInterceptor {
 	public static final Optional<String> getRequestUserUUID(final HttpServletRequest request) {
 		return Optional.ofNullable(request.getAttribute(USER_UUID_ATTRIBUTE_NAME))
 		        .map(o -> sanitize((String) o));
+	}
+
+	public static final Optional<LoggedUserTagsTokenDto> getUserTokenFromRequestAttribute(final HttpServletRequest request) {
+		return Optional.ofNullable(request.getAttribute(USER_TOKEN_ATTRIBUTE_NAME))
+		        .map(LoggedUserTagsTokenDto.class::cast);
 	}
 
 	@Override

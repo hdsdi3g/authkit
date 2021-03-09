@@ -17,6 +17,7 @@
 package tv.hd3g.authkit.mod.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -41,6 +42,9 @@ public class AuthKitWebMvcConfigurer implements WebMvcConfigurer {
 	private final AuthKitEndpointsListener authKitEndpointsListener;
 	private final AuthenticationService authenticationService;
 	private final CookieService cookieService;
+
+	@Value("${authkit.auth-error-view:auth-error}")
+	private String authErrorViewName;
 
 	@Autowired
 	public AuthKitWebMvcConfigurer(final AuditReportService auditService,
@@ -68,6 +72,6 @@ public class AuthKitWebMvcConfigurer implements WebMvcConfigurer {
 
 	@Bean(name = "simpleMappingExceptionResolver")
 	public SimpleMappingExceptionResolver createSimpleMappingExceptionResolver() {
-		return new SecurityRejectedRequestMappingExceptionResolver(auditService, cookieService);
+		return new SecurityRejectedRequestMappingExceptionResolver(auditService, cookieService, authErrorViewName);
 	}
 }

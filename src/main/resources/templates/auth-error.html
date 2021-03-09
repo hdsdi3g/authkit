@@ -1,0 +1,19 @@
+<!--/*
+ * This file is part of AuthKit.
+ * Licencied under LGPL v3.
+ * Copyright (C) hdsdi3g for hd3g.tv 2021
+*/--><!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title th:text="${#messages.msg('authkit.auth-error.code' + cause)}"></title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+</head>
+<body class="auth-error">
+    <h1 th:text="${#messages.msg('authkit.auth-error.code' + cause)}" />
+    <p th:text="${#messages.msg('authkit.auth-error.cause' + cause, requestURL)}" />
+    <p th:if="${isnotlogged}">
+        <a th:href="@{/login}" th:text="#{authkit.auth-error.gotologin}" />
+    </p>
+</body>
+</html>
