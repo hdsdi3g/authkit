@@ -22,7 +22,11 @@ Un contrôleur classique (non REST) s'occupe de fournir une page web avec un for
 
 Certains droits peuvent imposer une adresse IP pour êtres acceptés. Le JWT qui est fourni au login contient cette IP. Elle est vérifiée par `ControllerInterceptor` à chaque requête : si cela ne correspond plus (l'utilisateur c'est déplacé d'adresse IP), toutes les requêtes seront rejetés.
 
-Il n'y a pas de process de logout coté serveur (pas de session stockés), il faut juste que le client ne se serve plus/détruise son JWT. Il n'y a aucun moyen d'éjecter un utilisateur du serveur, à part changer la clé des JWT de la configuration et de le relancer (tous les utilisateurs auront leurs JWT invalide). C'est le coté stateless des JWT qui est utilisé.
+Il n'y a pas de process de logout coté serveur (pas de session stockés) pour les contrôleurs REST, il faut juste que le client ne se serve plus/détruise son JWT. Il n'y a aucun moyen d'éjecter un utilisateur du serveur, à part changer la clé des JWT de la configuration et de le relancer (tous les utilisateurs auront leurs JWT invalide). C'est le coté stateless des JWT qui est utilisé.
+
+En non-REST, une simple suppression du cookie d'authentification suffit à la déconnexion.
+
+Si un utilisateur tente d'accéder à une ressource pour laquelle il doit être connecté, il lui sera demandé de se connecter avant. Le chemin de cette ressource [sera stocké dans un cookie](https://github.com/hdsdi3g/authkit/issues/29), et après avoir validé le login, la page redirigée ne sera pas celle qui est prévue, mais celle indiquée par le cookie qu’il fournira.
 
 ## Audit
 
