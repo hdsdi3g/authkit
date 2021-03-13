@@ -63,6 +63,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +73,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
 import io.jsonwebtoken.Jwts;
@@ -114,13 +114,14 @@ class ControllerLoginTest {
 
 	@Autowired
 	private MockMvc mvc;
-
 	@Autowired
 	private SecuredTokenService tokenService;
 	@Autowired
 	private AuthenticationService authenticationService;
 	@Autowired
 	private TOTPService totpService;
+	@Autowired
+	private CookieService cookieService;
 	@Value("${authkit.maxLogonTrial:10}")
 	private short maxLogonTrial;
 	@Value("${authkit.totpTimeStepSeconds:30}")
@@ -131,6 +132,14 @@ class ControllerLoginTest {
 	private String redirectToAfterLogout;
 
 	String userUUID;
+	String urlRedirectAfterLogin;
+	String urlRedirectAfterLogout;
+
+	@BeforeEach
+	void init() throws Exception {
+		urlRedirectAfterLogin = "http://localhost" + redirectToAfterLogin;
+		urlRedirectAfterLogout = "http://localhost" + redirectToAfterLogout;
+	}
 
 	@Test
 	void login() throws Exception {
@@ -298,13 +307,53 @@ class ControllerLoginTest {
 	@Test
 	void doLogin_Ok() throws Exception {
 		final var validToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, thirtyDays);
-		final var urlRedirect = ServletUriComponentsBuilder
-		        .fromCurrentContextPath()
-		        .path(redirectToAfterLogin)
-		        .toUriString();
 
 		mvc.perform(post("/login").contentType(APPLICATION_FORM_URLENCODED)
 		        .content(createUser(validToken).makeForm())
+		        .accept(TEXT_HTML))
+		        .andExpect(statusOk)
+		        .andExpect(view().name("bounce-session"))
+		        .andExpect(contentTypeHtmlUtf8)
+		        .andExpect(modelHasSessionAttr)
+		        .andExpect(modelHasNoErrors)
+		        .andExpect(model().attribute("bounceto", urlRedirectAfterLogin))
+		        .andExpect(content().string(new TextContentPresenceMatcher(urlRedirectAfterLogin)))
+		        .andExpect(authCookie);
+	}
+
+	@Test
+	void doLogin_Ok_userRedirect_withQueryStrings() throws Exception {
+		final var validToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, thirtyDays);
+		final var pathRedirect = "/another/requested/path?with=query&strings=value";
+		final var cookieRedirect = cookieService.createRedirectAfterLoginCookie(pathRedirect);
+		final var urlRedirect = "http://localhost" + pathRedirect;
+
+		mvc.perform(post("/login")
+		        .contentType(APPLICATION_FORM_URLENCODED)
+		        .content(createUser(validToken).makeForm())
+		        .cookie(cookieRedirect)
+		        .accept(TEXT_HTML))
+		        .andExpect(statusOk)
+		        .andExpect(view().name("bounce-session"))
+		        .andExpect(contentTypeHtmlUtf8)
+		        .andExpect(modelHasSessionAttr)
+		        .andExpect(modelHasNoErrors)
+		        .andExpect(model().attribute("bounceto", urlRedirect))
+		        .andExpect(content().string(new TextContentPresenceMatcher(urlRedirect)))
+		        .andExpect(authCookie);
+	}
+
+	@Test
+	void doLogin_Ok_userRedirect() throws Exception {
+		final var validToken = tokenService.simpleFormGenerateToken(TOKEN_FORMNAME_LOGIN, thirtyDays);
+		final var pathRedirect = "/another/requested/path";
+		final var cookieRedirect = cookieService.createRedirectAfterLoginCookie(pathRedirect);
+		final var urlRedirect = "http://localhost" + pathRedirect;
+
+		mvc.perform(post("/login")
+		        .contentType(APPLICATION_FORM_URLENCODED)
+		        .content(createUser(validToken).makeForm())
+		        .cookie(cookieRedirect)
 		        .accept(TEXT_HTML))
 		        .andExpect(statusOk)
 		        .andExpect(view().name("bounce-session"))
@@ -352,18 +401,11 @@ class ControllerLoginTest {
 		assertEquals(form.uuid, uuid);
 	}
 
-	@Autowired
-	private CookieService cookieService;
-
 	@Test
 	void logout() throws Exception {
 		final var authToken = tokenService.loggedUserRightsGenerateToken(
 		        makeUUID(), Duration.ofDays(1), Set.of(), null);
 		final var cookie = cookieService.createLogonCookie(authToken, Duration.ofDays(1));
-		final var urlRedirect = ServletUriComponentsBuilder
-		        .fromCurrentContextPath()
-		        .path(redirectToAfterLogout)
-		        .toUriString();
 
 		mvc.perform(get("/logout")
 		        .cookie(cookie)
@@ -373,7 +415,7 @@ class ControllerLoginTest {
 		        .andExpect(contentTypeHtmlUtf8)
 		        .andExpect(modelHasNoSessionAttr)
 		        .andExpect(modelHasNoErrors)
-		        .andExpect(content().string(new TextContentPresenceMatcher(urlRedirect)))
+		        .andExpect(content().string(new TextContentPresenceMatcher(urlRedirectAfterLogout)))
 		        .andExpect(deletedCookie);
 	}
 
@@ -570,10 +612,6 @@ class ControllerLoginTest {
 		        "code", checkCode,
 		        "securetoken", tokenAuth,
 		        "shorttime", "false"));
-		final var urlRedirect = ServletUriComponentsBuilder
-		        .fromCurrentContextPath()
-		        .path(redirectToAfterLogin)
-		        .toUriString();
 
 		mvc.perform(post("/login-2auth").contentType(APPLICATION_FORM_URLENCODED)
 		        .content(form2auth)
@@ -583,7 +621,7 @@ class ControllerLoginTest {
 		        .andExpect(contentTypeHtmlUtf8)
 		        .andExpect(modelHasSessionAttr)
 		        .andExpect(modelHasNoErrors)
-		        .andExpect(content().string(new TextContentPresenceMatcher(urlRedirect)))
+		        .andExpect(content().string(new TextContentPresenceMatcher(urlRedirectAfterLogin)))
 		        .andExpect(authCookie);
 	}
 

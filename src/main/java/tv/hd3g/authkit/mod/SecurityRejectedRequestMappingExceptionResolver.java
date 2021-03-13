@@ -23,6 +23,7 @@ import static tv.hd3g.authkit.utility.ControllerType.CLASSIC;
 import static tv.hd3g.authkit.utility.ControllerType.REST;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,18 +34,23 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
 import tv.hd3g.authkit.mod.exception.SecurityRejectedRequestException;
+import tv.hd3g.authkit.mod.exception.UnauthorizedRequestException;
 import tv.hd3g.authkit.mod.service.AuditReportService;
+import tv.hd3g.authkit.mod.service.CookieService;
 import tv.hd3g.authkit.utility.ControllerType;
 
 public class SecurityRejectedRequestMappingExceptionResolver extends SimpleMappingExceptionResolver {
 	private static final Logger log = LogManager.getLogger();
 
 	private final AuditReportService auditService;
+	private final CookieService cookieService;
 	private final String authErrorViewName;
 
 	public SecurityRejectedRequestMappingExceptionResolver(final AuditReportService auditService,
+	                                                       final CookieService cookieService,
 	                                                       final String authErrorViewName) {
 		this.auditService = auditService;
+		this.cookieService = cookieService;
 		this.authErrorViewName = authErrorViewName;
 	}
 
@@ -83,6 +89,16 @@ public class SecurityRejectedRequestMappingExceptionResolver extends SimpleMappi
 		requestException.pushAudit(auditService, request);
 
 		if (controllerType == CLASSIC) {
+			if (requestException instanceof UnauthorizedRequestException) {
+				final var redirectURL = removeSpecialChars(request.getRequestURI()
+				                                           + Optional.ofNullable(request.getQueryString())
+				                                                   .map("?"::concat)
+				                                                   .orElse(""));
+				final var cookieRedirect = cookieService.createRedirectAfterLoginCookie(redirectURL);
+				cookieRedirect.setSecure(true);
+				response.addCookie(cookieRedirect);
+			}
+
 			final var mav = new ModelAndView(authErrorViewName);
 			mav.addObject("cause", statusCode.value());
 			mav.addObject("requestURL", request.getRequestURL().toString());
@@ -97,6 +113,18 @@ public class SecurityRejectedRequestMappingExceptionResolver extends SimpleMappi
 			}
 		}
 		return new ModelAndView();
+	}
+
+	static String removeSpecialChars(final String str) {
+		final var sb = new StringBuilder();
+		for (var pos = 0; pos < str.length(); pos++) {
+			final var currChar = str.codePointAt(pos);
+			if (Character.isSpaceChar(currChar) || Character.isWhitespace(currChar)) {
+				continue;
+			}
+			sb.append(str.charAt(pos));
+		}
+		return sb.toString();
 	}
 
 }

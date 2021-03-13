@@ -60,6 +60,7 @@ public class ControllerInterceptor implements HandlerInterceptor {
 	public static final String USER_UUID_ATTRIBUTE_NAME = PACKAGE_NAME + ".userUUID";
 	public static final String USER_TOKEN_ATTRIBUTE_NAME = PACKAGE_NAME + ".LoggedUserTagsToken";
 	public static final String CONTROLLER_TYPE_ATTRIBUTE_NAME = PACKAGE_NAME + ".controllerType";
+	public static final String REDIRECT_AFTER_LOGIN_ATTRIBUTE_NAME = PACKAGE_NAME + ".redirectAfterLogin";
 
 	private final AuditReportService auditService;
 	private final SecuredTokenService securedTokenService;
@@ -232,6 +233,9 @@ public class ControllerInterceptor implements HandlerInterceptor {
 		final var userUUID = tokenPayload.getUserUUID();
 		request.setAttribute(USER_UUID_ATTRIBUTE_NAME, userUUID);
 
+		Optional.ofNullable(cookieService.getRedirectAfterLoginCookiePayload(request))
+		        .ifPresent(redirectTo -> request.setAttribute(REDIRECT_AFTER_LOGIN_ATTRIBUTE_NAME, redirectTo));
+
 		if (userUUID == null) {
 			log.info("Request {} {}:{}()",
 			        controllerClass.getSimpleName(),
@@ -256,6 +260,11 @@ public class ControllerInterceptor implements HandlerInterceptor {
 	public static final Optional<LoggedUserTagsTokenDto> getUserTokenFromRequestAttribute(final HttpServletRequest request) {
 		return Optional.ofNullable(request.getAttribute(USER_TOKEN_ATTRIBUTE_NAME))
 		        .map(LoggedUserTagsTokenDto.class::cast);
+	}
+
+	public static final Optional<String> getPathToRedirectToAfterLogin(final HttpServletRequest request) {
+		return Optional.ofNullable(request.getAttribute(REDIRECT_AFTER_LOGIN_ATTRIBUTE_NAME))
+		        .map(o -> sanitize((String) o));
 	}
 
 	@Override

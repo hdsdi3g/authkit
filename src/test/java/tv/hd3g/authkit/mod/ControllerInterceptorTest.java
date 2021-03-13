@@ -144,6 +144,7 @@ class ControllerInterceptorTest {
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
 		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
+		verify(cookieService, atLeastOnce()).getRedirectAfterLoginCookiePayload(eq(request));
 		verify(request, atLeastOnce()).setAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME), eq(CLASSIC));
 	}
 
@@ -340,6 +341,7 @@ class ControllerInterceptorTest {
 		verify(request, atLeastOnce()).getMethod();
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
+		verify(cookieService, atLeastOnce()).getRedirectAfterLoginCookiePayload(eq(request));
 	}
 
 	@Test
@@ -392,6 +394,7 @@ class ControllerInterceptorTest {
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
 		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
+		verify(cookieService, atLeastOnce()).getRedirectAfterLoginCookiePayload(eq(request));
 	}
 
 	@Test
@@ -414,6 +417,7 @@ class ControllerInterceptorTest {
 		verify(request, atLeastOnce()).getMethod();
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
+		verify(cookieService, atLeastOnce()).getRedirectAfterLoginCookiePayload(eq(request));
 	}
 
 	@Test
@@ -464,6 +468,7 @@ class ControllerInterceptorTest {
 				verify(handlerMethod, atLeastOnce()).getBeanType();
 				verify(handlerMethod, atLeastOnce()).getMethod();
 				verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
+				verify(cookieService, atLeastOnce()).getRedirectAfterLoginCookiePayload(eq(request));
 			}
 
 			@Test
@@ -562,6 +567,7 @@ class ControllerInterceptorTest {
 		verify(request, atLeastOnce()).getMethod();
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
+		verify(cookieService, atLeastOnce()).getRedirectAfterLoginCookiePayload(eq(request));
 	}
 
 	@Test
@@ -643,6 +649,8 @@ class ControllerInterceptorTest {
 
 		verify(handlerMethod, atLeastOnce()).getBeanType();
 		verify(handlerMethod, atLeastOnce()).getMethod();
+
+		verify(cookieService, atLeastOnce()).getRedirectAfterLoginCookiePayload(eq(request));
 	}
 
 	@Nested

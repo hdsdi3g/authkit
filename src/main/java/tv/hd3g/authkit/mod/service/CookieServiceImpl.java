@@ -40,6 +40,8 @@ public class CookieServiceImpl implements CookieService {
 	private String domain;
 	@Value("${authkit.cookie.path:#{servletContext.contextPath}}")
 	private String path;
+	@Value("${authkit.cookie.ttlRedirect:1h}")
+	private Duration redirectTTL;
 
 	@PostConstruct
 	public void init() {
@@ -69,20 +71,54 @@ public class CookieServiceImpl implements CookieService {
 
 	@Override
 	public Cookie deleteLogonCookie() {
-		return new Cookie(AUTH_COOKIE_NAME, null);
+		final var cookie = new Cookie(AUTH_COOKIE_NAME, null);
+		cookie.setHttpOnly(true);
+		cookie.setSecure(true);
+		cookie.setDomain(domain);
+		cookie.setPath(path);
+		return cookie;
 	}
 
 	@Override
 	public String getLogonCookiePayload(final HttpServletRequest request) {
+		return getCookiePayload(request, AUTH_COOKIE_NAME);
+	}
+
+	@Override
+	public Cookie createRedirectAfterLoginCookie(final String redirectToPath) {
+		final var cookie = new Cookie(REDIRECT_AFTER_LOGIN_COOKIE_NAME, redirectToPath);
+		cookie.setHttpOnly(true);
+		cookie.setSecure(true);
+		cookie.setDomain(domain);
+		cookie.setPath(path);
+		cookie.setMaxAge((int) redirectTTL.toSeconds());
+		return cookie;
+	}
+
+	@Override
+	public Cookie deleteRedirectAfterLoginCookie() {
+		final var cookie = new Cookie(REDIRECT_AFTER_LOGIN_COOKIE_NAME, null);
+		cookie.setHttpOnly(true);
+		cookie.setSecure(true);
+		cookie.setDomain(domain);
+		cookie.setPath(path);
+		return cookie;
+	}
+
+	private String getCookiePayload(final HttpServletRequest request, final String name) {
 		final var cookies = request.getCookies();
 		if (cookies == null) {
 			return null;
 		}
 		return Stream.of(cookies)
-		        .filter(cookie -> AUTH_COOKIE_NAME.equals(cookie.getName()))
+		        .filter(cookie -> name.equals(cookie.getName()))
 		        .findFirst()
 		        .map(Cookie::getValue)
 		        .orElse(null);
 	}
 
+	@Override
+	public String getRedirectAfterLoginCookiePayload(final HttpServletRequest request) {
+		return getCookiePayload(request, REDIRECT_AFTER_LOGIN_COOKIE_NAME);
+	}
 }

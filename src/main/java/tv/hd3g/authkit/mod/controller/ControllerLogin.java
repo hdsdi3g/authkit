@@ -38,7 +38,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import tv.hd3g.authkit.mod.ControllerInterceptor;
 import tv.hd3g.authkit.mod.dto.LoginRequestContentDto;
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
 import tv.hd3g.authkit.mod.dto.validated.ResetPasswordFormDto;
@@ -111,7 +113,7 @@ public class ControllerLogin {
 		try {
 			tokenService.simpleFormCheckToken(TOKEN_FORMNAME_LOGIN, form.getSecuretoken());
 			final var userSession = authenticationService.userLoginRequest(request, form);
-			return prepareResponseAfterLogon(model, response, userSession);
+			return prepareResponseAfterLogon(model, request, response, userSession);
 		} catch (final NotAcceptableSecuredTokenException e) {
 			return sendErrorExpiredFormTokenDuringLogin(model, response, e);
 		} catch (final TOTPUserCantLoginException e) {
@@ -240,7 +242,7 @@ public class ControllerLogin {
 
 		try {
 			final var userSession = authenticationService.userLoginRequest(request, totpForm);
-			return prepareResponseAfterLogon(model, response, userSession);
+			return prepareResponseAfterLogon(model, request, response, userSession);
 		} catch (final NotAcceptableSecuredTokenException e) {
 			return sendErrorExpiredFormTokenDuringLogin(model, response, e);
 		} catch (final UserCantLoginException e) {
@@ -257,6 +259,7 @@ public class ControllerLogin {
 	}
 
 	private String prepareResponseAfterLogon(final Model model,
+	                                         final HttpServletRequest request,
 	                                         final HttpServletResponse response,
 	                                         final LoginRequestContentDto userSession) {
 		model.addAttribute("jwtsession", userSession.getUserSessionToken());
@@ -264,10 +267,32 @@ public class ControllerLogin {
 		cookie.setSecure(true);
 		response.addCookie(cookie);
 
-		model.addAttribute(BOUNCETO, ServletUriComponentsBuilder
-		        .fromCurrentContextPath()
-		        .path(redirectToAfterLogin)
-		        .toUriString());
+		final var oUserRedirectTo = ControllerInterceptor.getPathToRedirectToAfterLogin(request);
+		if (oUserRedirectTo.isPresent()) {
+			final var redirectAfterLoginCookie = cookieService.deleteRedirectAfterLoginCookie();
+			redirectAfterLoginCookie.setSecure(true);
+			response.addCookie(redirectAfterLoginCookie);
+		}
+
+		final var redirectTo = oUserRedirectTo
+		        .map(path -> {
+			        final var builder = ServletUriComponentsBuilder.fromCurrentRequest();
+			        final var qMark = path.indexOf("?");
+			        if (qMark > 0 && qMark + 1 < path.length()) {
+				        return builder
+				                .replacePath(path.substring(0, qMark))
+				                .query(path.substring(qMark + 1));
+			        } else {
+				        return builder.replacePath(path);
+			        }
+		        })
+		        .map(UriComponentsBuilder::toUriString)
+		        .orElseGet(() -> ServletUriComponentsBuilder
+		                .fromCurrentContextPath()
+		                .path(redirectToAfterLogin)
+		                .toUriString());
+
+		model.addAttribute(BOUNCETO, redirectTo);
 		return "bounce-session";
 	}
 

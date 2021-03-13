@@ -21,8 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static tv.hd3g.authkit.mod.service.CookieService.AUTH_COOKIE_NAME;
+import static tv.hd3g.authkit.mod.service.CookieService.REDIRECT_AFTER_LOGIN_COOKIE_NAME;
 import static tv.hd3g.authkit.tool.DataGenerator.random;
 
 import java.time.Duration;
@@ -54,13 +56,13 @@ class CookieServiceTest {
 	@Value("#{servletContext.contextPath}")
 	String path;
 
-	String userSessionToken;
+	String randomRessource;
 
 	@BeforeEach
 	void init() throws Exception {
 		MockitoAnnotations.openMocks(this).close();
 		assertFalse(MockUtil.isMock(cookieService));
-		userSessionToken = DataGenerator.makeRandomString();
+		randomRessource = DataGenerator.makeRandomString();
 	}
 
 	@AfterEach
@@ -71,10 +73,10 @@ class CookieServiceTest {
 	@Test
 	void testCreateLogonCookie() {
 		final var ttl = Duration.ofMillis(random.nextLong(2_000));
-		final var c = cookieService.createLogonCookie(userSessionToken, ttl);
+		final var c = cookieService.createLogonCookie(randomRessource, ttl);
 
 		assertEquals(AUTH_COOKIE_NAME, c.getName());
-		assertEquals(userSessionToken, c.getValue());
+		assertEquals(randomRessource, c.getValue());
 		assertNotNull(c.getDomain());
 		assertTrue(c.isHttpOnly());
 		assertTrue(c.getSecure());
@@ -91,12 +93,43 @@ class CookieServiceTest {
 
 	@Test
 	void testGetLogonCookiePayload() {
-		final var c = new Cookie(AUTH_COOKIE_NAME, userSessionToken);
+		final var c = new Cookie(AUTH_COOKIE_NAME, randomRessource);
 		when(request.getCookies()).thenReturn(new Cookie[] { c });
 
 		final var result = cookieService.getLogonCookiePayload(request);
-		assertEquals(userSessionToken, result);
+		assertEquals(randomRessource, result);
 
-		Mockito.verify(request, Mockito.times(1)).getCookies();
+		verify(request, Mockito.times(1)).getCookies();
+	}
+
+	@Test
+	void testCreateRedirectAfterLoginCookie() {
+		final var c = cookieService.createRedirectAfterLoginCookie(randomRessource);
+
+		assertEquals(REDIRECT_AFTER_LOGIN_COOKIE_NAME, c.getName());
+		assertEquals(randomRessource, c.getValue());
+		assertNotNull(c.getDomain());
+		assertTrue(c.isHttpOnly());
+		assertTrue(c.getSecure());
+		assertEquals(path, c.getPath());
+		assertEquals(3600, c.getMaxAge());
+	}
+
+	@Test
+	void testDeleteRedirectAfterLoginCookie() {
+		final var c = cookieService.deleteRedirectAfterLoginCookie();
+		assertEquals(REDIRECT_AFTER_LOGIN_COOKIE_NAME, c.getName());
+		assertNull(c.getValue());
+	}
+
+	@Test
+	void testGetRedirectAfterLoginCookiePayload() {
+		final var c = new Cookie(REDIRECT_AFTER_LOGIN_COOKIE_NAME, randomRessource);
+		when(request.getCookies()).thenReturn(new Cookie[] { c });
+
+		final var result = cookieService.getRedirectAfterLoginCookiePayload(request);
+		assertEquals(randomRessource, result);
+
+		verify(request, Mockito.times(1)).getCookies();
 	}
 }

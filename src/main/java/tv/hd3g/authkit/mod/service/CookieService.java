@@ -24,11 +24,18 @@ import javax.servlet.http.HttpServletRequest;
 public interface CookieService {
 
 	String AUTH_COOKIE_NAME = "SESSIONBEARER";
+	String REDIRECT_AFTER_LOGIN_COOKIE_NAME = "REDIRECTAFTERLOGIN";
 
 	Cookie createLogonCookie(String userSessionToken, Duration ttl);
 
 	Cookie deleteLogonCookie();
 
 	String getLogonCookiePayload(HttpServletRequest request);
+
+	Cookie createRedirectAfterLoginCookie(String path);
+
+	Cookie deleteRedirectAfterLoginCookie();
+
+	String getRedirectAfterLoginCookiePayload(HttpServletRequest request);
 
 }

@@ -28,12 +28,15 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.atLeast;
 import static tv.hd3g.authkit.mod.ControllerInterceptor.CONTROLLER_TYPE_ATTRIBUTE_NAME;
 import static tv.hd3g.authkit.mod.ControllerInterceptor.USER_TOKEN_ATTRIBUTE_NAME;
+import static tv.hd3g.authkit.mod.SecurityRejectedRequestMappingExceptionResolver.removeSpecialChars;
+import static tv.hd3g.authkit.tool.DataGenerator.makeRandomThing;
 import static tv.hd3g.authkit.utility.ControllerType.CLASSIC;
 import static tv.hd3g.authkit.utility.ControllerType.REST;
 
 import java.io.IOException;
 import java.util.UUID;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -46,8 +49,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 
+import tv.hd3g.authkit.mod.exception.ForbiddenRequestException;
 import tv.hd3g.authkit.mod.exception.SecurityRejectedRequestException;
+import tv.hd3g.authkit.mod.exception.UnauthorizedRequestException;
 import tv.hd3g.authkit.mod.service.AuditReportService;
+import tv.hd3g.authkit.mod.service.CookieService;
 import tv.hd3g.authkit.tool.DataGenerator;
 
 class SecurityRejectedRequestMappingExceptionResolverTest {
@@ -55,20 +61,27 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 	@Mock
 	AuditReportService auditService;
 	@Mock
+	CookieService cookieService;
+	@Mock
 	HttpServletRequest request;
 	@Mock
 	HttpServletResponse response;
 	@Mock
 	Object handler;
 	@Mock
-	SecurityRejectedRequestException requestException;
+	Cookie cookieRedirect;
 
 	@Value("${authkit.auth-error-view:auth-error}")
 	private String authErrorViewName;
 
+	SecurityRejectedRequestException requestException;
 	HttpStatus statusCode;
 	UUID userUUID;
 	String requestURL;
+	String requestURI;
+	String requestQueryString;
+	String redirectURL;
+	String fullURIQueryString;
 
 	SecurityRejectedRequestMappingExceptionResolver s;
 
@@ -77,14 +90,20 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		MockitoAnnotations.openMocks(this).close();
 		userUUID = UUID.randomUUID();
 		DataGenerator.setupMock(request, true, userUUID.toString());
-		requestURL = DataGenerator.makeRandomThing();
+		requestURL = makeRandomThing();
+		requestURI = "/" + makeRandomThing().toLowerCase().replace(" ", "");
+		requestQueryString = makeRandomThing().toLowerCase().replace(" ", "");
+		fullURIQueryString = requestURI + "?" + requestQueryString;
 		statusCode = DataGenerator.getRandomEnum(HttpStatus.class);
-		s = new SecurityRejectedRequestMappingExceptionResolver(auditService, authErrorViewName);
+		redirectURL = makeRandomThing();
+		requestException = Mockito.mock(SecurityRejectedRequestException.class);
+		s = new SecurityRejectedRequestMappingExceptionResolver(auditService, cookieService, authErrorViewName);
 	}
 
 	@AfterEach
 	void end() {
 		Mockito.verifyNoMoreInteractions(auditService,
+		        cookieService,
 		        request,
 		        response,
 		        handler,
@@ -93,10 +112,16 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 
 	@Test
 	void testDoResolveException_noREST_withControllerType_withUUID_errorIsSecurityRejected() {
+		requestException = Mockito.mock(UnauthorizedRequestException.class);
+
 		when(request.getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME))).thenReturn(CLASSIC);
 		when(request.getRequestURL()).thenReturn(new StringBuffer(requestURL));
+		when(request.getRequestURI()).thenReturn(requestURI);
+		when(request.getQueryString()).thenReturn(requestQueryString);
 		when(requestException.getStatusCode()).thenReturn(statusCode);
 		when(requestException.getUserUUID()).thenReturn(userUUID);
+		when(cookieService.createRedirectAfterLoginCookie(eq(fullURIQueryString)))
+		        .thenReturn(cookieRedirect);
 
 		final var mav = s.doResolveException(request, response, handler, requestException);
 		assertNotNull(mav);
@@ -110,12 +135,16 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		verify(request, atLeastOnce()).getAttribute(eq(USER_TOKEN_ATTRIBUTE_NAME));
 		verify(request, atLeastOnce()).getRequestURL();
 		verify(request, atLeastOnce()).getRequestURI();
+		verify(request, atLeastOnce()).getQueryString();
 		verify(request, atLeastOnce()).getRemoteAddr();
 		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
 		verify(requestException, atLeastOnce()).getMessage();
 		verify(requestException, atLeastOnce()).getStatusCode();
 		verify(requestException, atLeastOnce()).getUserUUID();
 		verify(requestException, times(1)).pushAudit(eq(auditService), eq(request));
+		verify(cookieService, atLeastOnce()).createRedirectAfterLoginCookie(eq(fullURIQueryString));
+		verify(cookieRedirect, atLeastOnce()).setSecure(eq(true));
+		verify(response, atLeastOnce()).addCookie(eq(cookieRedirect));
 	}
 
 	@Test
@@ -141,6 +170,44 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 
 	@Test
 	void testDoResolveException_noREST_withControllerType_withoutUUID_errorIsSecurityRejected() {
+		requestException = Mockito.mock(UnauthorizedRequestException.class);
+
+		when(request.getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME))).thenReturn(CLASSIC);
+		when(request.getRequestURL()).thenReturn(new StringBuffer(requestURL));
+		when(request.getRequestURI()).thenReturn(requestURI);
+		when(request.getQueryString()).thenReturn(requestQueryString);
+		when(requestException.getStatusCode()).thenReturn(statusCode);
+		when(cookieService.createRedirectAfterLoginCookie(eq(fullURIQueryString)))
+		        .thenReturn(cookieRedirect);
+
+		final var mav = s.doResolveException(request, response, handler, requestException);
+		assertNotNull(mav);
+		assertEquals(authErrorViewName, mav.getViewName());
+		final var model = mav.getModel();
+		assertEquals(statusCode.value(), model.get("cause"));
+		assertEquals(requestURL, model.get("requestURL"));
+		assertTrue((boolean) model.get("isnotlogged"));
+
+		verify(request, atLeastOnce()).getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME));
+		verify(request, atLeastOnce()).getAttribute(eq(USER_TOKEN_ATTRIBUTE_NAME));
+		verify(request, atLeastOnce()).getRequestURL();
+		verify(request, atLeastOnce()).getRequestURI();
+		verify(request, atLeastOnce()).getQueryString();
+		verify(request, atLeastOnce()).getRemoteAddr();
+		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
+		verify(requestException, atLeastOnce()).getMessage();
+		verify(requestException, atLeastOnce()).getStatusCode();
+		verify(requestException, atLeastOnce()).getUserUUID();
+		verify(requestException, times(1)).pushAudit(eq(auditService), eq(request));
+		verify(cookieService, atLeastOnce()).createRedirectAfterLoginCookie(eq(fullURIQueryString));
+		verify(cookieRedirect, atLeastOnce()).setSecure(eq(true));
+		verify(response, atLeastOnce()).addCookie(eq(cookieRedirect));
+	}
+
+	@Test
+	void testDoResolveException_noREST_OtherError() {
+		requestException = Mockito.mock(ForbiddenRequestException.class);
+
 		when(request.getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME))).thenReturn(CLASSIC);
 		when(request.getRequestURL()).thenReturn(new StringBuffer(requestURL));
 		when(requestException.getStatusCode()).thenReturn(statusCode);
@@ -186,5 +253,12 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		verify(requestException, atLeastOnce()).getUserUUID();
 		verify(requestException, times(1)).pushAudit(eq(auditService), eq(request));
 		verify(response, times(1)).sendError(eq(statusCode.value()));
+	}
+
+	@Test
+	void testRemoveSpecialChars() {
+		assertEquals("", removeSpecialChars(""));
+		assertEquals("ABCé", removeSpecialChars("A B C é"));
+		assertEquals("ABCé", removeSpecialChars("A\rB\nC	é"));
 	}
 }
