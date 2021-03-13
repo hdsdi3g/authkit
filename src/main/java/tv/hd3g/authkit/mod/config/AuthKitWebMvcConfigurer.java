@@ -72,6 +72,6 @@ public class AuthKitWebMvcConfigurer implements WebMvcConfigurer {
 
 	@Bean(name = "simpleMappingExceptionResolver")
 	public SimpleMappingExceptionResolver createSimpleMappingExceptionResolver() {
-		return new SecurityRejectedRequestMappingExceptionResolver(auditService, cookieService, authErrorViewName);
+		return new SecurityRejectedRequestMappingExceptionResolver(auditService, authErrorViewName);
 	}
 }

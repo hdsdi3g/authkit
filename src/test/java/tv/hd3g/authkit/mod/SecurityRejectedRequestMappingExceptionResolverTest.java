@@ -34,7 +34,6 @@ import static tv.hd3g.authkit.utility.ControllerType.REST;
 import java.io.IOException;
 import java.util.UUID;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -49,15 +48,12 @@ import org.springframework.http.HttpStatus;
 
 import tv.hd3g.authkit.mod.exception.SecurityRejectedRequestException;
 import tv.hd3g.authkit.mod.service.AuditReportService;
-import tv.hd3g.authkit.mod.service.CookieService;
 import tv.hd3g.authkit.tool.DataGenerator;
 
 class SecurityRejectedRequestMappingExceptionResolverTest {
 
 	@Mock
 	AuditReportService auditService;
-	@Mock
-	CookieService cookieService;
 	@Mock
 	HttpServletRequest request;
 	@Mock
@@ -66,15 +62,12 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 	Object handler;
 	@Mock
 	SecurityRejectedRequestException requestException;
-	@Mock
-	Cookie cookieDelete;
 
 	@Value("${authkit.auth-error-view:auth-error}")
 	private String authErrorViewName;
 
 	HttpStatus statusCode;
 	UUID userUUID;
-	String cookieRequest;
 	String requestURL;
 
 	SecurityRejectedRequestMappingExceptionResolver s;
@@ -84,21 +77,18 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		MockitoAnnotations.openMocks(this).close();
 		userUUID = UUID.randomUUID();
 		DataGenerator.setupMock(request, true, userUUID.toString());
-		cookieRequest = DataGenerator.makeRandomString();
 		requestURL = DataGenerator.makeRandomThing();
 		statusCode = DataGenerator.getRandomEnum(HttpStatus.class);
-		s = new SecurityRejectedRequestMappingExceptionResolver(auditService, cookieService, authErrorViewName);
+		s = new SecurityRejectedRequestMappingExceptionResolver(auditService, authErrorViewName);
 	}
 
 	@AfterEach
 	void end() {
 		Mockito.verifyNoMoreInteractions(auditService,
-		        cookieService,
 		        request,
 		        response,
 		        handler,
-		        requestException,
-		        cookieDelete);
+		        requestException);
 	}
 
 	@Test
@@ -107,8 +97,6 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		when(request.getRequestURL()).thenReturn(new StringBuffer(requestURL));
 		when(requestException.getStatusCode()).thenReturn(statusCode);
 		when(requestException.getUserUUID()).thenReturn(userUUID);
-		when(cookieService.getLogonCookiePayload(eq(request))).thenReturn(cookieRequest);
-		when(cookieService.deleteLogonCookie()).thenReturn(cookieDelete);
 
 		final var mav = s.doResolveException(request, response, handler, requestException);
 		assertNotNull(mav);
@@ -128,10 +116,6 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		verify(requestException, atLeastOnce()).getStatusCode();
 		verify(requestException, atLeastOnce()).getUserUUID();
 		verify(requestException, times(1)).pushAudit(eq(auditService), eq(request));
-		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
-		verify(cookieService, atLeastOnce()).deleteLogonCookie();
-		verify(cookieDelete, atLeastOnce()).setSecure(eq(true));
-		verify(response, atLeastOnce()).addCookie(eq(cookieDelete));
 	}
 
 	@Test
@@ -160,8 +144,6 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		when(request.getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME))).thenReturn(CLASSIC);
 		when(request.getRequestURL()).thenReturn(new StringBuffer(requestURL));
 		when(requestException.getStatusCode()).thenReturn(statusCode);
-		when(cookieService.getLogonCookiePayload(eq(request))).thenReturn(cookieRequest);
-		when(cookieService.deleteLogonCookie()).thenReturn(cookieDelete);
 
 		final var mav = s.doResolveException(request, response, handler, requestException);
 		assertNotNull(mav);
@@ -181,10 +163,6 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		verify(requestException, atLeastOnce()).getStatusCode();
 		verify(requestException, atLeastOnce()).getUserUUID();
 		verify(requestException, times(1)).pushAudit(eq(auditService), eq(request));
-		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
-		verify(cookieService, atLeastOnce()).deleteLogonCookie();
-		verify(cookieDelete, atLeastOnce()).setSecure(eq(true));
-		verify(response, atLeastOnce()).addCookie(eq(cookieDelete));
 	}
 
 	@Test
@@ -193,8 +171,6 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		when(request.getRequestURL()).thenReturn(new StringBuffer(requestURL));
 		when(requestException.getStatusCode()).thenReturn(statusCode);
 		when(requestException.getUserUUID()).thenReturn(userUUID);
-		when(cookieService.getLogonCookiePayload(eq(request))).thenReturn(cookieRequest);
-		when(cookieService.deleteLogonCookie()).thenReturn(cookieDelete);
 
 		final var mav = s.doResolveException(request, response, handler, requestException);
 		assertNotNull(mav);
@@ -209,10 +185,6 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		verify(requestException, atLeastOnce()).getStatusCode();
 		verify(requestException, atLeastOnce()).getUserUUID();
 		verify(requestException, times(1)).pushAudit(eq(auditService), eq(request));
-		verify(cookieService, atLeastOnce()).getLogonCookiePayload(eq(request));
-		verify(cookieService, atLeastOnce()).deleteLogonCookie();
-		verify(cookieDelete, atLeastOnce()).setSecure(eq(true));
-		verify(response, atLeastOnce()).addCookie(eq(cookieDelete));
 		verify(response, times(1)).sendError(eq(statusCode.value()));
 	}
 }

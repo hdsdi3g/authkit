@@ -34,21 +34,17 @@ import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
 import tv.hd3g.authkit.mod.exception.SecurityRejectedRequestException;
 import tv.hd3g.authkit.mod.service.AuditReportService;
-import tv.hd3g.authkit.mod.service.CookieService;
 import tv.hd3g.authkit.utility.ControllerType;
 
 public class SecurityRejectedRequestMappingExceptionResolver extends SimpleMappingExceptionResolver {
 	private static final Logger log = LogManager.getLogger();
 
 	private final AuditReportService auditService;
-	private final CookieService cookieService;
 	private final String authErrorViewName;
 
 	public SecurityRejectedRequestMappingExceptionResolver(final AuditReportService auditService,
-	                                                       final CookieService cookieService,
 	                                                       final String authErrorViewName) {
 		this.auditService = auditService;
-		this.cookieService = cookieService;
 		this.authErrorViewName = authErrorViewName;
 	}
 
@@ -85,16 +81,6 @@ public class SecurityRejectedRequestMappingExceptionResolver extends SimpleMappi
 		}
 
 		requestException.pushAudit(auditService, request);
-
-		/**
-		 * If request contain logon Cookie, destroy it.
-		 */
-		final var cookieRequest = cookieService.getLogonCookiePayload(request);
-		if (cookieRequest != null) {
-			final var cookie = cookieService.deleteLogonCookie();
-			cookie.setSecure(true);
-			response.addCookie(cookie);
-		}
 
 		if (controllerType == CLASSIC) {
 			final var mav = new ModelAndView(authErrorViewName);
