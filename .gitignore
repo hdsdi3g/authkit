@@ -41,3 +41,8 @@ build/
 # VS Code
 .vscode/
 *.code-workspace
+
+# Node
+node_modules
+package-lock.json
+js/built
