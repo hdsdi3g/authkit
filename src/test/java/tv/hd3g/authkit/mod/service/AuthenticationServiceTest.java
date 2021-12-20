@@ -90,6 +90,8 @@ class AuthenticationServiceTest {
 	@Autowired
 	private AuthenticationService authenticationService;
 	@Autowired
+	private CheckPasswordService checkPasswordService;
+	@Autowired
 	private UserDao userDao;
 	@Autowired
 	private SecuredTokenService securedTokenService;
@@ -403,11 +405,11 @@ class AuthenticationServiceTest {
 		final var uuid = authenticationService.addUser(addUser);
 		final var credential = credentialRepository.getByUserUUID(uuid);
 
-		final var resultOk = authenticationService.checkPassword(new Password(userPassword), credential);
+		final var resultOk = checkPasswordService.checkPassword(new Password(userPassword), credential);
 		assertNotNull(resultOk);
 		assertTrue(resultOk.isEmpty());
 
-		final var resultErr = authenticationService.checkPassword(new Password(makeUserPassword()), credential);
+		final var resultErr = checkPasswordService.checkPassword(new Password(makeUserPassword()), credential);
 		assertNotNull(resultErr);
 		assertTrue(resultErr.isPresent());
 		assertEquals(INVALID_PASSWORD, resultErr.get());
@@ -429,11 +431,11 @@ class AuthenticationServiceTest {
 
 		checkLoginRequestContent(authenticationService.userLoginRequest(request, loginForm), uuid);
 
-		final var resultOk = authenticationService.checkPassword(new Password(ldapSimpleUserPassword), credential);
+		final var resultOk = checkPasswordService.checkPassword(new Password(ldapSimpleUserPassword), credential);
 		assertNotNull(resultOk);
 		assertTrue(resultOk.isEmpty());
 
-		final var resultErr = authenticationService.checkPassword(new Password(makeUserPassword()), credential);
+		final var resultErr = checkPasswordService.checkPassword(new Password(makeUserPassword()), credential);
 		assertNotNull(resultErr);
 		assertTrue(resultErr.isPresent());
 		assertEquals(INVALID_PASSWORD, resultErr.get());

@@ -19,9 +19,6 @@ package tv.hd3g.authkit.mod.service;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static tv.hd3g.authkit.mod.controller.ControllerLogin.TOKEN_FORMNAME_ENTER_TOTP;
 import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.DISABLED_LOGIN;
-import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.EMPTY_PASSWORD;
-import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.INVALID_PASSWORD;
-import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.MISSING_PASSWORD;
 import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.USER_NOT_FOUND;
 import static tv.hd3g.authkit.mod.service.AuditReportServiceImpl.getOriginalRemoteAddr;
 import static tv.hd3g.authkit.mod.service.ValidPasswordPolicyService.PasswordValidationLevel.DEFAULT;
@@ -91,7 +88,6 @@ import tv.hd3g.authkit.mod.repository.RoleRightRepository;
 import tv.hd3g.authkit.mod.repository.UserDao;
 import tv.hd3g.authkit.mod.repository.UserPrivacyRepository;
 import tv.hd3g.authkit.mod.repository.UserRepository;
-import tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause;
 
 @Service
 @Transactional(readOnly = false)
@@ -101,6 +97,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	private static Logger log = LogManager.getLogger();
 
+	@Autowired
+	private CheckPasswordService checkPasswordService;
 	@Autowired
 	private SecuredTokenService tokenService;
 	@Autowired
@@ -179,28 +177,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		        () -> new AuthKitException("Can't found role right \"" + roleName + ":" + rightName + "\""));
 	}
 
-	@Override
-	public Optional<RejectLoginCause> checkPassword(final Password userEnterPassword, final Credential credential) {
-		if (userEnterPassword == null) {
-			return Optional.ofNullable(MISSING_PASSWORD);
-		} else if (userEnterPassword.length() == 0) {
-			return Optional.ofNullable(EMPTY_PASSWORD);
-		} else if (credential.getLdapdomain() != null) {
-			try {
-				externalAuthClientService.logonUser(credential.getLogin(), userEnterPassword, credential
-				        .getLdapdomain());
-			} catch (final UserCantLoginException e) {
-				return Optional.ofNullable(INVALID_PASSWORD);
-			}
-		} else {
-			final var passwordHash = cipherService.unCipherToString(credential.getPasswordhash());
-			if (userEnterPassword.verify(ARGON2, passwordHash) == false) {
-				return Optional.ofNullable(INVALID_PASSWORD);
-			}
-		}
-		return Optional.empty();
-	}
-
 	private void checkLoginUserIsEnabled(final HttpServletRequest request,
 	                                     final Credential credential,
 	                                     final String what) throws DisabledUserCantLoginException {
@@ -235,7 +211,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private void checkPasswordDuringLogin(final HttpServletRequest request,
 	                                      final LoginFormDto form,
 	                                      final Credential credential) throws NoPasswordUserCantLoginException, BadPasswordUserCantLoginException {
-		final var checkPasswordBadResult = checkPassword(form.getUserpassword(), credential);
+		final var checkPasswordBadResult = checkPasswordService.checkPassword(form.getUserpassword(), credential);
 		if (checkPasswordBadResult.isPresent()) {
 			auditReportService.onRejectLogin(request, checkPasswordBadResult.get(), realm, form.getUserlogin());
 			switch (checkPasswordBadResult.get()) {

@@ -74,7 +74,7 @@ public class TOTPServiceImpl implements TOTPService {
 	@Autowired
 	private TotpbackupcodeRepository totpbackupcodeRepository;
 	@Autowired
-	private AuthenticationService authenticationService;
+	private CheckPasswordService checkPasswordService;
 	@Autowired
 	private SecuredTokenService securedTokenService;
 
@@ -164,7 +164,7 @@ public class TOTPServiceImpl implements TOTPService {
 		}
 
 		final var credential = credentialRepository.getByUserUUID(expectedUserUUID);
-		final var rejected = authenticationService.checkPassword(setupDto.getCurrentpassword(), credential);
+		final var rejected = checkPasswordService.checkPassword(setupDto.getCurrentpassword(), credential);
 		if (rejected.isPresent()) {
 			throw new AuthKitException(SC_UNAUTHORIZED,
 			        "Can't accept demand, bad password ; " + rejected.get().toString());
@@ -196,7 +196,7 @@ public class TOTPServiceImpl implements TOTPService {
 	@Override
 	@Transactional(readOnly = true)
 	public void checkCodeAndPassword(final Credential credential, final ValidationTOTPDto validationDto) {
-		final var optPassword = authenticationService.checkPassword(validationDto.getCurrentpassword(), credential);
+		final var optPassword = checkPasswordService.checkPassword(validationDto.getCurrentpassword(), credential);
 		if (optPassword.isPresent()) {
 			throw new AuthKitException(SC_UNAUTHORIZED, "Invalid password: " + optPassword.get());
 		}

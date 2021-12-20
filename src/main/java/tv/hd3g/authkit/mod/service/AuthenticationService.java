@@ -18,7 +18,6 @@ package tv.hd3g.authkit.mod.service;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,12 +32,10 @@ import tv.hd3g.authkit.mod.dto.validated.AddUserDto;
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
 import tv.hd3g.authkit.mod.dto.validated.RenameGroupOrRoleDto;
 import tv.hd3g.authkit.mod.dto.validated.TOTPLogonCodeFormDto;
-import tv.hd3g.authkit.mod.entity.Credential;
 import tv.hd3g.authkit.mod.exception.BlockedUserException;
 import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException;
 import tv.hd3g.authkit.mod.exception.ResetWithSamePasswordException;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException;
-import tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause;
 
 public interface AuthenticationService {
 
@@ -57,8 +54,6 @@ public interface AuthenticationService {
 	 */
 	LoginRequestContentDto userLoginRequest(HttpServletRequest request,
 	                                        TOTPLogonCodeFormDto form) throws UserCantLoginException, NotAcceptableSecuredTokenException;
-
-	Optional<RejectLoginCause> checkPassword(Password userEnterPassword, Credential credential);
 
 	/**
 	 * @return userUUID

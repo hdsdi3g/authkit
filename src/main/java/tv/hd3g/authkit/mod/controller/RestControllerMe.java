@@ -54,6 +54,7 @@ import tv.hd3g.authkit.mod.exception.BlockedUserException;
 import tv.hd3g.authkit.mod.exception.ResetWithSamePasswordException;
 import tv.hd3g.authkit.mod.repository.CredentialRepository;
 import tv.hd3g.authkit.mod.service.AuthenticationService;
+import tv.hd3g.authkit.mod.service.CheckPasswordService;
 import tv.hd3g.authkit.mod.service.SecuredTokenService;
 import tv.hd3g.authkit.mod.service.TOTPService;
 import tv.hd3g.commons.authkit.AuditAfter;
@@ -64,6 +65,8 @@ public class RestControllerMe {
 
 	@Autowired
 	private AuthenticationService authenticationService;
+	@Autowired
+	private CheckPasswordService checkPasswordService;
 	@Autowired
 	private CredentialRepository credentialRepository;
 	@Autowired
@@ -94,7 +97,7 @@ public class RestControllerMe {
 		if (credential.getLdapdomain() != null) {
 			throw new AuthKitException("You can't change the password here for an external authentication");
 		}
-		final var checkResultFail = authenticationService.checkPassword(chPasswordDto.getCurrentpassword(), credential);
+		final var checkResultFail = checkPasswordService.checkPassword(chPasswordDto.getCurrentpassword(), credential);
 		if (checkResultFail.isPresent()) {
 			throw new AuthKitException("Actual provided password is invalid: " + checkResultFail.get());
 		} else if (credential.getTotpkey() != null) {
