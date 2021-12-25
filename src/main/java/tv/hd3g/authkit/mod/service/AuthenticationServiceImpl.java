@@ -17,6 +17,7 @@
 package tv.hd3g.authkit.mod.service;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static tv.hd3g.authkit.mod.controller.ControllerLogin.TOKEN_FORMNAME_ENTER_TOTP;
 import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.DISABLED_LOGIN;
 import static tv.hd3g.authkit.mod.service.AuditReportService.RejectLoginCause.EMPTY_PASSWORD;
@@ -54,6 +55,7 @@ import de.mkammerer.argon2.Argon2Factory;
 import tv.hd3g.authkit.mod.component.AuthKitEndpointsListener;
 import tv.hd3g.authkit.mod.dto.LoginRequestContentDto;
 import tv.hd3g.authkit.mod.dto.Password;
+import tv.hd3g.authkit.mod.dto.SetupTOTPTokenDto;
 import tv.hd3g.authkit.mod.dto.ressource.GroupOrRoleDto;
 import tv.hd3g.authkit.mod.dto.ressource.UserDto;
 import tv.hd3g.authkit.mod.dto.ressource.UserPrivacyDto;
@@ -62,6 +64,8 @@ import tv.hd3g.authkit.mod.dto.validated.AddUserDto;
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
 import tv.hd3g.authkit.mod.dto.validated.RenameGroupOrRoleDto;
 import tv.hd3g.authkit.mod.dto.validated.TOTPLogonCodeFormDto;
+import tv.hd3g.authkit.mod.dto.validated.ValidationSetupTOTPDto;
+import tv.hd3g.authkit.mod.dto.validated.ValidationTOTPDto;
 import tv.hd3g.authkit.mod.entity.Credential;
 import tv.hd3g.authkit.mod.entity.Group;
 import tv.hd3g.authkit.mod.entity.Role;
@@ -297,6 +301,48 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		} catch (final UserCantLoginException e) {
 			auditReportService.onRejectLogin(request, USER_NOT_FOUND, realm, credential.getLogin());
 			throw new UnknownUserCantLoginException();
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public void setupTOTPWithChecks(final ValidationSetupTOTPDto setupDto, final String expectedUserUUID) {
+		final SetupTOTPTokenDto validatedToken;
+		try {
+			validatedToken = tokenService.setupTOTPExtractToken(setupDto.getControlToken());
+		} catch (final NotAcceptableSecuredTokenException e) {
+			log.error("Invalid token", e);
+			throw new AuthKitException("You can't use this token");
+		}
+		if (expectedUserUUID.equalsIgnoreCase(validatedToken.getUserUUID()) == false) {
+			throw new AuthKitException("You can't use this token for this user");
+		}
+
+		final var secret = TOTPServiceImpl.base32.decode(validatedToken.getSecret());
+		if (totpService.isCodeIsValid(secret, setupDto.getTwoauthcode()) == false) {
+			throw new AuthKitException("Invalid code");
+		}
+
+		final var credential = credentialRepository.getByUserUUID(expectedUserUUID);
+		final var rejected = checkPassword(setupDto.getCurrentpassword(), credential);
+		if (rejected.isPresent()) {
+			throw new AuthKitException(SC_UNAUTHORIZED,
+			        "Can't accept demand, bad password ; " + rejected.get().toString());
+		}
+		totpService.setupTOTP(validatedToken.getSecret(), validatedToken.getBackupCodes(), expectedUserUUID);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public void checkCodeAndPassword(final Credential credential, final ValidationTOTPDto validationDto) {
+		final var optPassword = checkPassword(validationDto.getCurrentpassword(), credential);
+		if (optPassword.isPresent()) {
+			throw new AuthKitException(SC_UNAUTHORIZED, "Invalid password: " + optPassword.get());
+		}
+		try {
+			totpService.checkCode(credential, validationDto.getTwoauthcode());
+		} catch (final BadTOTPCodeCantLoginException e) {
+			throw new AuthKitException(SC_UNAUTHORIZED, "Invalid 2auth code");
 		}
 	}
 

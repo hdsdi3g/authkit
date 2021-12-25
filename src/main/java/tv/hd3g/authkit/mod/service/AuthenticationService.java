@@ -33,6 +33,8 @@ import tv.hd3g.authkit.mod.dto.validated.AddUserDto;
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
 import tv.hd3g.authkit.mod.dto.validated.RenameGroupOrRoleDto;
 import tv.hd3g.authkit.mod.dto.validated.TOTPLogonCodeFormDto;
+import tv.hd3g.authkit.mod.dto.validated.ValidationSetupTOTPDto;
+import tv.hd3g.authkit.mod.dto.validated.ValidationTOTPDto;
 import tv.hd3g.authkit.mod.entity.Credential;
 import tv.hd3g.authkit.mod.exception.BlockedUserException;
 import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException;
@@ -60,6 +62,8 @@ public interface AuthenticationService {
 
 	Optional<RejectLoginCause> checkPassword(Password userEnterPassword, Credential credential);
 
+	void checkCodeAndPassword(Credential credential, ValidationTOTPDto validationDto);
+
 	/**
 	 * @return userUUID
 	 */
@@ -83,6 +87,8 @@ public interface AuthenticationService {
 	List<String> getRightsForUser(String userUUID, String clientAddr);
 
 	List<String> getContextRightsForUser(String userUUID, String clientAddr, String rightName);
+
+	void setupTOTPWithChecks(ValidationSetupTOTPDto setupDto, String expectedUserUUID);
 
 	////////// Group zone
 

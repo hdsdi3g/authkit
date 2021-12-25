@@ -27,7 +27,6 @@ import static tv.hd3g.authkit.mod.service.TOTPServiceImpl.base32;
 import static tv.hd3g.authkit.mod.service.TOTPServiceImpl.makeCodeAtTime;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUserLogin;
 import static tv.hd3g.authkit.tool.DataGenerator.makeUserPassword;
-import static tv.hd3g.authkit.tool.DataGenerator.thirtyDays;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -58,14 +57,12 @@ import tv.hd3g.authkit.mod.dto.LoginRequestContentDto;
 import tv.hd3g.authkit.mod.dto.Password;
 import tv.hd3g.authkit.mod.dto.validated.AddUserDto;
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
-import tv.hd3g.authkit.mod.dto.validated.ValidationSetupTOTPDto;
 import tv.hd3g.authkit.mod.entity.Credential;
 import tv.hd3g.authkit.mod.entity.User;
 import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException.BadTOTPCodeCantLoginException;
 import tv.hd3g.authkit.mod.repository.CredentialRepository;
-import tv.hd3g.authkit.mod.repository.TotpbackupcodeRepository;
 import tv.hd3g.authkit.tool.DataGenerator;
 
 @SpringBootTest
@@ -79,8 +76,6 @@ class TOTPServiceTest {
 	private SecuredTokenService securedTokenService;
 	@Autowired
 	private CredentialRepository credentialRepository;
-	@Autowired
-	private TotpbackupcodeRepository totpbackupcodeRepository;
 
 	@Value("${authkit.backupCodeQuantity:6}")
 	private int backupCodeQuantity;
@@ -241,33 +236,6 @@ class TOTPServiceTest {
 			Assertions.assertThrows(BadTOTPCodeCantLoginException.class,
 			        () -> totpService.checkCode(credential, String.valueOf(code)));
 		}
-	}
-
-	@Test
-	void setupTOTPWithChecks() throws GeneralSecurityException {
-		final var addUser = new AddUserDto();
-		addUser.setUserLogin(makeUserLogin());
-		final var userPassword = makeUserPassword();
-		addUser.setUserPassword(new Password(userPassword));
-		final var uuid = authenticationService.addUser(addUser);
-		final var secret = totpService.makeSecret();
-		final var backupCodes = totpService.makeBackupCodes();
-
-		final var setupDto = new ValidationSetupTOTPDto();
-		final var checkCode = makeCodeAtTime(base32.decode(secret), System.currentTimeMillis(), timeStepSeconds);
-		setupDto.setTwoauthcode(checkCode);
-		final var controlToken = securedTokenService.setupTOTPGenerateToken(uuid, thirtyDays, secret, backupCodes);
-		setupDto.setControlToken(controlToken);
-		setupDto.setCurrentpassword(new Password(userPassword));
-
-		totpService.setupTOTPWithChecks(setupDto, uuid);
-
-		final var c = credentialRepository.getByUserUUID(uuid);
-		assertNotNull(c);
-		assertNotNull(c.getTotpkey());
-
-		final var actualCodes = totpbackupcodeRepository.getByUserUUID(uuid);
-		assertEquals(backupCodes.size(), actualCodes.size());
 	}
 
 	@Test

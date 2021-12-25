@@ -98,7 +98,7 @@ public class RestControllerMe {
 		if (checkResultFail.isPresent()) {
 			throw new AuthKitException("Actual provided password is invalid: " + checkResultFail.get());
 		} else if (credential.getTotpkey() != null) {
-			totpService.checkCodeAndPassword(credential, chPasswordDto);
+			authenticationService.checkCodeAndPassword(credential, chPasswordDto);
 		}
 		try {
 			authenticationService.changeUserPassword(userUUID, chPasswordDto.getNewpassword());
@@ -149,7 +149,7 @@ public class RestControllerMe {
 		if (credential.getTotpkey() != null) {
 			throw new AuthKitException("2auth was previouly setup: please cancel it before setup a second time.");
 		}
-		totpService.setupTOTPWithChecks(setupDto, userUUID);
+		authenticationService.setupTOTPWithChecks(setupDto, userUUID);
 		return new ResponseEntity<>(OK);
 	}
 
@@ -172,7 +172,7 @@ public class RestControllerMe {
 		if (credential.getTotpkey() == null) {
 			throw new AuthKitException("2auth was not setup.");
 		}
-		totpService.checkCodeAndPassword(credential, validationDto);
+		authenticationService.checkCodeAndPassword(credential, validationDto);
 		totpService.removeTOTP(credential);
 		return new ResponseEntity<>(OK);
 	}

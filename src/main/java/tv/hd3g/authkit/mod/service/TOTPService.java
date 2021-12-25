@@ -20,8 +20,6 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
-import tv.hd3g.authkit.mod.dto.validated.ValidationSetupTOTPDto;
-import tv.hd3g.authkit.mod.dto.validated.ValidationTOTPDto;
 import tv.hd3g.authkit.mod.entity.Credential;
 import tv.hd3g.authkit.mod.entity.User;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException.BadTOTPCodeCantLoginException;
@@ -44,12 +42,10 @@ public interface TOTPService {
 
 	void setupTOTP(String base32Secret, Collection<String> backupCodes, String userUUID);
 
-	void setupTOTPWithChecks(ValidationSetupTOTPDto setupDto, String expectedUserUUID);
-
-	void checkCodeAndPassword(Credential credential, ValidationTOTPDto validationDto);
-
 	void checkCode(Credential credential, String stringCode) throws BadTOTPCodeCantLoginException;
 
 	void removeTOTP(Credential credential);
+
+	boolean isCodeIsValid(byte[] secret, String code);
 
 }

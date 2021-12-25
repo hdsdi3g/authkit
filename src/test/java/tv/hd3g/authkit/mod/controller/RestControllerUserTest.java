@@ -115,7 +115,7 @@ class RestControllerUserTest {
 	private static final ResultMatcher statusOk = status().isOk();
 	private static final ResultMatcher statusPartial = status().isPartialContent();
 	private static final ResultMatcher contentTypeJsonUtf8 = content().contentType(APPLICATION_JSON_VALUE);
-	private static final ResultMatcher statusOkUtf8 = ResultMatcher.matchAll(statusOk, contentTypeJsonUtf8);
+	private static final ResultMatcher[] statusOkUtf8 = new ResultMatcher[] { statusOk, contentTypeJsonUtf8 };
 
 	@BeforeEach
 	private void init() {
@@ -377,7 +377,7 @@ class RestControllerUserTest {
 			mvc.perform(get(baseMapping + "/" + "groups")
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
-			        .andExpect(statusOkUtf8);
+			        .andExpectAll(statusOkUtf8);
 		}
 
 		@Test
@@ -395,7 +395,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(1)))
-			        .andExpect(statusOkUtf8);
+			        .andExpectAll(statusOkUtf8);
 		}
 
 	}
@@ -517,7 +517,7 @@ class RestControllerUserTest {
 			mvc.perform(get(baseMapping + "/" + "roles")
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
-			        .andExpect(statusOkUtf8);
+			        .andExpectAll(statusOkUtf8);
 		}
 
 		@Test
@@ -534,7 +534,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(1)))
-			        .andExpect(statusOkUtf8);
+			        .andExpectAll(statusOkUtf8);
 		}
 
 	}
@@ -572,7 +572,7 @@ class RestControllerUserTest {
 			mvc.perform(get(baseMapping + "/" + "rights")
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
-			        .andExpect(statusOkUtf8);
+			        .andExpectAll(statusOkUtf8);
 		}
 
 		@Test
@@ -587,7 +587,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(1)))
-			        .andExpect(statusOkUtf8);
+			        .andExpectAll(statusOkUtf8);
 		}
 
 		@Test
@@ -604,7 +604,7 @@ class RestControllerUserTest {
 			        .headers(baseHeaders))
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(1)))
-			        .andExpect(statusOkUtf8);
+			        .andExpectAll(statusOkUtf8);
 		}
 
 		@Test
@@ -653,7 +653,7 @@ class RestControllerUserTest {
 		        .headers(baseHeaders))
 		        .andExpect(jsonPath("$.items").isArray())
 		        .andExpect(jsonPath("$.items.length()", is(1)))
-		        .andExpect(statusOkUtf8);
+		        .andExpectAll(statusOkUtf8);
 	}
 
 	@Test
@@ -670,7 +670,7 @@ class RestControllerUserTest {
 		        .headers(baseHeaders))
 		        .andExpect(jsonPath("$.items").isArray())
 		        .andExpect(jsonPath("$.items.length()", is(1)))
-		        .andExpect(statusOkUtf8);
+		        .andExpectAll(statusOkUtf8);
 	}
 
 	@Nested
@@ -715,7 +715,7 @@ class RestControllerUserTest {
 			        .andExpect(jsonPath("$.phone").value(expected.getPhone()))
 			        .andExpect(jsonPath("$.postalcode").value(expected.getPostalcode()))
 			        .andExpect(jsonPath("$.userUUID").value(expected.getUserUUID()))
-			        .andExpect(statusOkUtf8);
+			        .andExpectAll(statusOkUtf8);
 		}
 
 		@Test
@@ -729,7 +729,7 @@ class RestControllerUserTest {
 			        .content(objectMapper.writeValueAsString(userUUIDList)))
 			        .andExpect(jsonPath("$.items").isArray())
 			        .andExpect(jsonPath("$.items.length()", is(uuidList.size())))
-			        .andExpect(statusOkUtf8);
+			        .andExpectAll(statusOkUtf8);
 		}
 
 		@Test
