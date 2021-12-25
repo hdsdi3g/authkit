@@ -32,7 +32,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Type; // NOSONAR S1874 (https://hibernate.atlassian.net/browse/HHH-14935)
 
 @Entity
 @Table(name = "credential")
@@ -52,7 +52,7 @@ public class Credential extends BaseEntity {
 	private String realm;
 
 	@NotNull
-	@Type(type = "org.hibernate.type.NumericBooleanType")
+	@Type(type = "org.hibernate.type.NumericBooleanType") // NOSONAR S1874 (https://hibernate.atlassian.net/browse/HHH-14935)
 	@Column(columnDefinition = "TINYINT")
 	private boolean enabled;
 
@@ -71,7 +71,7 @@ public class Credential extends BaseEntity {
 	private User user;
 
 	@NotNull
-	@Type(type = "org.hibernate.type.NumericBooleanType")
+	@Type(type = "org.hibernate.type.NumericBooleanType") // NOSONAR S1874 (https://hibernate.atlassian.net/browse/HHH-14935)
 	@Column(columnDefinition = "TINYINT")
 	private boolean mustchangepassword;
 

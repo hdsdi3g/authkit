@@ -36,6 +36,7 @@ import static tv.hd3g.authkit.tool.DataGenerator.makeUserPassword;
 import static tv.hd3g.authkit.tool.DataGenerator.thirtyDays;
 
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.List;
@@ -65,6 +66,7 @@ import tv.hd3g.authkit.mod.dto.validated.AddUserDto;
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
 import tv.hd3g.authkit.mod.dto.validated.RenameGroupOrRoleDto;
 import tv.hd3g.authkit.mod.dto.validated.TOTPLogonCodeFormDto;
+import tv.hd3g.authkit.mod.dto.validated.ValidationSetupTOTPDto;
 import tv.hd3g.authkit.mod.exception.AuthKitException;
 import tv.hd3g.authkit.mod.exception.BlockedUserException;
 import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException;
@@ -81,6 +83,7 @@ import tv.hd3g.authkit.mod.repository.GroupRepository;
 import tv.hd3g.authkit.mod.repository.RoleRepository;
 import tv.hd3g.authkit.mod.repository.RoleRightContextRepository;
 import tv.hd3g.authkit.mod.repository.RoleRightRepository;
+import tv.hd3g.authkit.mod.repository.TotpbackupcodeRepository;
 import tv.hd3g.authkit.mod.repository.UserDao;
 import tv.hd3g.authkit.tool.DataGenerator;
 
@@ -105,6 +108,8 @@ class AuthenticationServiceTest {
 	private RoleRightContextRepository roleRightContextRepository;
 	@Autowired
 	private TOTPService totpService;
+	@Autowired
+	private TotpbackupcodeRepository totpbackupcodeRepository;
 
 	@Value("${authkit.longSessionDuration:24h}")
 	private Duration longSessionDuration;
@@ -458,6 +463,33 @@ class AuthenticationServiceTest {
 		}
 	}
 
+	@Test
+	void setupTOTPWithChecks() throws GeneralSecurityException {
+		final var addUser = new AddUserDto();
+		addUser.setUserLogin(makeUserLogin());
+		final var userPassword = makeUserPassword();
+		addUser.setUserPassword(new Password(userPassword));
+		final var uuid = authenticationService.addUser(addUser);
+		final var secret = totpService.makeSecret();
+		final var backupCodes = totpService.makeBackupCodes();
+
+		final var setupDto = new ValidationSetupTOTPDto();
+		final var checkCode = makeCodeAtTime(base32.decode(secret), System.currentTimeMillis(), timeStepSeconds);
+		setupDto.setTwoauthcode(checkCode);
+		final var controlToken = securedTokenService.setupTOTPGenerateToken(uuid, thirtyDays, secret, backupCodes);
+		setupDto.setControlToken(controlToken);
+		setupDto.setCurrentpassword(new Password(userPassword));
+
+		authenticationService.setupTOTPWithChecks(setupDto, uuid);
+
+		final var c = credentialRepository.getByUserUUID(uuid);
+		assertNotNull(c);
+		assertNotNull(c.getTotpkey());
+
+		final var actualCodes = totpbackupcodeRepository.getByUserUUID(uuid);
+		assertEquals(backupCodes.size(), actualCodes.size());
+	}
+
 	@Nested
 	class UserLoginRequest {
 
@@ -502,7 +534,7 @@ class AuthenticationServiceTest {
 				loginForm.setUserpassword(new Password(ldapSimpleUserPassword));
 
 				final var c1 = credentialRepository.getFromRealmLogin(realm, ldapSimpleUserName);
-				assertNull(c1);
+				assertNotNull(c1);
 
 				final var uuid = c1.getUser().getUuid();
 				checkLoginRequestContent(authenticationService.userLoginRequest(request, loginForm), uuid);
@@ -522,7 +554,7 @@ class AuthenticationServiceTest {
 				}
 				final var c0 = credentialRepository.getFromRealmLogin(realm, ldapSimpleUserName);
 				final var u0 = credentialRepository.getUUIDFromRealmLogin(realm, ldapSimpleUserName);
-				assertNull(c0);
+				assertNotNull(c0);
 				assertNull(u0);
 				final var uuid = c0.getUser().getUuid();
 

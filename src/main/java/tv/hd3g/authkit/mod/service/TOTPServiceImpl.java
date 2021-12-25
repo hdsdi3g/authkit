@@ -17,7 +17,6 @@
 package tv.hd3g.authkit.mod.service;
 
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.apache.commons.lang3.StringUtils.leftPad;
 import static org.owasp.encoder.Encode.forJavaScript;
 
@@ -36,8 +35,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base32;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -49,22 +46,16 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
-import tv.hd3g.authkit.mod.dto.SetupTOTPTokenDto;
-import tv.hd3g.authkit.mod.dto.validated.ValidationSetupTOTPDto;
-import tv.hd3g.authkit.mod.dto.validated.ValidationTOTPDto;
 import tv.hd3g.authkit.mod.entity.Credential;
 import tv.hd3g.authkit.mod.entity.Totpbackupcode;
 import tv.hd3g.authkit.mod.entity.User;
 import tv.hd3g.authkit.mod.exception.AuthKitException;
-import tv.hd3g.authkit.mod.exception.NotAcceptableSecuredTokenException;
 import tv.hd3g.authkit.mod.exception.UserCantLoginException.BadTOTPCodeCantLoginException;
 import tv.hd3g.authkit.mod.repository.CredentialRepository;
 import tv.hd3g.authkit.mod.repository.TotpbackupcodeRepository;
 
 @Service
 public class TOTPServiceImpl implements TOTPService {
-	private static Logger log = LogManager.getLogger();
-
 	public static final Base32 base32 = new Base32(false);
 
 	@Autowired
@@ -73,10 +64,6 @@ public class TOTPServiceImpl implements TOTPService {
 	private CredentialRepository credentialRepository;
 	@Autowired
 	private TotpbackupcodeRepository totpbackupcodeRepository;
-	@Autowired
-	private AuthenticationService authenticationService;
-	@Autowired
-	private SecuredTokenService securedTokenService;
 
 	@Value("${authkit.backupCodeQuantity:6}")
 	private int backupCodeQuantity;
@@ -145,34 +132,7 @@ public class TOTPServiceImpl implements TOTPService {
 	}
 
 	@Override
-	@Transactional(readOnly = false)
-	public void setupTOTPWithChecks(final ValidationSetupTOTPDto setupDto, final String expectedUserUUID) {
-		final SetupTOTPTokenDto validatedToken;
-		try {
-			validatedToken = securedTokenService.setupTOTPExtractToken(setupDto.getControlToken());
-		} catch (final NotAcceptableSecuredTokenException e) {
-			log.error("Invalid token", e);
-			throw new AuthKitException("You can't use this token");
-		}
-		if (expectedUserUUID.equalsIgnoreCase(validatedToken.getUserUUID()) == false) {
-			throw new AuthKitException("You can't use this token for this user");
-		}
-
-		final var secret = base32.decode(validatedToken.getSecret());
-		if (isCodeIsValid(secret, setupDto.getTwoauthcode()) == false) {
-			throw new AuthKitException("Invalid code");
-		}
-
-		final var credential = credentialRepository.getByUserUUID(expectedUserUUID);
-		final var rejected = authenticationService.checkPassword(setupDto.getCurrentpassword(), credential);
-		if (rejected.isPresent()) {
-			throw new AuthKitException(SC_UNAUTHORIZED,
-			        "Can't accept demand, bad password ; " + rejected.get().toString());
-		}
-		setupTOTP(validatedToken.getSecret(), validatedToken.getBackupCodes(), expectedUserUUID);
-	}
-
-	private boolean isCodeIsValid(final byte[] secret, final String code) {
+	public boolean isCodeIsValid(final byte[] secret, final String code) {
 		try {
 			final var now = System.currentTimeMillis();
 			final var actualCode = makeCodeAtTime(secret, now, timeStepSeconds);
@@ -191,20 +151,6 @@ public class TOTPServiceImpl implements TOTPService {
 			throw new AuthKitException(SC_INTERNAL_SERVER_ERROR, "Can't manage cipher tools");
 		}
 		return false;
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public void checkCodeAndPassword(final Credential credential, final ValidationTOTPDto validationDto) {
-		final var optPassword = authenticationService.checkPassword(validationDto.getCurrentpassword(), credential);
-		if (optPassword.isPresent()) {
-			throw new AuthKitException(SC_UNAUTHORIZED, "Invalid password: " + optPassword.get());
-		}
-		try {
-			checkCode(credential, validationDto.getTwoauthcode());
-		} catch (final BadTOTPCodeCantLoginException e) {
-			throw new AuthKitException(SC_UNAUTHORIZED, "Invalid 2auth code");
-		}
 	}
 
 	@Override
