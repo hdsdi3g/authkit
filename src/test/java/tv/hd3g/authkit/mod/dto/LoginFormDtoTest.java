@@ -31,8 +31,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.github.javafaker.Faker;
-
+import net.datafaker.Faker;
 import tv.hd3g.authkit.mod.dto.validated.LoginFormDto;
 
 class LoginFormDtoTest {
