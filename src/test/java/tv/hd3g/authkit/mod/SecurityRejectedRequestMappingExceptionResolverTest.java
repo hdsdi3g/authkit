@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -114,13 +113,13 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 	void testDoResolveException_noREST_withControllerType_withUUID_errorIsSecurityRejected() {
 		requestException = Mockito.mock(UnauthorizedRequestException.class);
 
-		when(request.getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME))).thenReturn(CLASSIC);
+		when(request.getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME)).thenReturn(CLASSIC);
 		when(request.getRequestURL()).thenReturn(new StringBuffer(requestURL));
 		when(request.getRequestURI()).thenReturn(requestURI);
 		when(request.getQueryString()).thenReturn(requestQueryString);
 		when(requestException.getStatusCode()).thenReturn(statusCode);
 		when(requestException.getUserUUID()).thenReturn(userUUID);
-		when(cookieService.createRedirectAfterLoginCookie(eq(fullURIQueryString)))
+		when(cookieService.createRedirectAfterLoginCookie(fullURIQueryString))
 		        .thenReturn(cookieRedirect);
 
 		final var mav = s.doResolveException(request, response, handler, requestException);
@@ -131,40 +130,40 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		assertEquals(requestURL, model.get("requestURL"));
 		assertTrue((boolean) model.get("isnotlogged"));
 
-		verify(request, atLeastOnce()).getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME));
-		verify(request, atLeastOnce()).getAttribute(eq(USER_TOKEN_ATTRIBUTE_NAME));
+		verify(request, atLeastOnce()).getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME);
+		verify(request, atLeastOnce()).getAttribute(USER_TOKEN_ATTRIBUTE_NAME);
 		verify(request, atLeastOnce()).getRequestURL();
 		verify(request, atLeastOnce()).getRequestURI();
 		verify(request, atLeastOnce()).getQueryString();
 		verify(request, atLeastOnce()).getRemoteAddr();
-		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
+		verify(request, atLeastOnce()).getHeader("X-Forwarded-For");
 		verify(requestException, atLeastOnce()).getMessage();
 		verify(requestException, atLeastOnce()).getStatusCode();
 		verify(requestException, atLeastOnce()).getUserUUID();
-		verify(requestException, times(1)).pushAudit(eq(auditService), eq(request));
-		verify(cookieService, atLeastOnce()).createRedirectAfterLoginCookie(eq(fullURIQueryString));
-		verify(cookieRedirect, atLeastOnce()).setSecure(eq(true));
-		verify(response, atLeastOnce()).addCookie(eq(cookieRedirect));
+		verify(requestException, times(1)).pushAudit(auditService, request);
+		verify(cookieService, atLeastOnce()).createRedirectAfterLoginCookie(fullURIQueryString);
+		verify(cookieRedirect, atLeastOnce()).setSecure(true);
+		verify(response, atLeastOnce()).addCookie(cookieRedirect);
 	}
 
 	@Test
 	void testDoResolveException_withoutControllerType() {
-		when(request.getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME))).thenReturn(null);
+		when(request.getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME)).thenReturn(null);
 
 		final var mav = s.doResolveException(request, response, handler, requestException);
 		assertNull(mav);
 
-		verify(request, atLeastOnce()).getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME));
+		verify(request, atLeastOnce()).getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME);
 		verify(request, atLeast(0)).getRequestURI();
 	}
 
 	@Test
 	void testDoResolveException_genericError() {
-		when(request.getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME))).thenReturn(CLASSIC);
+		when(request.getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME)).thenReturn(CLASSIC);
 		final var mav = s.doResolveException(request, response, handler, new Exception());
 		assertNull(mav);
 
-		verify(request, atLeastOnce()).getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME));
+		verify(request, atLeastOnce()).getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME);
 		verify(request, atLeast(0)).getRequestURI();
 	}
 
@@ -172,12 +171,12 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 	void testDoResolveException_noREST_withControllerType_withoutUUID_errorIsSecurityRejected() {
 		requestException = Mockito.mock(UnauthorizedRequestException.class);
 
-		when(request.getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME))).thenReturn(CLASSIC);
+		when(request.getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME)).thenReturn(CLASSIC);
 		when(request.getRequestURL()).thenReturn(new StringBuffer(requestURL));
 		when(request.getRequestURI()).thenReturn(requestURI);
 		when(request.getQueryString()).thenReturn(requestQueryString);
 		when(requestException.getStatusCode()).thenReturn(statusCode);
-		when(cookieService.createRedirectAfterLoginCookie(eq(fullURIQueryString)))
+		when(cookieService.createRedirectAfterLoginCookie(fullURIQueryString))
 		        .thenReturn(cookieRedirect);
 
 		final var mav = s.doResolveException(request, response, handler, requestException);
@@ -188,27 +187,27 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		assertEquals(requestURL, model.get("requestURL"));
 		assertTrue((boolean) model.get("isnotlogged"));
 
-		verify(request, atLeastOnce()).getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME));
-		verify(request, atLeastOnce()).getAttribute(eq(USER_TOKEN_ATTRIBUTE_NAME));
+		verify(request, atLeastOnce()).getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME);
+		verify(request, atLeastOnce()).getAttribute(USER_TOKEN_ATTRIBUTE_NAME);
 		verify(request, atLeastOnce()).getRequestURL();
 		verify(request, atLeastOnce()).getRequestURI();
 		verify(request, atLeastOnce()).getQueryString();
 		verify(request, atLeastOnce()).getRemoteAddr();
-		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
+		verify(request, atLeastOnce()).getHeader("X-Forwarded-For");
 		verify(requestException, atLeastOnce()).getMessage();
 		verify(requestException, atLeastOnce()).getStatusCode();
 		verify(requestException, atLeastOnce()).getUserUUID();
-		verify(requestException, times(1)).pushAudit(eq(auditService), eq(request));
-		verify(cookieService, atLeastOnce()).createRedirectAfterLoginCookie(eq(fullURIQueryString));
-		verify(cookieRedirect, atLeastOnce()).setSecure(eq(true));
-		verify(response, atLeastOnce()).addCookie(eq(cookieRedirect));
+		verify(requestException, times(1)).pushAudit(auditService, request);
+		verify(cookieService, atLeastOnce()).createRedirectAfterLoginCookie(fullURIQueryString);
+		verify(cookieRedirect, atLeastOnce()).setSecure(true);
+		verify(response, atLeastOnce()).addCookie(cookieRedirect);
 	}
 
 	@Test
 	void testDoResolveException_noREST_OtherError() {
 		requestException = Mockito.mock(ForbiddenRequestException.class);
 
-		when(request.getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME))).thenReturn(CLASSIC);
+		when(request.getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME)).thenReturn(CLASSIC);
 		when(request.getRequestURL()).thenReturn(new StringBuffer(requestURL));
 		when(requestException.getStatusCode()).thenReturn(statusCode);
 
@@ -220,21 +219,21 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		assertEquals(requestURL, model.get("requestURL"));
 		assertTrue((boolean) model.get("isnotlogged"));
 
-		verify(request, atLeastOnce()).getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME));
-		verify(request, atLeastOnce()).getAttribute(eq(USER_TOKEN_ATTRIBUTE_NAME));
+		verify(request, atLeastOnce()).getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME);
+		verify(request, atLeastOnce()).getAttribute(USER_TOKEN_ATTRIBUTE_NAME);
 		verify(request, atLeastOnce()).getRequestURL();
 		verify(request, atLeastOnce()).getRequestURI();
 		verify(request, atLeastOnce()).getRemoteAddr();
-		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
+		verify(request, atLeastOnce()).getHeader("X-Forwarded-For");
 		verify(requestException, atLeastOnce()).getMessage();
 		verify(requestException, atLeastOnce()).getStatusCode();
 		verify(requestException, atLeastOnce()).getUserUUID();
-		verify(requestException, times(1)).pushAudit(eq(auditService), eq(request));
+		verify(requestException, times(1)).pushAudit(auditService, request);
 	}
 
 	@Test
 	void testDoResolveException_REST_withControllerType_withUUID_errorIsSecurityRejected() throws IOException {
-		when(request.getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME))).thenReturn(REST);
+		when(request.getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME)).thenReturn(REST);
 		when(request.getRequestURL()).thenReturn(new StringBuffer(requestURL));
 		when(requestException.getStatusCode()).thenReturn(statusCode);
 		when(requestException.getUserUUID()).thenReturn(userUUID);
@@ -244,15 +243,15 @@ class SecurityRejectedRequestMappingExceptionResolverTest {
 		assertNull(mav.getViewName());
 		assertEquals(0, mav.getModel().size());
 
-		verify(request, atLeastOnce()).getAttribute(eq(CONTROLLER_TYPE_ATTRIBUTE_NAME));
+		verify(request, atLeastOnce()).getAttribute(CONTROLLER_TYPE_ATTRIBUTE_NAME);
 		verify(request, atLeastOnce()).getRequestURI();
 		verify(request, atLeastOnce()).getRemoteAddr();
-		verify(request, atLeastOnce()).getHeader(eq("X-Forwarded-For"));
+		verify(request, atLeastOnce()).getHeader("X-Forwarded-For");
 		verify(requestException, atLeastOnce()).getMessage();
 		verify(requestException, atLeastOnce()).getStatusCode();
 		verify(requestException, atLeastOnce()).getUserUUID();
-		verify(requestException, times(1)).pushAudit(eq(auditService), eq(request));
-		verify(response, times(1)).sendError(eq(statusCode.value()));
+		verify(requestException, times(1)).pushAudit(auditService, request);
+		verify(response, times(1)).sendError(statusCode.value());
 	}
 
 	@Test

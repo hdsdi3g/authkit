@@ -18,7 +18,7 @@ package tv.hd3g.authkit.mod.exception;
 
 public abstract class NotAcceptableSecuredTokenException extends Exception {
 
-	public NotAcceptableSecuredTokenException() {
+	protected NotAcceptableSecuredTokenException() {
 	}
 
 	private NotAcceptableSecuredTokenException(final String message) {

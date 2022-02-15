@@ -20,7 +20,6 @@ import static java.net.InetAddress.getByName;
 import static java.time.Duration.ofDays;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
-import static org.mockito.ArgumentMatchers.eq;
 import static net.datafaker.Faker.instance;
 import static tv.hd3g.authkit.mod.ControllerInterceptor.USER_UUID_ATTRIBUTE_NAME;
 
@@ -101,13 +100,13 @@ public class DataGenerator {
 	}
 
 	public static byte[] makeRandomBytes(final int count) {
-		final byte[] secret = new byte[count];
+		final var secret = new byte[count];
 		secureRandom.nextBytes(secret);
 		return secret;
 	}
 
 	public static <T extends Enum<?>> T getRandomEnum(final Class<T> enum_class) {
-		final int x = random.nextInt(enum_class.getEnumConstants().length);
+		final var x = random.nextInt(enum_class.getEnumConstants().length);
 		return enum_class.getEnumConstants()[x];
 	}
 
@@ -204,7 +203,7 @@ public class DataGenerator {
 		Mockito.when(request.getMethod()).thenReturn("get");
 
 		if (userUUID != null) {
-			Mockito.when(request.getAttribute(eq(USER_UUID_ATTRIBUTE_NAME))).thenReturn(userUUID);
+			Mockito.when(request.getAttribute(USER_UUID_ATTRIBUTE_NAME)).thenReturn(userUUID);
 		}
 		return remoteAddr;
 	}

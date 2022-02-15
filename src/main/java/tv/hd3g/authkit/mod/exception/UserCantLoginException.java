@@ -23,7 +23,7 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 public abstract class UserCantLoginException extends Exception {
 
-	public UserCantLoginException(final int httpReturnCode) {
+	protected UserCantLoginException(final int httpReturnCode) {
 		this.httpReturnCode = httpReturnCode;
 	}
 

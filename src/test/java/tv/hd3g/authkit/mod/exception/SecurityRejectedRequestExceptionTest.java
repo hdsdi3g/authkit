@@ -18,7 +18,6 @@ package tv.hd3g.authkit.mod.exception;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -115,7 +114,7 @@ class SecurityRejectedRequestExceptionTest {
 
 		@Override
 		void afterPushAudit() {
-			verify(auditService, only()).interceptUnauthorizedRequest(eq(request));
+			verify(auditService, only()).interceptUnauthorizedRequest(request);
 		}
 
 		@Override
@@ -135,7 +134,7 @@ class SecurityRejectedRequestExceptionTest {
 
 		@Override
 		void afterPushAudit() {
-			verify(auditService, only()).interceptUnauthorizedRequest(eq(request));
+			verify(auditService, only()).interceptUnauthorizedRequest(request);
 		}
 
 		@Override
@@ -158,7 +157,7 @@ class SecurityRejectedRequestExceptionTest {
 
 		@Override
 		void afterPushAudit() {
-			verify(auditService, only()).interceptForbiddenRequest(eq(request));
+			verify(auditService, only()).interceptForbiddenRequest(request);
 		}
 
 		@Override
